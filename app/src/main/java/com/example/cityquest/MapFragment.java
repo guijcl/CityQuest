@@ -143,7 +143,7 @@ public class MapFragment extends Fragment {
 
         View bottomSheet = view.findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        //bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+         //bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
         return view;
     }
