@@ -1,7 +1,6 @@
-package com.example.cityquest;
+package com.example.cityquest.fragments;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -9,14 +8,22 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.cityquest.R;
+import com.example.cityquest.activities.MainActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -28,41 +35,24 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.navigation.NavigationView;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
 
-    GoogleMap googleMap;
-    MarkerOptions markerOptions;
+    private View view;
+
+    private GoogleMap googleMap;
+    private MarkerOptions markerOptions;
     private FusedLocationProviderClient fusedLocationClient;
-    LocationRequest mLocationRequest;
+    private LocationRequest mLocationRequest;
 
-    private BottomSheetBehavior bottomSheetBehavior;
+    //private BottomSheetBehavior bottomSheetBehavior;
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1, mParam2;
-
-    public MapFragment() {
-    }
-
-    public static MapFragment newInstance(String param1, String param2) {
-        MapFragment fragment = new MapFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public MapFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
         markerOptions = new MarkerOptions();
 
@@ -110,7 +100,22 @@ public class MapFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_map, container, false);
+        view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        Toolbar toolbar = view.findViewById(R.id.main_toolbar);
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
+
+        DrawerLayout drawerLayout = view.findViewById(R.id.drawer);
+        NavigationView navigationView = view.findViewById(R.id.nav_menu);
+
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
+                requireActivity(), drawerLayout, toolbar, R.string.open, R.string.close
+        );
+
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+
 
         SupportMapFragment supportMapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.google_map);
@@ -121,6 +126,7 @@ public class MapFragment extends Fragment {
                     && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 //return TODO;
             }
+            googleMap.getUiSettings().setCompassEnabled(false);
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(requireActivity(), location -> {
                         if (location != null) {
@@ -141,9 +147,9 @@ public class MapFragment extends Fragment {
             setMap(googleMap);
         });
 
-        View bottomSheet = view.findViewById(R.id.bottom_sheet);
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-         //bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        //View bottomSheet = view.findViewById(R.id.bottom_sheet);
+        //bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        //bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
         return view;
     }
@@ -153,8 +159,9 @@ public class MapFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        requireActivity().finish();
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        boolean ret = ((MainActivity) requireActivity()).onNavigationItemSelected(item);
+        if(ret) ((DrawerLayout) view.findViewById(R.id.drawer)).closeDrawer(GravityCompat.START);
+        return ret;
     }
 }

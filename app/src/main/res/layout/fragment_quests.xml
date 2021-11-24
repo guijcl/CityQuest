@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.QuestsFragment"
+    android:background="#282832">
+
+    <LinearLayout
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:weightSum="2"
+        android:orientation="vertical"
+        android:paddingTop="30dp"
+        android:paddingBottom="5dp"
+        app:contentInsetStart="0dp">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textSize="20sp"
+            android:hint="@string/search_menu"
+            android:textColorHint="#CCCCCC"
+            android:textColor="#CCCCCC"/>
+        <LinearLayout
+            android:paddingTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="2"
+            android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Category"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_marginRight="5dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteOne"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:inputType="none"
+                    android:textColor="#CCCCCC"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Order By"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_marginLeft="5dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteTwo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:inputType="none"
+                    android:textColor="#CCCCCC"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+
+        android:weightSum="5"
+        android:layout_marginTop="140dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="4"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/quest"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:text="QUEST NAME AND DESCRIPTION"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="4"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/quest"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:text="QUEST NAME AND DESCRIPTION"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="4"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/quest"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:text="QUEST NAME AND DESCRIPTION"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="4"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/quest"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:text="QUEST NAME AND DESCRIPTION"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="4"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/quest"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:text="QUEST NAME AND DESCRIPTION"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
