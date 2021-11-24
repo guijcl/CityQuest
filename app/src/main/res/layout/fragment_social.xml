@@ -3,12 +3,316 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.SocialFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.SocialFragment"
+    android:background="#282832">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:weightSum="2"
+        android:orientation="vertical"
+        android:paddingTop="30dp"
+        android:paddingBottom="5dp"
+        app:contentInsetStart="0dp">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textSize="20sp"
+            android:hint="@string/search_menu"
+            android:textColorHint="#CCCCCC"
+            android:textColor="#CCCCCC"/>
+        <LinearLayout
+            android:paddingTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="2"
+            android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Filter"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_marginRight="5dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteOne"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:inputType="none"
+                    android:textColor="#CCCCCC"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Order By"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_marginLeft="5dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteTwo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:inputType="none"
+                    android:textColor="#CCCCCC"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        app:contentInsetStart="0dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:weightSum="9"
+        android:orientation="vertical"
+        android:layout_marginTop="140dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp">
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User1"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="#5AFF00"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="#5AFF00"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User2"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="#5AFF00"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="#5AFF00"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User3"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="#5AFF00"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="#5AFF00"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User4"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="@android:color/darker_gray"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User5"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="@android:color/darker_gray"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User6"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="#5AFF00"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="#5AFF00"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User7"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="#5AFF00"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="#5AFF00"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User8"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="@android:color/darker_gray"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/friend_card"
+            android:layout_marginTop="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="User9"
+                android:gravity="center_vertical"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="20dp"
+                android:textColor="#5AFF00"
+                tools:ignore="RtlCompat" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Online"
+                android:textAlignment="viewEnd"
+                android:gravity="center_vertical"
+                android:textColor="#5AFF00"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+    </LinearLayout>
 
 </FrameLayout>

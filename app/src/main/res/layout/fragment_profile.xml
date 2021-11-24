@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.ProfileFragment"
-    android:paddingTop="25dp">
+    android:paddingTop="25dp"
+    android:background="#282832">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,11 +24,14 @@
                 android:layout_height="100dp"
                 android:layout_marginEnd="40dp"
                 android:background="@drawable/profile_pic" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="USERNAME\nRANK: "
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textColor="@color/white"/>
         </LinearLayout>
 
         <LinearLayout
@@ -40,6 +44,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
                 android:text="LAST QUESTS"
+                android:textStyle="bold"
+                android:textColor="@color/white"
                 android:textSize="24sp"
                 android:layout_marginStart="10dp"/>
             <LinearLayout
@@ -82,6 +88,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
                 android:text="LAST TOURNAMENTS"
+                android:textStyle="bold"
+                android:textColor="@color/white"
                 android:textSize="24sp"
                 android:layout_marginLeft="10dp"/>
             <LinearLayout
@@ -123,7 +131,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
-                android:text="FRIENDS"
+                android:text="LAST VISITED SPOTS"
+                android:textStyle="bold"
+                android:textColor="@color/white"
                 android:textSize="24sp"
                 android:layout_marginStart="10dp"/>
             <LinearLayout
@@ -134,10 +144,10 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="25dp"
+                    android:gravity="center_vertical|center_horizontal"
                     android:layout_weight="3"
-                    android:text="NO FRIENDS YET"
+                    android:text="NONE"
+                    android:textColor="#CCCCCC"
                     android:textSize="24sp"
                     android:textAlignment="center" />
             </LinearLayout>
