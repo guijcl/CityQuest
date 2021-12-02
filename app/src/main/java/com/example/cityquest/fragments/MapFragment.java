@@ -21,9 +21,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.example.cityquest.R;
 import com.example.cityquest.activities.MainActivity;
+import com.example.cityquest.bottomSheet.BottomSheetItem;
+import com.example.cityquest.bottomSheet.BottomSheetItemAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -35,9 +38,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 
-public class MapFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
+import java.util.ArrayList;
+
+public class MapFragment extends Fragment {
 
     private View view;
 
@@ -46,7 +52,7 @@ public class MapFragment extends Fragment implements NavigationView.OnNavigation
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest mLocationRequest;
 
-    //private BottomSheetBehavior bottomSheetBehavior;
+    private BottomSheetBehavior bottomSheetBehavior;
 
     public MapFragment() {}
 
@@ -100,9 +106,9 @@ public class MapFragment extends Fragment implements NavigationView.OnNavigation
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_map, container, false);
+        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_map, container, false);
 
-        Toolbar toolbar = view.findViewById(R.id.main_toolbar);
+        /*Toolbar toolbar = view.findViewById(R.id.main_toolbar);
         ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
 
         DrawerLayout drawerLayout = view.findViewById(R.id.drawer);
@@ -114,7 +120,7 @@ public class MapFragment extends Fragment implements NavigationView.OnNavigation
 
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setNavigationItemSelectedListener(this);*/
 
 
         SupportMapFragment supportMapFragment = (SupportMapFragment)
@@ -147,9 +153,18 @@ public class MapFragment extends Fragment implements NavigationView.OnNavigation
             setMap(googleMap);
         });
 
-        //View bottomSheet = view.findViewById(R.id.bottom_sheet);
-        //bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        //bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        View bottomSheet = view.findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setPeekHeight(200);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        ListView listView = view.findViewById(R.id.listQuests);
+        ArrayList<BottomSheetItem> arr = new ArrayList<>();
+        while(arr.size() < 3) {
+            arr.add(new BottomSheetItem());
+        }
+        BottomSheetItemAdapter adapter = new BottomSheetItemAdapter(getActivity(),0,arr);
+        listView.setAdapter(adapter);
 
         return view;
     }
@@ -158,10 +173,10 @@ public class MapFragment extends Fragment implements NavigationView.OnNavigation
         googleMap = m;
     }
 
-    @Override
+    /*@Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         boolean ret = ((MainActivity) requireActivity()).onNavigationItemSelected(item);
         if(ret) ((DrawerLayout) view.findViewById(R.id.drawer)).closeDrawer(GravityCompat.START);
         return ret;
-    }
+    }*/
 }

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/purple_dark">
+
+    <androidx.legacy.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/drawer_close"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"/>
+
+    <androidx.legacy.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"/>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:srcCompat="@drawable/profile_image"
+        android:translationX="30dp"/>
+
+    <androidx.legacy.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="10dp"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="User Loged"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:translationX="30dp"/>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@UserLoged"
+        android:textColor="@color/white"
+        android:textStyle="italic"
+        android:translationX="30dp"/>
+
+    <androidx.legacy.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/drawer_list"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"/>
+
+
+
+</LinearLayout>

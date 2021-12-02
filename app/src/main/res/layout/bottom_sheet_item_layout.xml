@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="20dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/bottom_sheet_item" />
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:padding="5dp"
+            android:src="@drawable/quests_icon" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="120dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:gravity="bottom"
+                android:paddingBottom="1dp"
+                android:text="Quest"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="25dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:gravity="top"
+                android:paddingBottom="1dp"
+                android:text="Quest's description"
+                android:textColor="@color/white"
+                android:textSize="17dp"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
