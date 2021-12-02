@@ -82,7 +82,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder
         notifyItemChanged(position);
 
         if (listener != null) {
-            System.out.println(position);
             if(position != 8 && !newChecked.getItemName().equals(""))
                 listener.onItemSelected(position + 1);
             else

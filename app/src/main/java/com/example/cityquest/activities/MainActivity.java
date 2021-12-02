@@ -36,9 +36,7 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener, FragmentManager.OnBackStackChangedListener {
 
-    //Resolver problema de indices!!
     private static final int POS_CLOSE = 0;
-    
     private static final int POS_MAIN_MAP = 1;
     private static final int POS_PROFILE = 2;
     private static final int POS_QUESTS = 3;
