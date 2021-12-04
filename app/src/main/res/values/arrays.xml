@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="id_activityScreenTitles">
+
+        <item></item>
+        <item>Dashboard</item>
+        <item>My Profile</item>
+        <item>My Quests</item>
+        <item>Competitive</item>
+        <item>Social</item>
+        <item>Settings</item>
+        <item>About Us</item>
+        <item>Signup</item>
+
+    </string-array>
+
+    <string-array name="id_activityScreenIcons">
+
+        <item>@menu/close_icon</item>
+        <item>@menu/dashboard_icon</item>
+        <item>@menu/profile_icon</item>
+        <item>@menu/quest_icon</item>
+        <item>@menu/competitive_icon</item>
+        <item>@menu/social_icon</item>
+        <item>@menu/settings_icon</item>
+        <item>@menu/about_icon</item>
+        <item>@menu/signup_icon</item>
+
+    </string-array>
+</resources>
