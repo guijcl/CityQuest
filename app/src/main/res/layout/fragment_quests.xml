@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.QuestsFragment"
+    tools:context=".Fragments.QuestsFragment"
     android:background="#282832">
 
     <LinearLayout
@@ -179,30 +179,13 @@
                 android:textColor="#CCCCCC"/>
         </LinearLayout>
 
-        <LinearLayout
+        <Button
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:weightSum="4"
-            android:orientation="horizontal"
-            android:layout_marginTop="15dp">
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:background="@drawable/quest"
-                android:layout_weight="1" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
-                android:gravity="center_vertical"
-                android:paddingStart="15dp"
-                android:text="QUEST NAME AND DESCRIPTION"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#CCCCCC"/>
-        </LinearLayout>
+            android:id="@+id/create_quest"
+            android:text="Create a new Quest (PROVISÓRIO)">
+        </Button>
 
     </LinearLayout>
 

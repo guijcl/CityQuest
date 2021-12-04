@@ -1,4 +1,4 @@
-package com.example.cityquest.fragments;
+package com.example.cityquest.Fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -16,14 +16,13 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.cityquest.R;
-import com.example.cityquest.activities.MainActivity;
+import com.example.cityquest.Activities.MainActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;

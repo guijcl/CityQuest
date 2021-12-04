@@ -1,4 +1,4 @@
-package com.example.cityquest.activities;
+package com.example.cityquest.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 

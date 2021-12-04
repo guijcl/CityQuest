@@ -1,4 +1,4 @@
-package com.example.cityquest.activities;
+package com.example.cityquest.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,18 +9,28 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.R;
-import com.example.cityquest.fragments.AboutFragment;
-import com.example.cityquest.fragments.CompetitiveFragment;
-import com.example.cityquest.fragments.MapFragment;
-import com.example.cityquest.fragments.ProfileFragment;
-import com.example.cityquest.fragments.QuestsFragment;
-import com.example.cityquest.fragments.SignupFragment;
-import com.example.cityquest.fragments.SocialFragment;
+import com.example.cityquest.Fragments.AboutFragment;
+import com.example.cityquest.Fragments.CompetitiveFragment;
+import com.example.cityquest.Fragments.MapFragment;
+import com.example.cityquest.Fragments.ProfileFragment;
+import com.example.cityquest.Fragments.QuestsFragment;
+import com.example.cityquest.Fragments.SettingsFragment;
+import com.example.cityquest.Fragments.SignupFragment;
+import com.example.cityquest.Fragments.SocialFragment;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
 
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FragmentManager fragmentManager;
 
     @Override
@@ -100,6 +110,13 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                         .addToBackStack(null)
                         .commit();
                 return true;
+            case R.id.settings:
+                fragment = new SettingsFragment();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.frame_layout, fragment, "settings")
+                        .addToBackStack(null)
+                        .commit();
+                return true;
             case R.id.about:
                 fragment = new AboutFragment();
                 fragmentManager.beginTransaction()
@@ -109,6 +126,23 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 return true;
         }
         return false;
+    }
+
+    public void addToDatabase(String collection, Object obj) {
+        db.collection(collection)
+                .add(obj)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Toast.makeText(getApplicationContext(), "SUCCESS", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "FAILURE", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

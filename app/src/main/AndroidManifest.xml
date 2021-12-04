@@ -16,11 +16,11 @@
             android:value="AIzaSyDtKoIQbwsf3XR8cnujJSRwEOkIeaC1TDE"/>
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".Activities.MainActivity"
             android:exported="true"
             android:label="Home"/>
         <activity
-            android:name=".activities.SplashActivity"
+            android:name=".Activities.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
