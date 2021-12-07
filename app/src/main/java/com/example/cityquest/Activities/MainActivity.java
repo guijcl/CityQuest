@@ -1,4 +1,4 @@
-package com.example.cityquest.activities;
+package com.example.cityquest.Activities;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -17,14 +17,14 @@ import android.os.Bundle;
 import android.view.WindowManager;
 
 import com.example.cityquest.R;
-import com.example.cityquest.fragments.AboutFragment;
-import com.example.cityquest.fragments.CompetitiveFragment;
-import com.example.cityquest.fragments.MapFragment;
-import com.example.cityquest.fragments.ProfileFragment;
-import com.example.cityquest.fragments.QuestsFragment;
-import com.example.cityquest.fragments.SettingsFragment;
-import com.example.cityquest.fragments.SignupFragment;
-import com.example.cityquest.fragments.SocialFragment;
+import com.example.cityquest.Fragments.AboutFragment;
+import com.example.cityquest.Fragments.CompetitiveFragment;
+import com.example.cityquest.Fragments.MapFragment;
+import com.example.cityquest.Fragments.ProfileFragment;
+import com.example.cityquest.Fragments.QuestsFragment;
+import com.example.cityquest.Fragments.SettingsFragment;
+import com.example.cityquest.Fragments.SignupFragment;
+import com.example.cityquest.Fragments.SocialFragment;
 import com.example.cityquest.menu.DrawerAdapter;
 import com.example.cityquest.menu.DrawerItem;
 import com.example.cityquest.menu.SimpleItem;
@@ -228,8 +228,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         }
 
         slidingRootNav.closeMenu();
-
-
     }
 
     @Override

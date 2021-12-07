@@ -1,14 +1,10 @@
 package com.example.cityquest.Objects;
 
-import android.graphics.Point;
+import com.example.cityquest.Fragments.Quest;
 
 public class LocQuest extends Quest {
 
-    private Point coord;
-
-    public LocQuest(String name, String desc, Point coord) {
+    public LocQuest(String name, String desc) {
         super(name, desc);
-        this.coord = coord;
     }
-
 }

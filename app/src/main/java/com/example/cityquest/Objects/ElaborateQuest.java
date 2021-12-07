@@ -1,5 +1,7 @@
 package com.example.cityquest.Objects;
 
+import com.example.cityquest.Fragments.Quest;
+
 import java.util.HashMap;
 
 public class ElaborateQuest extends Quest {

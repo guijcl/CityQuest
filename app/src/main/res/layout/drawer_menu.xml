@@ -36,7 +36,7 @@
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="User Loged"
+        android:text="User Logged"
         android:textColor="@color/white"
         android:textSize="20dp"
         android:textStyle="bold"
@@ -46,7 +46,7 @@
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@UserLoged"
+        android:text="@UserLogged"
         android:textColor="@color/white"
         android:textStyle="italic"
         android:translationX="30dp"/>
