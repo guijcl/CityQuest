@@ -45,22 +45,26 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:hint="Task1"/>
+            android:hint="Task1"
+            android:id="@+id/task_1"/>
         <EditText
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:hint="Task2"/>
+            android:hint="Task2"
+            android:id="@+id/task_2"/>
         <EditText
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:hint="Task3"/>
+            android:hint="Task3"
+            android:id="@+id/task_3"/>
         <EditText
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:hint="Task4"/>
+            android:hint="Task4"
+            android:id="@+id/task_4"/>
     </LinearLayout>
 
     <Button
@@ -78,7 +82,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="create"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        tools:layout_editor_absoluteX="77dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.246"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
