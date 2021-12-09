@@ -17,4 +17,5 @@
     <style name="AppTheme.ActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="actionMenuTextColor">@color/black</item>
     </style>
+
 </resources>

@@ -1,30 +1,27 @@
-package com.example.cityquest.fragments;
+package com.example.cityquest.Fragments;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.example.cityquest.R;
-import com.example.cityquest.activities.MainActivity;
 import com.example.cityquest.bottomSheet.BottomSheetItem;
 import com.example.cityquest.bottomSheet.BottomSheetItemAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -34,16 +31,27 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickListener {
+
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private View view;
 
@@ -53,6 +61,9 @@ public class MapFragment extends Fragment {
     private LocationRequest mLocationRequest;
 
     private BottomSheetBehavior bottomSheetBehavior;
+
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
 
     public MapFragment() {}
 
@@ -88,7 +99,8 @@ public class MapFragment extends Fragment {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
-                Location location = locationResult.getLastLocation();
+                /** CODE FOR UPDATING USER LOCATION ON MAP (CLEARS ALL MARKERS, SO IGNORE FOR NOW)
+                 Location location = locationResult.getLastLocation();
                 if (googleMap != null) {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
@@ -98,9 +110,11 @@ public class MapFragment extends Fragment {
 
                     markerOptions.position(latLng);
                     googleMap.addMarker(markerOptions);
-                }
+                }**/
             }
         }, null);
+
+        //FREEZES MAP ANIMATION ON START (FIX LATER WITH USE OF CACHE WHICH MAKES ONLY THE FIRST ANIMATION FREEZE)
     }
 
     @Override
@@ -147,9 +161,39 @@ public class MapFragment extends Fragment {
                                     .build();
                             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-                            googleMap.addMarker(markerOptions);
+                            //googleMap.addMarker(markerOptions); //ADD USER CURRENT LOCATION MARKER
                         }
                     });
+
+            Geocoder geocoder = new Geocoder(MapFragment.this.requireContext());
+            db.collection("loc_quests").get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                List<Address> addressList = null;
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    HashMap data = (HashMap) document.getData();
+                                    try {
+                                        addressList = geocoder.getFromLocationName((String) data.get("name"), 1);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if(addressList != null) {
+                                        if(addressList.size() > 0) {
+                                            Address address = addressList.get(0);
+                                            Log.d("TESTE1", address.toString());
+                                            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                                            googleMap.addMarker(new MarkerOptions().position(latLng).title((String) data.get("name")));
+                                        }
+                                    }
+                                }
+                            } else {
+                                Log.w("ERROR", "Error getting documents.", task.getException());
+                            }
+                        }
+                    });
+
             setMap(googleMap);
         });
 
@@ -171,6 +215,18 @@ public class MapFragment extends Fragment {
 
     public void setMap(GoogleMap m) {
         googleMap = m;
+    }
+
+    @Override
+    public boolean onMarkerClick(@NonNull Marker marker) {
+        dialogBuilder = new AlertDialog.Builder(requireActivity());
+        final View newQuestPopupView = getLayoutInflater().inflate(R.layout.marker_popup, null);
+
+        dialogBuilder.setView(newQuestPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+        return false;
     }
 
     /*@Override

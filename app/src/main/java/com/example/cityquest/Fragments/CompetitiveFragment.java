@@ -1,4 +1,4 @@
-package com.example.cityquest.fragments;
+package com.example.cityquest.Fragments;
 
 import android.os.Bundle;
 

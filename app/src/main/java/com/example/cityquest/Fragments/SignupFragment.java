@@ -1,4 +1,4 @@
-package com.example.cityquest.fragments;
+package com.example.cityquest.Fragments;
 
 import android.os.Bundle;
 
@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 
 import com.example.cityquest.R;
 
-public class AboutFragment extends Fragment {
+public class SignupFragment extends Fragment {
 
-    public AboutFragment() {}
+    public SignupFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -23,6 +23,6 @@ public class AboutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_about, container, false);
+        return inflater.inflate(R.layout.fragment_signup, container, false);
     }
 }
