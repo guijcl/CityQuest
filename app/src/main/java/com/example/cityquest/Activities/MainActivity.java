@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -23,12 +24,13 @@ import com.example.cityquest.Fragments.MapFragment;
 import com.example.cityquest.Fragments.ProfileFragment;
 import com.example.cityquest.Fragments.QuestsFragment;
 import com.example.cityquest.Fragments.SettingsFragment;
-import com.example.cityquest.Fragments.SignupFragment;
 import com.example.cityquest.Fragments.SocialFragment;
 import com.example.cityquest.menu.DrawerAdapter;
 import com.example.cityquest.menu.DrawerItem;
 import com.example.cityquest.menu.SimpleItem;
 import com.example.cityquest.menu.SpaceItem;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int POS_SOCIAL = 5;
     private static final int POS_SETTINGS = 6;
     private static final int POS_ABOUT = 7;
-    private static final int POS_SIGNUP = 8;
+    private static final int POS_LOG_OUT = 8;
 
     private String[] screenTitles;
     private Drawable[] screenIcons;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private SlidingRootNav slidingRootNav;
 
     private FragmentManager fragmentManager;
+
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
+        //-------------------------------------AUTHENTICATION---------------------------------------
+
+        mAuth = FirebaseAuth.getInstance();
 
         //----------------------------------------SIDE MENU-----------------------------------------
 
@@ -99,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 createItemFor(POS_SETTINGS),
                 createItemFor(POS_ABOUT),
                 new SpaceItem(40),
-                createItemFor(POS_SIGNUP)
+                createItemFor(POS_LOG_OUT)
         ));
         adapter.setListener(this);
 
@@ -129,6 +136,15 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .addToBackStack(null)
                 .commit();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser user = mAuth.getCurrentUser();
+        if(user == null) {
+            startActivity(new Intent(MainActivity.this, SignIn.class));
+        }
     }
 
     private DrawerItem createItemFor(int position) {
@@ -218,12 +234,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         .addToBackStack(null)
                         .commit();
                 break;
-            case POS_SIGNUP:
-                SignupFragment signup = new SignupFragment();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.frame_layout, signup, "signup")
-                        .addToBackStack(null)
-                        .commit();
+            case POS_LOG_OUT:
+                mAuth.signOut();
+                startActivity(new Intent(MainActivity.this, SignIn.class));
+                finish();
                 break;
         }
 

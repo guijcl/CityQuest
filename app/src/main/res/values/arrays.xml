@@ -10,7 +10,7 @@
         <item>Social</item>
         <item>Settings</item>
         <item>About Us</item>
-        <item>Signup</item>
+        <item>Log Out</item>
 
     </string-array>
 
@@ -24,7 +24,7 @@
         <item>@menu/social_icon</item>
         <item>@menu/settings_icon</item>
         <item>@menu/about_icon</item>
-        <item>@menu/signup_icon</item>
+        <item>@menu/logout_icon</item>
 
     </string-array>
 </resources>
