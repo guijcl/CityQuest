@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -53,7 +54,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private View view;
+    private String currentUser;
+    private List<String> loc_quest_ids;
 
     private GoogleMap googleMap;
     private MarkerOptions markerOptions;
@@ -113,8 +115,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 }**/
             }
         }, null);
-
-        //FREEZES MAP ANIMATION ON START (FIX LATER WITH USE OF CACHE WHICH MAKES ONLY THE FIRST ANIMATION FREEZE)
     }
 
     @Override
@@ -136,6 +136,19 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         actionBarDrawerToggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);*/
 
+        loc_quest_ids = new ArrayList<>();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("users").document(currentUser).
+                collection("user_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        loc_quest_ids.add(document.getId());
+                    }
+                }
+            }
+        });
 
         SupportMapFragment supportMapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.google_map);
@@ -165,7 +178,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                         }
                     });
 
-            Geocoder geocoder = new Geocoder(MapFragment.this.requireContext());
+
+            //FREEZES MAP ANIMATION ON START (FIX LATER WITH USE OF CACHE WHICH MAKES ONLY THE FIRST ANIMATION FREEZE)
+            Geocoder geocoder = new Geocoder(this.requireContext());
             db.collection("loc_quests").get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -173,18 +188,19 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                             if (task.isSuccessful()) {
                                 List<Address> addressList = null;
                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                    HashMap data = (HashMap) document.getData();
-                                    try {
-                                        addressList = geocoder.getFromLocationName((String) data.get("name"), 1);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    if(addressList != null) {
-                                        if(addressList.size() > 0) {
-                                            Address address = addressList.get(0);
-                                            Log.d("TESTE1", address.toString());
-                                            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                                            googleMap.addMarker(new MarkerOptions().position(latLng).title((String) data.get("name")));
+                                    if(!loc_quest_ids.contains(document.getId())) {
+                                        HashMap data = (HashMap) document.getData();
+                                        try {
+                                            addressList = geocoder.getFromLocationName((String) data.get("name"), 1);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if (addressList != null) {
+                                            if (addressList.size() > 0) {
+                                                Address address = addressList.get(0);
+                                                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                                                googleMap.addMarker(new MarkerOptions().position(latLng).title(address.getFeatureName()));
+                                            }
                                         }
                                     }
                                 }
