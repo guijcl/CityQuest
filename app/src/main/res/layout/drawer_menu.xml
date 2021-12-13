@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/purple_dark">
+    android:background="@drawable/sidemenubackground">
 
     <androidx.legacy.widget.Space
         android:layout_width="wrap_content"
@@ -14,7 +14,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/drawer_close"
-        android:layout_width="240dp"
+        android:layout_width="260dp"
         android:layout_height="wrap_content"/>
 
     <androidx.legacy.widget.Space
@@ -33,7 +33,7 @@
         android:layout_height="10dp"/>
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/username_sideMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="User Logged"
@@ -43,7 +43,7 @@
         android:translationX="30dp"/>
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/email_sideMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@UserLogged"
@@ -57,7 +57,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/drawer_list"
-        android:layout_width="240dp"
+        android:layout_width="260dp"
         android:layout_height="wrap_content"/>
 
 

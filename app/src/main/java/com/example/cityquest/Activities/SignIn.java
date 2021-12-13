@@ -55,11 +55,11 @@ public class SignIn extends AppCompatActivity {
     private void signInUser() {
         String email = signinEmail.getText().toString();
         String password = signinPassword.getText().toString();
+        Paper.book().write(Prevalent.UserEmailKey, email);
+        Paper.book().write(Prevalent.UserPasswordKey, password);
 
-        if(chkBoxRemenberMe.isChecked()){
-            Paper.book().write(Prevalent.UserEmailKey, email);
-            Paper.book().write(Prevalent.UserPasswordKey, password);
-        }
+        if(chkBoxRemenberMe.isChecked())
+            Paper.book().write(Prevalent.chkBox, "1");
 
         if(TextUtils.isEmpty(email)){
             signinEmail.setError("E-mail cannot be empty");

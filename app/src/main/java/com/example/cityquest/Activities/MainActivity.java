@@ -2,6 +2,7 @@ package com.example.cityquest.Activities;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.example.cityquest.Prevalent.Prevalent;
 import com.example.cityquest.R;
@@ -33,13 +35,19 @@ import com.example.cityquest.menu.DrawerAdapter;
 import com.example.cityquest.menu.DrawerItem;
 import com.example.cityquest.menu.SimpleItem;
 import com.example.cityquest.menu.SpaceItem;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import io.paperdb.Paper;
 
@@ -60,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     private SlidingRootNav slidingRootNav;
 
+    private FirebaseFirestore db;
+
     private FragmentManager fragmentManager;
 
     FirebaseAuth mAuth;
@@ -69,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         //--------------------------------------FIRST SETTINGS--------------------------------------
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Paper.init(this);
 
         //FULLSCREEN IN NOTCH DEVICES
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
@@ -82,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         //----------------------------------------SIDE MENU-----------------------------------------
 
         slidingRootNav = new SlidingRootNavBuilder(this)
-                .withDragDistance(180)
+                .withDragDistance(200)
                 .withRootViewScale(0.75f)
                 .withRootViewElevation(25)
                 .withMenuOpened(false)
@@ -124,6 +136,25 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         adapter.setSelected(POS_MAIN_MAP);
 
+        db = FirebaseFirestore.getInstance();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+           @Override
+           public void onComplete(@NonNull Task<QuerySnapshot> task) {
+               if (task.isSuccessful()) {
+                   for (QueryDocumentSnapshot document : task.getResult()) {
+                       HashMap data = (HashMap) document.getData();
+                       String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                       if(data.get("email").equals(emailSaved)) {
+                           TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
+                           TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
+                           username.setText(data.get("username").toString());
+                           email.setText(data.get("email").toString());
+                       }
+                   }
+               }
+           }
+        });
+
         Toolbar menuIcon = findViewById(R.id.main_toolbar);
         menuIcon.setOnClickListener(v -> slidingRootNav.openMenu());
 
@@ -150,6 +181,14 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         FirebaseUser user = mAuth.getCurrentUser();
         if(user == null) {
             startActivity(new Intent(MainActivity.this, SignIn.class));
+        }
+    }
+
+    public void onPause() {
+        super.onPause();
+        if (isFinishing() && Paper.book().read(Prevalent.chkBox).equals("0")) {
+            mAuth.signOut();
+            Paper.book().destroy();
         }
     }
 
@@ -181,10 +220,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         }
         ta.recycle();
         return icons;
-    }
-
-    public void onBackPressed() {
-        finish();
     }
 
     @Override
@@ -242,7 +277,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_LOG_OUT:
                 mAuth.signOut();
-                Paper.init(this);
                 Paper.book().destroy();
                 startActivity(new Intent(MainActivity.this, SignIn.class));
                 finish();

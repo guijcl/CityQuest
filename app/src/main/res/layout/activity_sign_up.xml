@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/loginbackground"
+    android:background="@drawable/signinandupbackground"
     tools:context=".Activities.SignUp">
 
     <ImageView
@@ -39,7 +39,7 @@
         tools:ignore="LabelFor" />
 
     <EditText
-        android:id="@+id/username_name"
+        android:id="@+id/email_signup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
@@ -78,7 +78,7 @@
         android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username_name"
+        app:layout_constraintTop_toBottomOf="@+id/email_signup"
         tools:ignore="LabelFor" />
 
     <EditText
@@ -135,7 +135,7 @@
         android:id="@+id/signup_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:text="Sign Up"
         android:textColor="@color/white"
         android:textSize="20dp"

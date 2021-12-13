@@ -46,11 +46,13 @@ public class SplashActivity extends AppCompatActivity {
 
                 String UserEmailKey = Paper.book().read(Prevalent.UserEmailKey);
                 String UserPasswordKey = Paper.book().read(Prevalent.UserPasswordKey);
+                String chkBox = Paper.book().read(Prevalent.chkBox);
 
-                if(UserEmailKey != null && UserPasswordKey != null){
-                    if(!TextUtils.isEmpty(UserEmailKey) && !TextUtils.isEmpty(UserPasswordKey))
+                if(UserEmailKey != null && UserPasswordKey != null && chkBox != null){
+                    if(!TextUtils.isEmpty(UserEmailKey) && !TextUtils.isEmpty(UserPasswordKey) && chkBox.equals("1")) {
                         mAuth = FirebaseAuth.getInstance();
                         AllowAccess(UserEmailKey, UserPasswordKey);
+                    }
                 } else {
                     startActivity(new Intent(getApplicationContext(), SignIn.class));
                     finish();

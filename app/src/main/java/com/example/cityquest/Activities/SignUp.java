@@ -29,24 +29,26 @@ import java.util.Map;
 public class SignUp extends AppCompatActivity {
 
     EditText usernameSignUp;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    private String userID;
-
     EditText signupEmail;
     EditText signupPassword;
     EditText signupPasswordConfirm;
     Button btnSignUp;
 
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
+    private String userID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        db = FirebaseFirestore.getInstance();
+
         usernameSignUp = findViewById(R.id.username_signup);
-        signupEmail = findViewById(R.id.username_signup);
+        signupEmail = findViewById(R.id.email_signup);
         signupPassword = findViewById(R.id.password_signup);
         signupPasswordConfirm = findViewById(R.id.confirm_password_signup);
         btnSignUp = findViewById(R.id.btnsignup);
@@ -93,7 +95,7 @@ public class SignUp extends AppCompatActivity {
                         userID = mAuth.getCurrentUser().getUid();
                         DocumentReference documentReference = db.collection("users").document(userID);
                         Map<String, Object> user = new HashMap<>();
-                        // adicionar dps user.put("name", name);
+                        user.put("username", username);
                         user.put("email", email);
                         documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
