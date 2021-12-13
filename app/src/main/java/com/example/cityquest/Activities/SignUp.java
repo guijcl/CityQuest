@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,11 +21,11 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUp extends AppCompatActivity {
 
+    EditText usernameSignUp;
     EditText signupEmail;
     EditText signupPassword;
     EditText signupPasswordConfirm;
     Button btnSignUp;
-    Button btnSignIn;
 
     FirebaseAuth mAuth;
 
@@ -33,30 +34,33 @@ public class SignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        usernameSignUp = findViewById(R.id.username_signup);
         signupEmail = findViewById(R.id.username_signup);
         signupPassword = findViewById(R.id.password_signup);
         signupPasswordConfirm = findViewById(R.id.confirm_password_signup);
         btnSignUp = findViewById(R.id.btnsignup);
-        btnSignIn = findViewById(R.id.btnTosignin);
 
         mAuth = FirebaseAuth.getInstance();
         btnSignUp.setOnClickListener(v -> {
             createUser();
         });
 
-        btnSignIn.setOnClickListener(v -> {
-            startActivity(new Intent(SignUp.this, SignIn.class));
-            finish();
-        });
+    }
 
+    public void onClick(View v) {
+        startActivity(new Intent(SignUp.this, SignIn.class));
     }
 
     private void createUser() {
+        String username = usernameSignUp.getText().toString();
         String email = signupEmail.getText().toString();
         String password = signupPassword.getText().toString();
         String passwordConfirm = signupPasswordConfirm.getText().toString();
 
-        if(TextUtils.isEmpty(email)){
+        if(TextUtils.isEmpty(username)){
+            usernameSignUp.setError("Username cannot be empty");
+            usernameSignUp.requestFocus();
+        } else if(TextUtils.isEmpty(email)){
             signupEmail.setError("E-mail cannot be empty");
             signupEmail.requestFocus();
         } else if(TextUtils.isEmpty(password)){

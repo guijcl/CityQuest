@@ -2,9 +2,11 @@ package com.example.cityquest.Activities;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,8 +17,10 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.WindowManager;
 
+import com.example.cityquest.Prevalent.Prevalent;
 import com.example.cityquest.R;
 import com.example.cityquest.Fragments.AboutFragment;
 import com.example.cityquest.Fragments.CompetitiveFragment;
@@ -29,12 +33,15 @@ import com.example.cityquest.menu.DrawerAdapter;
 import com.example.cityquest.menu.DrawerItem;
 import com.example.cityquest.menu.SimpleItem;
 import com.example.cityquest.menu.SpaceItem;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
 import java.util.Arrays;
+
+import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener, FragmentManager.OnBackStackChangedListener {
 
@@ -135,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .replace(R.id.frame_layout, fragment, "map")
                 .addToBackStack(null)
                 .commit();
-
     }
 
     @Override
@@ -236,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_LOG_OUT:
                 mAuth.signOut();
+                Paper.init(this);
+                Paper.book().destroy();
                 startActivity(new Intent(MainActivity.this, SignIn.class));
                 finish();
                 break;

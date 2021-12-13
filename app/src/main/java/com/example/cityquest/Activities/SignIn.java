@@ -6,22 +6,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cityquest.Prevalent.Prevalent;
 import com.example.cityquest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import io.paperdb.Paper;
+
 public class SignIn extends AppCompatActivity {
 
-    EditText signinEmail;
-    EditText signinPassword;
-    Button btnSignIn;
-    Button btnSignUp;
+    private EditText signinEmail;
+    private EditText signinPassword;
+    private Button btnSignIn;
+    private CheckBox chkBoxRemenberMe;
 
     FirebaseAuth mAuth;
 
@@ -33,21 +39,27 @@ public class SignIn extends AppCompatActivity {
         signinEmail = findViewById(R.id.username_signin);
         signinPassword = findViewById(R.id.password_signin);
         btnSignIn = findViewById(R.id.btnSignIn_Login);
-        btnSignUp = findViewById(R.id.btnToSignUp_login);
+        chkBoxRemenberMe = findViewById(R.id.checkbox_siginin);
+        Paper.init(this);
 
         mAuth = FirebaseAuth.getInstance();
         btnSignIn.setOnClickListener(v -> {
             signInUser();
         });
+    }
 
-        btnSignUp.setOnClickListener(v -> {
-            startActivity(new Intent(SignIn.this, SignUp.class));
-        });
+    public void onClick(View v) {
+        startActivity(new Intent(SignIn.this, SignUp.class));
     }
 
     private void signInUser() {
         String email = signinEmail.getText().toString();
         String password = signinPassword.getText().toString();
+
+        if(chkBoxRemenberMe.isChecked()){
+            Paper.book().write(Prevalent.UserEmailKey, email);
+            Paper.book().write(Prevalent.UserPasswordKey, password);
+        }
 
         if(TextUtils.isEmpty(email)){
             signinEmail.setError("E-mail cannot be empty");

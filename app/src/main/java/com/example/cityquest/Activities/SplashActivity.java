@@ -1,21 +1,35 @@
 package com.example.cityquest.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.TextUtils;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.example.cityquest.Prevalent.Prevalent;
 import com.example.cityquest.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+import io.paperdb.Paper;
 
 public class SplashActivity extends AppCompatActivity {
+
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+
+        Paper.init(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
@@ -29,10 +43,31 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                Intent i = new Intent(getApplicationContext(), SignIn.class);
-                startActivity(i);
-                finish();
+
+                String UserEmailKey = Paper.book().read(Prevalent.UserEmailKey);
+                String UserPasswordKey = Paper.book().read(Prevalent.UserPasswordKey);
+
+                if(UserEmailKey != null && UserPasswordKey != null){
+                    if(!TextUtils.isEmpty(UserEmailKey) && !TextUtils.isEmpty(UserPasswordKey))
+                        mAuth = FirebaseAuth.getInstance();
+                        AllowAccess(UserEmailKey, UserPasswordKey);
+                } else {
+                    startActivity(new Intent(getApplicationContext(), SignIn.class));
+                    finish();
+                }
             }
         }.start();
+    }
+
+    private void AllowAccess(String userEmailKey, String userPasswordKey) {
+        mAuth.signInWithEmailAndPassword(userEmailKey,userPasswordKey).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(SplashActivity.this, "User logged in successfully", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                }
+            }
+        });
     }
 }
