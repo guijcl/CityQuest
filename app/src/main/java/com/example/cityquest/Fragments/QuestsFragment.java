@@ -1,6 +1,8 @@
 package com.example.cityquest.Fragments;
 
 import android.app.AlertDialog;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,17 +20,24 @@ import android.widget.EditText;
 import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.R;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 public class QuestsFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Geocoder geocoder;
 
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
@@ -44,6 +53,8 @@ public class QuestsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quests, container, false);
+
+        geocoder = new Geocoder(this.requireContext());
 
         Button create_local_quest = view.findViewById(R.id.local_quest);
         create_local_quest.setOnClickListener(view1 -> {
@@ -65,7 +76,7 @@ public class QuestsFragment extends Fragment {
                             FragmentTransaction childFragTrans = childFragMan.beginTransaction();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
-                                QuestFragment questFragment = new QuestFragment((String) data.get("name"), (String) data.get("desc"), "loc_quest", null);
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"), "loc_quest", null);
                                 childFragTrans.add(R.id.all_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -83,7 +94,7 @@ public class QuestsFragment extends Fragment {
                             FragmentTransaction childFragTrans = childFragMan.beginTransaction();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
-                                QuestFragment questFragment = new QuestFragment((String) data.get("name"), (String) data.get("desc"),
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
                                         "elaborate_quest", (HashMap<String, String>) data.get("tasks"));
                                 childFragTrans.add(R.id.all_quests, questFragment);
                             }
@@ -114,16 +125,39 @@ public class QuestsFragment extends Fragment {
         dialog.show();
 
         newquestpopup_save.setOnClickListener(view -> {
-            LocQuest n_lq = new LocQuest(name.getText().toString(), desc.getText().toString());
-            db.collection("loc_quests")
-                    .add(n_lq)
-                    .addOnSuccessListener(documentReference -> {
-                        QuestFragment questFragment = new QuestFragment(name.getText().toString(), desc.getText().toString(), "loc_quest", null);
-                        childFragTrans.add(R.id.all_quests, questFragment);
-                        childFragTrans.commit();
-                    })
-                    .addOnFailureListener(e -> { });
-            dialog.dismiss();
+            //CODIGO PARA NOME CORRETO
+            List<Address> addressList = null;
+            try {
+                addressList = geocoder.getFromLocationName(name.getText().toString(), 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(addressList != null) {
+                if(addressList.size() > 0) {
+                    Address address = addressList.get(0);
+
+                    String tmp_name = "";
+                    if(address.getFeatureName().equals(address.getLocality()))
+                        tmp_name = address.getFeatureName() + ", " + address.getAdminArea() + ", " + address.getCountryName();
+                    else
+                        tmp_name = address.getFeatureName() + ", " + address.getLocality() + ", " + address.getAdminArea() + ", " + address.getCountryName();
+
+                    LocQuest n_lq = new LocQuest(tmp_name, desc.getText().toString());
+                    db.collection("loc_quests")
+                            .add(n_lq)
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    QuestFragment questFragment = new QuestFragment(documentReference.getId(), n_lq.getName(), n_lq.getDesc(), "loc_quest", null);
+                                    childFragTrans.add(R.id.all_quests, questFragment);
+                                    childFragTrans.commit();
+                                }
+                            })
+                            .addOnFailureListener(e -> { });
+                    dialog.dismiss();
+                }
+            }
+
         });
 
         newquestpopup_cancel.setOnClickListener(view -> {
@@ -164,10 +198,13 @@ public class QuestsFragment extends Fragment {
             ElaborateQuest n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), tasks);
             db.collection("elaborate_quests")
                     .add(n_eq)
-                    .addOnSuccessListener(documentReference -> {
-                        QuestFragment questFragment = new QuestFragment(name.getText().toString(), desc.getText().toString(), "elaborate_quest", tasks);
-                        childFragTrans.add(R.id.all_quests, questFragment);
-                        childFragTrans.commit();
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            QuestFragment questFragment = new QuestFragment(documentReference.getId(), name.getText().toString(), desc.getText().toString(), "elaborate_quest", tasks);
+                            childFragTrans.add(R.id.all_quests, questFragment);
+                            childFragTrans.commit();
+                        }
                     })
                     .addOnFailureListener(e -> { });
             dialog.dismiss();
