@@ -138,26 +138,9 @@ public class QuestsFragment extends Fragment {
             if(addressList != null) {
                 if(addressList.size() > 0) {
                     Address address = addressList.get(0);
-                    
-                    String tmp_name = "";
-                    //COUNTRY
-                    if(address.getFeatureName().equals(address.getCountryName()))
-                        tmp_name = address.getCountryName();
-                    //CITY
-                    else if(address.getFeatureName().equals(address.getAdminArea()))
-                        tmp_name = address.getAdminArea() + ", " + address.getCountryName();
-                    //COUNTRYSIDE CITY
-                    else if(address.getFeatureName().equals(address.getSubAdminArea()) &&
-                            (address.getLocality() == null || address.getLocality().equals(address.getSubAdminArea())))
-                        tmp_name = address.getSubAdminArea() + ", " + address.getAdminArea() + ", " + address.getCountryName();
-                    //SMALL TOWN (VILA)
-                    else if(address.getFeatureName().equals(address.getLocality()) && address.getSubAdminArea() == null)
-                        tmp_name = address.getLocality() + ", " + address.getAdminArea() + ", " + address.getCountryName();
-                    //VILLAGE
-                    else
-                        tmp_name = address.getFeatureName() + ", " + address.getLocality() + ", " +
-                                address.getAdminArea() + ", " + address.getCountryName();
 
+                    //Log.d("TESTE1", String.valueOf(address));
+                    String tmp_name = address.getAddressLine(0);
 
                     //CHECK IF LOCAL QUEST ALREADY EXISTS
                     String finalTmp_name = tmp_name;
