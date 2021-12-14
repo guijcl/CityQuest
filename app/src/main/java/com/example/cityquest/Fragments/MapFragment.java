@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.cityquest.R;
 import com.example.cityquest.bottomSheet.BottomSheetItem;
@@ -33,6 +34,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -47,6 +49,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,8 +57,10 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    private Geocoder geocoder;
+
     private String currentUser;
-    private List<String> loc_quest_ids;
+    private List<HashMap<String, String>> user_loc_quests;
 
     private GoogleMap googleMap;
     private MarkerOptions markerOptions;
@@ -101,18 +106,40 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
-                /** CODE FOR UPDATING USER LOCATION ON MAP (CLEARS ALL MARKERS, SO IGNORE FOR NOW)
-                 Location location = locationResult.getLastLocation();
+                //CODE FOR UPDATING USER LOCATION ON MAP (CLEARS ALL MARKERS, SO IGNORE FOR NOW)
+                Location location = locationResult.getLastLocation();
                 if (googleMap != null) {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
-                    LatLng latLng = new LatLng(latitude, longitude);
+                    //LatLng latLng = new LatLng(latitude, longitude);
 
-                    googleMap.clear();
+                    if(geocoder != null) {
+                        List<Address> addressList = null;
+                        try {
+                            addressList = geocoder.getFromLocation(latitude, longitude, 1);
+                            //addressList = geocoder.getFromLocation(39.481254, -8.53529, 1);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (addressList != null) {
+                            if (addressList.size() > 0) {
+                                Address address = addressList.get(0);
+                                String str = address.getAddressLine(0);
+                                for(HashMap map : user_loc_quests) {
+                                    Log.d("LOCALIZAÇÕES", str + " ; " + (String) map.get("name"));
+                                    if(str.contains((String) map.get("name"))) {
+                                        Log.d("CHECK1", "LOCALIZAÇÃO IGUAL");
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-                    markerOptions.position(latLng);
-                    googleMap.addMarker(markerOptions);
-                }**/
+                    //googleMap.clear();
+
+                    //markerOptions.position(latLng);
+                    //googleMap.addMarker(markerOptions);
+                }
             }
         }, null);
     }
@@ -136,7 +163,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         actionBarDrawerToggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);*/
 
-        loc_quest_ids = new ArrayList<>();
+        geocoder = new Geocoder(this.requireContext());
+
+        user_loc_quests = new ArrayList<>();
         currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
         db.collection("users").document(currentUser).
                 collection("user_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -144,7 +173,10 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        loc_quest_ids.add(document.getId());
+                        HashMap<String, String> q = new HashMap<>();
+                        q.put("id", document.getId());
+                        q.put("name", (String) document.getData().get("name"));
+                        user_loc_quests.add(q);
                     }
                 }
             }
@@ -159,6 +191,43 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 //return TODO;
             }
+
+            googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(@NonNull LatLng latLng) {
+                    List<Address> addressList = null;
+                    try {
+                        addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (addressList != null) {
+                        if (addressList.size() > 0) {
+                            Address address = addressList.get(0);
+                            Toast.makeText(requireContext(), address.getAddressLine(0), Toast.LENGTH_SHORT).show();
+
+                            String str = address.getAddressLine(0);
+                            for(HashMap map : user_loc_quests) {
+                                Log.d("LOCALIZAÇÕES2", str + " ; " + (String) map.get("name"));
+
+                                List<String> tmp_s = Arrays.asList(((String) map.get("name")).split(","));
+                                boolean check = true;
+                                for(String s : tmp_s) {
+                                    if(!str.contains(s)) {
+                                        check = false;
+                                    }
+                                }
+                                if(check) {
+                                    Log.d("PASSED1", String.valueOf(check));
+                                    db.collection("users").document(currentUser)
+                                            .collection("user_quests").document((String) map.get("id")).delete();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
             googleMap.getUiSettings().setCompassEnabled(false);
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(requireActivity(), location -> {
@@ -180,7 +249,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
 
             //FREEZES MAP ANIMATION ON START (FIX LATER WITH USE OF CACHE WHICH MAKES ONLY THE FIRST ANIMATION FREEZE)
-            Geocoder geocoder = new Geocoder(this.requireContext());
             db.collection("loc_quests").get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -188,18 +256,27 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                             if (task.isSuccessful()) {
                                 List<Address> addressList = null;
                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                    if(!loc_quest_ids.contains(document.getId())) {
-                                        HashMap data = (HashMap) document.getData();
-                                        try {
-                                            addressList = geocoder.getFromLocationName((String) data.get("name"), 1);
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                        if (addressList != null) {
-                                            if (addressList.size() > 0) {
-                                                Address address = addressList.get(0);
-                                                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                                                googleMap.addMarker(new MarkerOptions().position(latLng).title(address.getFeatureName()));
+                                    HashMap data = (HashMap) document.getData();
+
+                                    HashMap<String, String> temp = new HashMap<>();
+                                    temp.put("id", document.getId());
+                                    temp.put("name", (String) data.get("name"));
+
+                                    try {
+                                        addressList = geocoder.getFromLocationName((String) data.get("name"), 1);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if (addressList != null) {
+                                        if (addressList.size() > 0) {
+                                            Address address = addressList.get(0);
+                                            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                                            if(!user_loc_quests.contains(temp)) {
+                                                googleMap.addMarker(new MarkerOptions().position(latLng).title(address.getAddressLine(0)));
+                                            } else {
+                                                googleMap.addMarker(new MarkerOptions().
+                                                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).
+                                                        position(latLng).title(address.getAddressLine(0)));
                                             }
                                         }
                                     }
@@ -243,6 +320,36 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         dialog.show();
 
         return false;
+    }
+
+    private static int compareStringsPercentage(String s1, String s2) {
+        int percentage = 0;
+
+        int total = 0;
+        int fullMatch = 0;
+        // Check for each character at same location
+        total += charMatch(s1, s2);
+        fullMatch += charMatch(s1, s1);
+
+        // Calc percentage
+        percentage = (int) Math.round(total / (fullMatch / 100.0));
+        return percentage;
+    }
+
+    private static int charMatch(String s1, String s2) {
+        char[] as1 = s1.toCharArray();
+        char[] as2 = s2.toCharArray();
+        int match = 0;
+        for (int i = 0; i < as1.length; i++) {
+            char c = as1[i];
+            if (i < as2.length) {
+                if (as2[i] == c) {
+                    match++;
+                }
+            }
+
+        }
+        return match;
     }
 
     /*@Override

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.Objects.LocQuest;
@@ -25,8 +26,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -136,24 +139,39 @@ public class QuestsFragment extends Fragment {
                 if(addressList.size() > 0) {
                     Address address = addressList.get(0);
 
-                    String tmp_name = "";
-                    if(address.getFeatureName().equals(address.getLocality()))
-                        tmp_name = address.getFeatureName() + ", " + address.getAdminArea() + ", " + address.getCountryName();
-                    else
-                        tmp_name = address.getFeatureName() + ", " + address.getLocality() + ", " + address.getAdminArea() + ", " + address.getCountryName();
+                    //Log.d("TESTE1", String.valueOf(address));
+                    String tmp_name = address.getAddressLine(0);
 
-                    LocQuest n_lq = new LocQuest(tmp_name, desc.getText().toString());
+                    //CHECK IF LOCAL QUEST ALREADY EXISTS
+                    String finalTmp_name = tmp_name;
                     db.collection("loc_quests")
-                            .add(n_lq)
-                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            .whereEqualTo("name", tmp_name)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    QuestFragment questFragment = new QuestFragment(documentReference.getId(), n_lq.getName(), n_lq.getDesc(), "loc_quest", null);
-                                    childFragTrans.add(R.id.all_quests, questFragment);
-                                    childFragTrans.commit();
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if(task.getResult().size() == 0) {
+                                            //IF DOESNT EXIST, CREATE
+                                            LocQuest n_lq = new LocQuest(finalTmp_name, desc.getText().toString());
+                                            db.collection("loc_quests")
+                                                    .add(n_lq)
+                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            QuestFragment questFragment = new QuestFragment(documentReference.getId(),
+                                                                    n_lq.getName(), n_lq.getDesc(), "loc_quest", null);
+                                                            childFragTrans.add(R.id.all_quests, questFragment);
+                                                            childFragTrans.commit();
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(e -> { });
+                                        } else {
+                                            Toast.makeText(requireContext(), "LOCAL QUEST ALREADY EXISTS", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
                                 }
-                            })
-                            .addOnFailureListener(e -> { });
+                            });
                     dialog.dismiss();
                 }
             }

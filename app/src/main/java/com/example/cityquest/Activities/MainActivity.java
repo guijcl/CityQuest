@@ -1,29 +1,24 @@
 package com.example.cityquest.Activities;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.ColorRes;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.example.cityquest.Prevalent.Prevalent;
-import com.example.cityquest.R;
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.cityquest.Fragments.AboutFragment;
 import com.example.cityquest.Fragments.CompetitiveFragment;
 import com.example.cityquest.Fragments.MapFragment;
@@ -31,13 +26,14 @@ import com.example.cityquest.Fragments.ProfileFragment;
 import com.example.cityquest.Fragments.QuestsFragment;
 import com.example.cityquest.Fragments.SettingsFragment;
 import com.example.cityquest.Fragments.SocialFragment;
+import com.example.cityquest.Prevalent.Prevalent;
+import com.example.cityquest.R;
 import com.example.cityquest.menu.DrawerAdapter;
 import com.example.cityquest.menu.DrawerItem;
 import com.example.cityquest.menu.SimpleItem;
 import com.example.cityquest.menu.SpaceItem;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;

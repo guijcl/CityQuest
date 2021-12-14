@@ -12,17 +12,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CityQuest">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDpf8UYrcQpvCeA6vyzSgI_Eln0WPde9N4" />
         <activity
             android:name=".Activities.SignUp"
             android:exported="true" />
         <activity
             android:name=".Activities.SignIn"
             android:exported="true" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDpf8UYrcQpvCeA6vyzSgI_Eln0WPde9N4" />
-
         <activity
             android:name=".Activities.MainActivity"
             android:exported="true"
