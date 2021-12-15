@@ -42,13 +42,18 @@ public class QuestFragment extends Fragment {
     private final String id;
     private final String name;
     private final String desc;
+    private final double latitude;
+    private final double longitude;
     private final String type;
     private final HashMap<String, String> tasks;
 
-    public QuestFragment(String id, String name, String desc, String type, HashMap<String, String> tasks) {
+    public QuestFragment(String id, String name, String desc, double latitude, double longitude,
+                         String type, HashMap<String, String> tasks) {
         this.id = id;
         this.name = name;
         this.desc = desc;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.type = type;
         this.tasks = tasks;
     }
@@ -108,7 +113,7 @@ public class QuestFragment extends Fragment {
                     } else {
                         loc_button.setOnClickListener(view12 -> {
                             db.collection("users")
-                                    .document(currentUser).collection("user_quests").document(id).set(new LocQuest(name, desc));
+                                    .document(currentUser).collection("user_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
                             loc_button.setEnabled(false);
                             elaborate_button.setEnabled(false);
                         });
