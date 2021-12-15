@@ -12,10 +12,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -36,6 +41,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -124,18 +130,63 @@ public class QuestsFragment extends Fragment {
         dialogBuilder = new AlertDialog.Builder(requireActivity());
         final View newQuestPopupView = getLayoutInflater().inflate(R.layout.new_locquest_popup, null);
 
-        EditText name = newQuestPopupView.findViewById(R.id.name);
+        AutoCompleteTextView name = newQuestPopupView.findViewById(R.id.name);
         EditText desc = newQuestPopupView.findViewById(R.id.desc);
 
         Button newquestpopup_save = newQuestPopupView.findViewById(R.id.create);
         Button newquestpopup_cancel = newQuestPopupView.findViewById(R.id.cancel);
+
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(newquestpopup_save.isEnabled())
+                    newquestpopup_save.setEnabled(false);
+
+                List<String> loc_quests_suggestions = new ArrayList<>();
+                String str = charSequence.toString();
+                int len = str.length();
+                if(len >= 3) {
+                    List<Address> addressList = null;
+                    try {
+                        addressList = geocoder.getFromLocationName(str, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if(addressList != null) {
+                        if (addressList.size() > 0) {
+                            for(Address address : addressList) {
+                                loc_quests_suggestions.add(getLocationsString(address));
+                            }
+                        }
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                            android.R.layout.simple_list_item_1, loc_quests_suggestions);
+                    name.setAdapter(adapter);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                desc.setText("Visit: " + editable.toString());
+            }
+        });
+
+        name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                newquestpopup_save.setEnabled(true);
+            }
+        });
 
         dialogBuilder.setView(newQuestPopupView);
         dialog = dialogBuilder.create();
         dialog.show();
 
         newquestpopup_save.setOnClickListener(view -> {
-            //CODIGO PARA NOME CORRETO
+            //CODIGO PARA NOME CORRETO (POSSIVELMENTE, NÃO É MAIS NECESSÁRIO)
             List<Address> addressList = null;
             try {
                 addressList = geocoder.getFromLocationName(name.getText().toString(), 1);
@@ -180,13 +231,13 @@ public class QuestsFragment extends Fragment {
                                                         }
                                                     })
                                                     .addOnFailureListener(e -> { });
+                                            dialog.dismiss();
                                         } else {
-                                            Toast.makeText(requireContext(), "LOCAL QUEST ALREADY EXISTS", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(requireContext(), "THIS QUEST ALREADY EXISTS", Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 }
                             });
-                    dialog.dismiss();
                 }
             }
 
@@ -246,6 +297,21 @@ public class QuestsFragment extends Fragment {
         newquestpopup_cancel.setOnClickListener(view -> {
             dialog.dismiss();
         });
+    }
+
+    private String getLocationsString(Address address) {
+        List<String> res = new ArrayList<>();
+
+        String str = "";
+        if(address != null) {
+            str = address.getFeatureName() + ", " + address.getAdminArea() + ", " +
+                    address.getSubAdminArea() + ", " + address.getLocality() + ", " + address.getThoroughfare() +
+                    ", " + address.getCountryName();
+            str = str.replaceAll("null, ", "");
+            str = deDup(str);
+        }
+
+        return str;
     }
 
     private String deDup(String s) {
