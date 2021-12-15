@@ -92,7 +92,7 @@ public class QuestsFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null);
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, "quests_list");
                                 childFragTrans.add(R.id.all_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -111,7 +111,7 @@ public class QuestsFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        0, 0,"elaborate_quest", (HashMap<String, String>) data.get("tasks"));
+                                        0, 0,"elaborate_quest", (HashMap<String, String>) data.get("tasks"), "quests_list");
                                 childFragTrans.add(R.id.all_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -225,7 +225,7 @@ public class QuestsFragment extends Fragment {
                                                         @Override
                                                         public void onSuccess(DocumentReference documentReference) {
                                                             QuestFragment questFragment = new QuestFragment(documentReference.getId(),
-                                                                    n_lq.getName(), n_lq.getDesc(), latitude, longitude, "loc_quest",null);
+                                                                    n_lq.getName(), n_lq.getDesc(), latitude, longitude, "loc_quest",null, "quests_list");
                                                             childFragTrans.add(R.id.all_quests, questFragment);
                                                             childFragTrans.commit();
                                                         }
@@ -285,7 +285,7 @@ public class QuestsFragment extends Fragment {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
                             QuestFragment questFragment = new QuestFragment(documentReference.getId(), name.getText().toString(), desc.getText().toString(),
-                                    0, 0, "elaborate_quest", tasks);
+                                    0, 0, "elaborate_quest", tasks, "quests_list");
                             childFragTrans.add(R.id.all_quests, questFragment);
                             childFragTrans.commit();
                         }

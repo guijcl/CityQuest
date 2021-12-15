@@ -46,9 +46,10 @@ public class QuestFragment extends Fragment {
     private final double longitude;
     private final String type;
     private final HashMap<String, String> tasks;
+    private final String fragment_type;
 
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
-                         String type, HashMap<String, String> tasks) {
+                         String type, HashMap<String, String> tasks, String fragment_type) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -56,6 +57,7 @@ public class QuestFragment extends Fragment {
         this.longitude = longitude;
         this.type = type;
         this.tasks = tasks;
+        this.fragment_type = fragment_type;
     }
 
     @Override
@@ -70,64 +72,80 @@ public class QuestFragment extends Fragment {
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        ((TextView) view.findViewById(R.id.quest_name)).setText(name);
-        ((TextView) view.findViewById(R.id.quest_desc)).setText(desc);
+        if(fragment_type.equals("profile_quest_list")) {
+            if(view.findViewById(R.id.list_quest_layout).getVisibility() == View.VISIBLE)
+                view.findViewById(R.id.list_quest_layout).setVisibility(View.GONE);
+            view.findViewById(R.id.profile_quest_layout).setVisibility(View.VISIBLE);
 
-        if(type.equals("elaborate_quest")) {
-            ((TextView) view.findViewById(R.id.task_1)).setText(tasks.get("Task_1"));
-            ((TextView) view.findViewById(R.id.task_2)).setText(tasks.get("Task_2"));
-            ((TextView) view.findViewById(R.id.task_3)).setText(tasks.get("Task_3"));
-            ((TextView) view.findViewById(R.id.task_4)).setText(tasks.get("Task_4"));
+            String[] strs = name.split(", ");
+            String str_name = strs[0];
+            ((TextView) view.findViewById(R.id.p_quest_name)).setText(str_name);
         }
 
-        LinearLayout clickable_layout = view.findViewById(R.id.clickable_layout);
-        clickable_layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LinearLayout card_v = null;
-                if(type.equals("loc_quest"))
-                    card_v = view.findViewById(R.id.extra_card_loc);
-                else if(type.equals("elaborate_quest"))
-                    card_v = view.findViewById(R.id.extra_card_elaborate);
+        if(fragment_type.equals("quests_list")) {
+            if(view.findViewById(R.id.profile_quest_layout).getVisibility() == View.VISIBLE)
+                view.findViewById(R.id.profile_quest_layout).setVisibility(View.GONE);
+            view.findViewById(R.id.list_quest_layout).setVisibility(View.VISIBLE);
 
-                if(card_v != null) {
-                    if (card_v.getVisibility() == View.VISIBLE)
-                        card_v.setVisibility(View.GONE);
-                    else if (card_v.getVisibility() == View.GONE)
-                        card_v.setVisibility(View.VISIBLE);
-                }
+            ((TextView) view.findViewById(R.id.quest_name)).setText(name);
+            ((TextView) view.findViewById(R.id.quest_desc)).setText(desc);
 
+            if (type.equals("elaborate_quest")) {
+                ((TextView) view.findViewById(R.id.task_1)).setText(tasks.get("Task_1"));
+                ((TextView) view.findViewById(R.id.task_2)).setText(tasks.get("Task_2"));
+                ((TextView) view.findViewById(R.id.task_3)).setText(tasks.get("Task_3"));
+                ((TextView) view.findViewById(R.id.task_4)).setText(tasks.get("Task_4"));
             }
-        });
 
-        Button loc_button = view.findViewById(R.id.start_local_quest);
-        Button elaborate_button = view.findViewById(R.id.start_elaborate_quest);
-        db.collection("users").document(currentUser).
-                collection("user_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if(task.getResult().exists()) {
-                        loc_button.setEnabled(false);
-                        elaborate_button.setEnabled(false);
-                    } else {
-                        loc_button.setOnClickListener(view12 -> {
-                            db.collection("users")
-                                    .document(currentUser).collection("user_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
+            LinearLayout clickable_layout = view.findViewById(R.id.list_quest_layout);
+            clickable_layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    LinearLayout card_v = null;
+                    if (type.equals("loc_quest"))
+                        card_v = view.findViewById(R.id.extra_card_loc);
+                    else if (type.equals("elaborate_quest"))
+                        card_v = view.findViewById(R.id.extra_card_elaborate);
+
+                    if (card_v != null) {
+                        if (card_v.getVisibility() == View.VISIBLE)
+                            card_v.setVisibility(View.GONE);
+                        else if (card_v.getVisibility() == View.GONE)
+                            card_v.setVisibility(View.VISIBLE);
+                    }
+
+                }
+            });
+
+            Button loc_button = view.findViewById(R.id.start_local_quest);
+            Button elaborate_button = view.findViewById(R.id.start_elaborate_quest);
+            db.collection("users").document(currentUser).
+                    collection("user_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
                             loc_button.setEnabled(false);
                             elaborate_button.setEnabled(false);
-                        });
+                        } else {
+                            loc_button.setOnClickListener(view12 -> {
+                                db.collection("users")
+                                        .document(currentUser).collection("user_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
+                                loc_button.setEnabled(false);
+                                elaborate_button.setEnabled(false);
+                            });
 
-                        elaborate_button.setOnClickListener(view1 -> {
-                            db.collection("users")
-                                    .document(currentUser).collection("user_quests").document(id).set(new ElaborateQuest(name, desc, tasks));
-                            loc_button.setEnabled(false);
-                            elaborate_button.setEnabled(false);
-                        });
+                            elaborate_button.setOnClickListener(view1 -> {
+                                db.collection("users")
+                                        .document(currentUser).collection("user_quests").document(id).set(new ElaborateQuest(name, desc, tasks));
+                                loc_button.setEnabled(false);
+                                elaborate_button.setEnabled(false);
+                            });
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         return view;
     }

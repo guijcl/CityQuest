@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.R;
 import com.example.cityquest.bottomSheet.BottomSheetItem;
 import com.example.cityquest.bottomSheet.BottomSheetItemAdapter;
@@ -38,9 +39,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -178,6 +181,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                         HashMap<String, String> q = new HashMap<>();
                         q.put("id", document.getId());
                         q.put("name", (String) document.getData().get("name"));
+                        q.put("desc", (String) document.getData().get("desc"));
                         q.put("latitude", String.valueOf(document.getData().get("latitude")));
                         q.put("longitude", String.valueOf(document.getData().get("longitude")));
                         user_loc_quests.add(q);
@@ -228,6 +232,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                     HashMap<String, String> temp = new HashMap<>();
                                     temp.put("id", document.getId());
                                     temp.put("name", (String) data.get("name"));
+                                    temp.put("desc", (String) data.get("desc"));
                                     temp.put("latitude", String.valueOf(data.get("latitude")));
                                     temp.put("longitude", String.valueOf(data.get("longitude")));
 
@@ -292,6 +297,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                     hashMapMarker.put(map.get("id"), marker);
                                     db.collection("users").document(currentUser)
                                             .collection("user_quests").document((String) map.get("id")).delete();
+
+                                    LocQuest n_lq = new LocQuest(map.get("name"), map.get("desc"),
+                                            Double.parseDouble(map.get("latitude")), Double.parseDouble(map.get("longitude")));
+                                    db.collection("users").document(currentUser).collection("user_completed_quests")
+                                            .document((String) map.get("id")).set(n_lq);
                                 }
                             }
                         }
