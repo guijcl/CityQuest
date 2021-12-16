@@ -27,14 +27,14 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
+            android:layout_marginBottom="4dp"
             android:backgroundTint="@color/purple_dark"
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="@+id/profileImage"
-            app:layout_constraintEnd_toEndOf="@+id/profileImage"/>
+            app:layout_constraintEnd_toEndOf="@+id/profileImage" />
 
         <TextView
-            android:id="@+id/username_sideMenu"
+            android:id="@+id/username_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -46,14 +46,14 @@
             app:layout_constraintTop_toBottomOf="@+id/profileImage" />
 
         <TextView
-            android:id="@+id/email_sideMenu"
+            android:id="@+id/email_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="UserLogged"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textStyle="italic"
-            app:layout_constraintTop_toBottomOf="@+id/username_sideMenu" />
+            app:layout_constraintTop_toBottomOf="@+id/username_profile" />
 
         <TextView
             android:id="@+id/followers"
@@ -67,7 +67,7 @@
             app:layout_constraintEnd_toStartOf="@+id/following"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/email_sideMenu" />
+            app:layout_constraintTop_toBottomOf="@+id/email_profile" />
 
         <TextView
             android:id="@+id/followers_number"
@@ -117,7 +117,7 @@
             app:layout_constraintEnd_toStartOf="@+id/rankingQuest"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/followers"
-            app:layout_constraintTop_toBottomOf="@+id/email_sideMenu" />
+            app:layout_constraintTop_toBottomOf="@+id/email_profile" />
 
 
         <TextView
@@ -132,44 +132,100 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/following"
-            app:layout_constraintTop_toBottomOf="@+id/email_sideMenu" />
+            app:layout_constraintTop_toBottomOf="@+id/email_profile" />
 
-        <TextView
-            android:id="@+id/lastQuest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="44dp"
-            android:layout_marginTop="150dp"
-            android:text="Last Quest"
-            android:textColor="@color/purple_dark"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/followers_number" />
 
-        <TextView
-            android:id="@+id/lastTournaments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="44dp"
-            android:text="Last Tournaments"
-            android:textColor="@color/purple_dark"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/lastQuest" />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="160dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/following_number">
 
-        <TextView
-            android:id="@+id/lastVisitedSpots"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="44dp"
-            android:text="Last Visited Spots"
-            android:textColor="@color/purple_dark"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/lastTournaments" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="ACTIVE QUESTS"
+                    android:layout_margin="10dp"
+                    android:textColor="@color/purple_dark"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <HorizontalScrollView
+                    android:id="@+id/horizontalScrollView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    app:layout_constraintTop_toBottomOf="@+id/textView3">
+
+                    <LinearLayout
+                        android:id="@+id/user_quests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="140dp"
+                        android:orientation="horizontal">
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:layout_margin="10dp"
+                    android:text="COMPLETED QUESTS"
+                    android:textColor="@color/purple_dark"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView3" />
+
+                <HorizontalScrollView
+                    android:id="@+id/horizontalScrollView"
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    app:layout_constraintTop_toBottomOf="@+id/textView8">
+
+                    <LinearLayout
+                        android:id="@+id/user_completed_quests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:layout_margin="10dp"
+                    android:text="LAST TOURNAMENTS"
+                    android:textColor="@color/purple_dark"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    android:layout_marginBottom="50dp"
+                    app:layout_constraintTop_toBottomOf="@+id/textView9">
+
+                    <LinearLayout
+                        android:id="@+id/user_tournaments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
+        </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>

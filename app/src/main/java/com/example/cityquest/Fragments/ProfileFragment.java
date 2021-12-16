@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +58,27 @@ public class ProfileFragment extends Fragment {
 
         View view =inflater.inflate(R.layout.fragment_profile, container, false);
 
+        //VERIFICAR COM ID SO USER: FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap data = (HashMap) document.getData();
+                        String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                        if(data.get("email").equals(emailSaved)) {
+                            TextView username = view.findViewById(R.id.username_profile);
+                            TextView email = view.findViewById(R.id.email_profile);
+                            CircleImageView profileImage = view.findViewById(R.id.profileImage);
+                            username.setText(data.get("username").toString());
+                            email.setText(data.get("email").toString());
+                            //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
+                        }
+                    }
+                }
+            }
+        });
+
         profileImage = view.findViewById(R.id.profileImage);
         buttonAddImage = view.findViewById(R.id.buttonAddImage);
 
@@ -65,7 +87,6 @@ public class ProfileFragment extends Fragment {
         });
 
         FragmentManager childFragMan = getChildFragmentManager();
-
         db.collection("users").document(currentUser).collection("user_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -84,8 +105,8 @@ public class ProfileFragment extends Fragment {
                         }
                     }
                 });
-        //TALVEZ ADICIONAR AQUI O MESMO CÓDIGO PARA ELABORATE QUESTS
 
+        //TALVEZ ADICIONAR AQUI O MESMO CÓDIGO PARA ELABORATE QUESTS
 
         db.collection("users").document(currentUser).collection("user_completed_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -105,8 +126,6 @@ public class ProfileFragment extends Fragment {
                         }
                     }
                 });
-
-
         return view;
     }
 
