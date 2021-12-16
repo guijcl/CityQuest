@@ -2,8 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:layout_marginTop="15dp"
-    android:orientation="vertical">
+    android:layout_marginStart="15dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -13,12 +14,34 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/layout">
+
+            <LinearLayout
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:orientation="vertical"
+                android:weightSum="6"
+                android:visibility="visible"
+                android:id="@+id/profile_quest_layout">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="5"
+                    android:background="@drawable/quest_drawable"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textSize="13sp"
+                    android:id="@+id/p_quest_name"/>
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"
-                android:id="@+id/clickable_layout"
-                android:clickable="true">
+                android:id="@+id/list_quest_layout"
+                android:clickable="true"
+                android:visibility="gone">
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -135,6 +158,7 @@
                     android:id="@+id/start_elaborate_quest"/>
             </LinearLayout>
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
 </LinearLayout>
