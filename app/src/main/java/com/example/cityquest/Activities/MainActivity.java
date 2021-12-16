@@ -39,12 +39,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener, FragmentManager.OnBackStackChangedListener {
@@ -132,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         adapter.setSelected(POS_MAIN_MAP);
 
+        //VERIFICAR COM ID SO USER: FirebaseAuth.getInstance().getCurrentUser().getUid();
         db = FirebaseFirestore.getInstance();
         db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
            @Override
@@ -143,8 +146,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                        if(data.get("email").equals(emailSaved)) {
                            TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
                            TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
+                           CircleImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
                            username.setText(data.get("username").toString());
                            email.setText(data.get("email").toString());
+                           //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
                        }
                    }
                }

@@ -83,26 +83,28 @@
         <androidx.drawerlayout.widget.DrawerLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="15dp"
             android:layout_weight="1"
-            android:background="@drawable/friend_card"
-            android:layout_marginTop="15dp">
+            android:background="@drawable/friend_card">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="User1"
-                android:gravity="center_vertical"
-                android:textAlignment="viewStart"
                 android:layout_marginStart="20dp"
+                android:gravity="center_vertical"
+                android:text="User1"
+                android:textAlignment="viewStart"
                 android:textColor="#5AFF00"
                 tools:ignore="RtlCompat" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_vertical"
                 android:text="Online"
                 android:textAlignment="viewEnd"
-                android:gravity="center_vertical"
                 android:textColor="#5AFF00"
-                android:layout_marginEnd="20dp"
                 tools:ignore="RtlCompat" />
         </androidx.drawerlayout.widget.DrawerLayout>
 

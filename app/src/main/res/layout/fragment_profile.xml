@@ -3,155 +3,173 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragments.ProfileFragment"
-    android:paddingTop="25dp"
-    android:background="#282832">
+    android:paddingTop="100dp"
+    android:background="@drawable/profile">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:weightSum="4">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="300dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_marginTop="20dp">
-            <View
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginEnd="40dp"
-                android:background="@drawable/profile_pic" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/profile_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="USERNAME\nRANK: "
-                android:textAlignment="center"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
-        </LinearLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/buttonAddImage"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="2dp"
+            android:backgroundTint="@color/purple_dark"
+            app:borderWidth="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/profileImage"
+            app:layout_constraintEnd_toEndOf="@+id/profileImage"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/username_sideMenu"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="30dp"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:text="LAST QUESTS"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:layout_marginStart="10dp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3">
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/quest_drawable"
-                    android:clickable="true"/>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/quest_drawable"
-                    android:clickable="true"/>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/quest_drawable"
-                    android:clickable="true"/>
-            </LinearLayout>
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="User Logged"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/profileImage" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/email_sideMenu"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="30dp"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:text="LAST TOURNAMENTS"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:layout_marginLeft="10dp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3">
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/tournaments"
-                    android:clickable="true"/>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/tournaments"
-                    android:clickable="true"/>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/tournaments"
-                    android:clickable="true"/>
-            </LinearLayout>
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:text="UserLogged"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textStyle="italic"
+            app:layout_constraintTop_toBottomOf="@+id/username_sideMenu" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="30dp"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:text="LAST VISITED SPOTS"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:layout_marginStart="10dp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:layout_weight="3"
-                    android:text="NONE"
-                    android:textColor="#CCCCCC"
-                    android:textSize="24sp"
-                    android:textAlignment="center" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+        <TextView
+            android:id="@+id/followers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="Followers"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/following"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/email_sideMenu" />
 
+        <TextView
+            android:id="@+id/followers_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="0"
+            android:textColor="@color/white"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="@+id/followers"
+            app:layout_constraintStart_toStartOf="@+id/followers"
+            app:layout_constraintTop_toBottomOf="@+id/followers" />
+
+        <TextView
+            android:id="@+id/ranking_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="0"
+            android:textColor="@color/white"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="@+id/rankingQuest"
+            app:layout_constraintStart_toStartOf="@+id/rankingQuest"
+            app:layout_constraintTop_toBottomOf="@+id/rankingQuest" />
+
+        <TextView
+            android:id="@+id/following_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="0"
+            android:textColor="@color/white"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="@+id/following"
+            app:layout_constraintStart_toStartOf="@+id/following"
+            app:layout_constraintTop_toBottomOf="@+id/following" />
+
+        <TextView
+            android:id="@+id/following"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="Following"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/rankingQuest"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/followers"
+            app:layout_constraintTop_toBottomOf="@+id/email_sideMenu" />
+
+
+        <TextView
+            android:id="@+id/rankingQuest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="Ranking"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/following"
+            app:layout_constraintTop_toBottomOf="@+id/email_sideMenu" />
+
+        <TextView
+            android:id="@+id/lastQuest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="44dp"
+            android:layout_marginTop="150dp"
+            android:text="Last Quest"
+            android:textColor="@color/purple_dark"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/followers_number" />
+
+        <TextView
+            android:id="@+id/lastTournaments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="44dp"
+            android:text="Last Tournaments"
+            android:textColor="@color/purple_dark"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lastQuest" />
+
+        <TextView
+            android:id="@+id/lastVisitedSpots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="44dp"
+            android:text="Last Visited Spots"
+            android:textColor="@color/purple_dark"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lastTournaments" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

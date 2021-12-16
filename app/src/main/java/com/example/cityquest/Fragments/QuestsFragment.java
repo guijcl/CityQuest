@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -45,6 +48,14 @@ public class QuestsFragment extends Fragment {
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
 
+    String[] categoryItems = {"Elaborate Quest", "Local Quest"};
+    AutoCompleteTextView autoCompleteTextCat;
+    ArrayAdapter<String> adapterItemsCat;
+
+    String[] orderByItems = {"Latest Quests", "Oldest Quests", "Nearest Quests", "Most Distant Quests", "Most Popular Quests"};
+    AutoCompleteTextView autoCompleteTextOrder;
+    ArrayAdapter<String> adapterItemsOrder;
+
     public QuestsFragment() { }
 
     @Override
@@ -56,6 +67,29 @@ public class QuestsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quests, container, false);
+
+        autoCompleteTextCat = view.findViewById(R.id.autoCompleteOne);
+        adapterItemsCat = new ArrayAdapter<String>(getActivity(),R.layout.list_item_questsfrag, categoryItems);
+        autoCompleteTextCat.setAdapter(adapterItemsCat);
+        autoCompleteTextCat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = adapterView.getItemAtPosition(i).toString();
+                //filter by category
+            }
+        });
+
+        autoCompleteTextOrder = view.findViewById(R.id.autoCompleteTwo);
+        adapterItemsOrder = new ArrayAdapter<String>(getActivity(),R.layout.list_item_questsfrag, orderByItems);
+        autoCompleteTextOrder.setAdapter(adapterItemsOrder);
+        autoCompleteTextOrder.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = adapterView.getItemAtPosition(i).toString();
+                //filter by category
+            }
+        });
+
 
         geocoder = new Geocoder(this.requireContext());
 
