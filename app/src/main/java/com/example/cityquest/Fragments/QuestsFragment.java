@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -23,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.cityquest.Objects.ElaborateQuest;
@@ -54,9 +54,6 @@ public class QuestsFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Geocoder geocoder;
 
-    private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
-
     String[] categoryItems = {"Elaborate Quest", "Local Quest"};
     AutoCompleteTextView autoCompleteTextCat;
     ArrayAdapter<String> adapterItemsCat;
@@ -64,6 +61,14 @@ public class QuestsFragment extends Fragment {
     String[] orderByItems = {"Latest Quests", "Oldest Quests", "Nearest Quests", "Most Distant Quests", "Most Popular Quests"};
     AutoCompleteTextView autoCompleteTextOrder;
     ArrayAdapter<String> adapterItemsOrder;
+
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
+
+    private List<HashMap<String, Double>> loc_quests_suggestions_coords = new ArrayList<>();
+    private String selected_item = "";
+    private double selected_item_latitude = 0.0;
+    private double selected_item_longitude = 0.0;
 
     public QuestsFragment() { }
 
@@ -164,119 +169,127 @@ public class QuestsFragment extends Fragment {
         AutoCompleteTextView name = newQuestPopupView.findViewById(R.id.name);
         EditText desc = newQuestPopupView.findViewById(R.id.desc);
 
+        Button search_button = newQuestPopupView.findViewById(R.id.search);
+        Spinner dropdown = newQuestPopupView.findViewById(R.id.dropdown_menu);
+
         Button newquestpopup_save = newQuestPopupView.findViewById(R.id.create);
         Button newquestpopup_cancel = newQuestPopupView.findViewById(R.id.cancel);
 
+        List<String> items = new ArrayList<>();
+        items.add("Choose a location");
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_expandable_list_item_1, items);
+        dropdown.setAdapter(adapter);
+
+        search_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                adapter.clear();
+                loc_quests_suggestions_coords.clear();
+
+                List<String> loc_quests_suggestions = new ArrayList<>();
+                loc_quests_suggestions.add("Choose a location");
+                List<Address> addressList = null;
+                try {
+                    addressList = geocoder.getFromLocationName(String.valueOf(name.getText()), 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(addressList != null) {
+                    if (addressList.size() > 0) {
+                        for(Address address : addressList) {
+                            loc_quests_suggestions.add(getLocationsString(address));
+                            HashMap<String, Double> coords = new HashMap<>();
+                            coords.put("latitude", (double) address.getLatitude());
+                            coords.put("longitude", (double) address.getLongitude());
+                            loc_quests_suggestions_coords.add(coords);
+                        }
+                    }
+                }
+                adapter.addAll(loc_quests_suggestions);
+            }
+        });
+
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(i > 0) {
+                    newquestpopup_save.setEnabled(true);
+                    selected_item = (String) adapterView.getItemAtPosition(i);
+
+                    HashMap<String, Double> coords = loc_quests_suggestions_coords.get(i - 1);
+                    selected_item_latitude = coords.get("latitude");
+                    selected_item_longitude = coords.get("longitude");
+                } else {
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+
         name.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(newquestpopup_save.isEnabled())
                     newquestpopup_save.setEnabled(false);
-
-                List<String> loc_quests_suggestions = new ArrayList<>();
-                String str = charSequence.toString();
-                int len = str.length();
-                if(len >= 3) {
-                    List<Address> addressList = null;
-                    try {
-                        addressList = geocoder.getFromLocationName(str, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if(addressList != null) {
-                        if (addressList.size() > 0) {
-                            for(Address address : addressList) {
-                                loc_quests_suggestions.add(getLocationsString(address));
-                            }
-                        }
-                    }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                            android.R.layout.simple_list_item_1, loc_quests_suggestions);
-                    name.setAdapter(adapter);
+                if(adapter.getCount() > 1) {
+                    adapter.clear();
+                    adapter.add("Choose a location");
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-                desc.setText("Visit: " + editable.toString());
-            }
+            public void afterTextChanged(Editable editable) {}
         });
 
-        name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        newquestpopup_save.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                newquestpopup_save.setEnabled(true);
-            }
-        });
-
-        dialogBuilder.setView(newQuestPopupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-        newquestpopup_save.setOnClickListener(view -> {
-            //CODIGO PARA NOME CORRETO (POSSIVELMENTE, NÃO É MAIS NECESSÁRIO)
-            List<Address> addressList = null;
-            try {
-                addressList = geocoder.getFromLocationName(name.getText().toString(), 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if(addressList != null) {
-                if(addressList.size() > 0) {
-                    Address address = addressList.get(0);
-
-                    //Log.d("TESTE1", String.valueOf(address));
-                    String tmp_name = address.getFeatureName() + ", " + address.getAdminArea() + ", " +
-                            address.getSubAdminArea() + ", " + address.getLocality() + ", " + address.getThoroughfare() +
-                            ", " + address.getCountryName();
-                    tmp_name = tmp_name.replaceAll("null, ", "");
-                    tmp_name = deDup(tmp_name);
-
-                    double latitude = address.getLatitude();
-                    double longitude = address.getLongitude();
-
-                    //CHECK IF LOCAL QUEST ALREADY EXISTS
-                    String finalTmp_name = tmp_name;
-                    db.collection("loc_quests")
-                            .whereEqualTo("name", tmp_name)
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        if(task.getResult().size() == 0) {
-                                            //IF DOESNT EXIST, CREATE
-                                            LocQuest n_lq = new LocQuest(finalTmp_name, desc.getText().toString(), latitude, longitude);
-                                            db.collection("loc_quests")
-                                                    .add(n_lq)
-                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                        @Override
-                                                        public void onSuccess(DocumentReference documentReference) {
-                                                            QuestFragment questFragment = new QuestFragment(documentReference.getId(),
-                                                                    n_lq.getName(), n_lq.getDesc(), latitude, longitude, "loc_quest",null, "quests_list");
-                                                            childFragTrans.add(R.id.all_quests, questFragment);
-                                                            childFragTrans.commit();
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(e -> { });
-                                            dialog.dismiss();
-                                        } else {
-                                            Toast.makeText(requireContext(), "THIS QUEST ALREADY EXISTS", Toast.LENGTH_SHORT).show();
-                                        }
+            public void onClick(View view) {
+                db.collection("loc_quests")
+                        .whereEqualTo("name", selected_item)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if(task.getResult().size() == 0) {
+                                        //IF DOESNT EXIST, CREATE
+                                        LocQuest n_lq = new LocQuest(selected_item, desc.getText().toString(), selected_item_latitude, selected_item_longitude);
+                                        db.collection("loc_quests")
+                                                .add(n_lq)
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentReference documentReference) {
+                                                        QuestFragment questFragment = new QuestFragment(documentReference.getId(),
+                                                                n_lq.getName(), n_lq.getDesc(), selected_item_latitude, selected_item_longitude, "loc_quest",null, "quests_list");
+                                                        childFragTrans.add(R.id.all_quests, questFragment);
+                                                        childFragTrans.commit();
+                                                    }
+                                                })
+                                                .addOnFailureListener(e -> { });
+                                        dialog.dismiss();
+                                    } else {
+                                        Toast.makeText(requireContext(), "THIS QUEST ALREADY EXISTS", Toast.LENGTH_SHORT).show();
                                     }
                                 }
-                            });
-                }
+                            }
+                        });
             }
-
         });
 
         newquestpopup_cancel.setOnClickListener(view -> {
             dialog.dismiss();
         });
+
+        dialogBuilder.setView(newQuestPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
     }
 
     public void createNewElaborateQuestDialog() {
@@ -338,6 +351,8 @@ public class QuestsFragment extends Fragment {
             str = address.getFeatureName() + ", " + address.getAdminArea() + ", " +
                     address.getSubAdminArea() + ", " + address.getLocality() + ", " + address.getThoroughfare() +
                     ", " + address.getCountryName();
+            /*str = address.getFeatureName() + ", " + address.getAdminArea() +
+                    ", " + address.getCountryName();*/
             str = str.replaceAll("null, ", "");
             str = deDup(str);
         }

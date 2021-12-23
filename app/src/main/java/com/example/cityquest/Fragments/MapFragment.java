@@ -144,6 +144,34 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     //markerOptions.position(latLng);
                     //googleMap.addMarker(markerOptions);
                 }
+
+                /*for(HashMap map : user_loc_quests) {
+                    if(geocoder != null) {
+                        List<Address> addressList = null;
+                        try {
+                            double latitude = Double.parseDouble((String) map.get("latitude"));
+                            double longitude = Double.parseDouble((String) map.get("longitude"));
+                            addressList = geocoder.getFromLocation(latitude, longitude, 3);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        //COPIAR CÓDIGO DE ONMAPCLICK
+                        if (addressList != null) {
+                            if (addressList.size() > 0) {
+                                List<String> listStrs = getOnTapThreeLocationsStrings(addressList);
+                                String str1 = listStrs.get(0);
+                                String str2 = listStrs.get(1);
+                                String str3 = listStrs.get(2);
+
+                                Log.d("LOCALIZAÇÕES1.1", str1 + " ; " + map.get("name"));
+                                Log.d("LOCALIZAÇÕES1.2", str2 + " ; " + map.get("name"));
+                                Log.d("LOCALIZAÇÕES1.3", str3 + " ; " + map.get("name"));
+                            }
+                        }
+                    }
+                }*/
+
             }
         }, null);
     }
@@ -262,32 +290,29 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 public void onMapClick(@NonNull LatLng latLng) {
                     List<Address> addressList = null;
                     try {
-                        addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 3);
+                        addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     if (addressList != null) {
                         if (addressList.size() > 0) {
 
-                            List<String> listStrs = getOnTapThreeLocationsStrings(addressList);
-                            String str1 = listStrs.get(0);
-                            String str2 = listStrs.get(1);
-                            String str3 = listStrs.get(2);
+                            String str = getOnTapLocationString(addressList);
+                            /*String str1 = listStrs.get(0), str2 = listStrs.get(1), str3 = listStrs.get(2),
+                                    str4 = listStrs.get(3), str5 = listStrs.get(4);*/
 
                             for(HashMap<String, String> map : user_loc_quests) {
-                                /*DEBUG
-                                Log.d("LOCALIZAÇÕES2.1", str1 + " ; " + (String) map.get("name"));
-                                Log.d("LOCALIZAÇÕES2.2", str2 + " ; " + (String) map.get("name"));
-                                Log.d("LOCALIZAÇÕES2.3", str3 + " ; " + (String) map.get("name"));*/
+                                //DEBUG
+                                Log.d("LOCALIZAÇÕES2.1", str + " ; " + (String) map.get("name"));
 
                                 List<String> tmp_s = Arrays.asList(((String) map.get("name")).split(","));
                                 boolean check = true;
                                 for(String s : tmp_s) {
-                                    if(!str1.contains(s) && !str2.contains(s) && !str3.contains(s))
+                                    Log.d("LOCALIZAÇÕES2.0", str.contains(s) + ";" + s);
+                                    if(!str.contains(s))
                                         check = false;
                                 }
                                 if(check) {
-                                    //Log.d("PASSED1", String.valueOf(check));
                                     LatLng latLng_marker = new LatLng(Double.parseDouble(map.get("latitude")),
                                             Double.parseDouble(map.get("longitude")));
                                     Marker to_rmv_marker = hashMapMarker.get(map.get("id"));
@@ -344,44 +369,71 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         return false;
     }
 
-    private List<String> getOnTapThreeLocationsStrings(List<Address> addressList) {
-        Address address1 = null, address2 = null, address3 = null;
-        if(addressList.size() >= 1) address1 = addressList.get(0);
-        if(addressList.size() >= 2) address2 = addressList.get(1);
-        if(addressList.size() >= 3) address3 = addressList.get(2);
+    private String getOnTapLocationString(List<Address> addressList) {
+        List<Address> addressList1= null, addressList2 = null, addressList3 = null, addressList4 = null;
+        String str = "";
+        try {
+            Address address = addressList.get(0);
+            str = addressToString(address);
+            str = str.replaceAll("null, ", "");
+            str = deDup(str);
 
-        List<String> res = new ArrayList<>();
-
-        String str1 = "", str2 = "", str3 = "";
-        if(address1 != null) {
-            str1 = address1.getFeatureName() + ", " + address1.getAdminArea() + ", " +
-                    address1.getSubAdminArea() + ", " + address1.getLocality() + ", " + address1.getThoroughfare() +
-                    ", " + address1.getCountryName();
-            str1 = str1.replaceAll("null, ", "");
-            str1 = deDup(str1);
+            addressList1 = geocoder.getFromLocationName(str, 1);
+            if(address.getAdminArea() != null) addressList2 = geocoder.getFromLocationName(address.getAdminArea(), 1);
+            if(address.getSubAdminArea() != null) addressList3 = geocoder.getFromLocationName(address.getSubAdminArea(), 1);
+            if(address.getLocality() != null) addressList4 = geocoder.getFromLocationName(address.getLocality(), 1);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        if(address2 != null) {
-            str2 = address2.getFeatureName() + ", " + address2.getAdminArea() + ", " +
-                    address2.getSubAdminArea() + ", " + address2.getLocality() + ", " + address2.getThoroughfare() +
-                    ", " + address2.getCountryName();
-            str2 = str2.replaceAll("null, ", "");
-            str2 = deDup(str2);
+        String res = "";
+        str = "";
+        if (addressList1 != null) {
+            if (addressList1.size() > 0) {
+                Address address1 = addressList1.get(0);
+                if (address1 != null) {
+                    str += addressToString(address1) + ", ";
+                }
+            }
         }
 
-        if(address3 != null) {
-            str3 = address3.getFeatureName() + ", " + address3.getAdminArea() + ", " +
-                    address3.getSubAdminArea() + ", " + address3.getLocality() + ", " + address3.getThoroughfare() +
-                    ", " + address3.getCountryName();
-            str3 = str3.replaceAll("null, ", "");
-            str3 = deDup(str3);
+        if (addressList2 != null) {
+            if (addressList2.size() > 0) {
+                Address address1 = addressList2.get(0);
+                if (address1 != null) {
+                    str += addressToString(address1) + ", ";
+                }
+            }
         }
 
-        res.add(str1);
-        res.add(str2);
-        res.add(str3);
+        if (addressList3 != null) {
+            if (addressList3.size() > 0) {
+                Address address1 = addressList3.get(0);
+                if (address1 != null) {
+                    str += addressToString(address1) + ", ";
+                }
+            }
+        }
+
+        if (addressList4 != null) {
+            if (addressList4.size() > 0) {
+                Address address1 = addressList4.get(0);
+                if (address1 != null) {
+                    str += addressToString(address1) + ", ";
+                }
+            }
+        }
+
+        str = str.replaceAll("null, ", "");
+        res = " " + deDup(str);
 
         return res;
+    }
+
+    public String addressToString(Address address) {
+        return address.getFeatureName() + ", " + address.getAdminArea() + ", " +
+                address.getSubAdminArea() + ", " + address.getLocality() + ", " + address.getThoroughfare() +
+                ", " + address.getCountryName();
     }
 
     private String deDup(String s) {
