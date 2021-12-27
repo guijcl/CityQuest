@@ -21,22 +21,20 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.R;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -45,8 +43,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class QuestsFragment extends Fragment {
@@ -299,27 +295,77 @@ public class QuestsFragment extends Fragment {
         dialogBuilder = new AlertDialog.Builder(requireActivity());
         final View newQuestPopupView = getLayoutInflater().inflate(R.layout.new_elaboratequest_popup, null);
 
+        List<String> quest_names = new ArrayList<>();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_expandable_list_item_1, quest_names);
+        db.collection("loc_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap data = (HashMap) document.getData();
+                        quest_names.add((String) data.get("name"));
+                    }
+                }
+            }
+        });
+
         EditText name = newQuestPopupView.findViewById(R.id.name);
         EditText desc = newQuestPopupView.findViewById(R.id.desc);
 
-        EditText task1 = newQuestPopupView.findViewById(R.id.task_1);
-        EditText task2 = newQuestPopupView.findViewById(R.id.task_2);
-        EditText task3 = newQuestPopupView.findViewById(R.id.task_3);
-        EditText task4 = newQuestPopupView.findViewById(R.id.task_4);
-
         Button newquestpopup_save = newQuestPopupView.findViewById(R.id.create);
         Button newquestpopup_cancel = newQuestPopupView.findViewById(R.id.cancel);
+
+        LinearLayout task1 = newQuestPopupView.findViewById(R.id.task_1);
+        CheckBox checkBox1 = newQuestPopupView.findViewById(R.id.checkbox_1);
+        AutoCompleteTextView quest1 = newQuestPopupView.findViewById(R.id.quest_1);
+        quest1.setAdapter(adapter);
+        Button add_quest = newQuestPopupView.findViewById(R.id.add_quest);
+
+        checkBox1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {}
+        });
+
+        add_quest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(task1.getChildCount() <= 5) {
+                    AutoCompleteTextView new_quest = new AutoCompleteTextView(newQuestPopupView.getContext());
+                    new_quest.setHint("Quest " + task1.getChildCount());
+                    new_quest.setAdapter(adapter);
+                    new_quest.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {}
+                    });
+                    task1.addView(new_quest);
+                } else {
+                    Toast.makeText(newQuestPopupView.getContext(), "TOO MANY QUESTS", Toast.LENGTH_SHORT);
+                }
+            }
+        });
+
+
+        CheckBox checkBox2 = newQuestPopupView.findViewById(R.id.checkbox_2);
+        CheckBox checkBox3 = newQuestPopupView.findViewById(R.id.checkbox_3);
 
         dialogBuilder.setView(newQuestPopupView);
         dialog = dialogBuilder.create();
         dialog.show();
 
-        newquestpopup_save.setOnClickListener(view -> {
+        /*newquestpopup_save.setOnClickListener(view -> {
             HashMap<String, String> tasks = new HashMap<String, String>() {{
                 put("Task_1", task1.getText().toString());
                 put("Task_2", task2.getText().toString());
                 put("Task_3", task3.getText().toString());
-                put("Task_4", task4.getText().toString());
             }};
 
             ElaborateQuest n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), tasks);
@@ -336,7 +382,7 @@ public class QuestsFragment extends Fragment {
                     })
                     .addOnFailureListener(e -> { });
             dialog.dismiss();
-        });
+        });*/
 
         newquestpopup_cancel.setOnClickListener(view -> {
             dialog.dismiss();
