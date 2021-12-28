@@ -310,6 +310,11 @@ public class QuestsFragment extends Fragment {
             }
         });
 
+        List<Boolean> check = new ArrayList<>();
+        check.add(false);
+        check.add(false);
+        check.add(false);
+
         EditText name = newQuestPopupView.findViewById(R.id.name);
         EditText desc = newQuestPopupView.findViewById(R.id.desc);
 
@@ -317,22 +322,96 @@ public class QuestsFragment extends Fragment {
         Button newquestpopup_cancel = newQuestPopupView.findViewById(R.id.cancel);
 
         LinearLayout task1 = newQuestPopupView.findViewById(R.id.task_1);
-        CheckBox checkBox1 = newQuestPopupView.findViewById(R.id.checkbox_1);
-        AutoCompleteTextView quest1 = newQuestPopupView.findViewById(R.id.quest_1);
-        quest1.setAdapter(adapter);
         Button add_quest = newQuestPopupView.findViewById(R.id.add_quest);
+
+        CheckBox checkBox1 = newQuestPopupView.findViewById(R.id.checkbox_1);
+        CheckBox checkBox2 = newQuestPopupView.findViewById(R.id.checkbox_2);
+
+        AutoCompleteTextView quest1 = newQuestPopupView.findViewById(R.id.quest_1);
+        EditText meters = newQuestPopupView.findViewById(R.id.meters);
+        EditText time = newQuestPopupView.findViewById(R.id.time_to_complete);
+
+        List<Boolean> check_quests = new ArrayList<>();
+        check_quests.add(false);
 
         checkBox1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {}
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(add_quest.isEnabled() && quest1.isEnabled()) {
+                    add_quest.setEnabled(false);
+                    //quest1.setEnabled(false);
+                    for(int i = 0; i < task1.getChildCount(); i++) {
+                        if(i != 0)
+                            task1.getChildAt(i).setEnabled(false);
+                    }
+                } else {
+                    add_quest.setEnabled(true);
+                    //quest1.setEnabled(true);
+                    for(int i = 0; i < task1.getChildCount(); i++) {
+                        if(i != 0)
+                            task1.getChildAt(i).setEnabled(true);
+                    }
+                }
+
+                if(add_quest.isEnabled() && meters.isEnabled()) {
+                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if(add_quest.isEnabled() && !meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if(!add_quest.isEnabled() && meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else {
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+            }
+        });
+
+        quest1.setAdapter(adapter);
+        quest1.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                check_quests.set(0, false);
+                if(newquestpopup_save.isEnabled())
+                    newquestpopup_save.setEnabled(false);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        quest1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                check_quests.set(0, true);
+                if(!check_quests.contains(false)) {
+                    check.set(0, true);
+
+                    if(meters.isEnabled()) {
+                        if (check.get(0) && check.get(1) && check.get(2))
+                            newquestpopup_save.setEnabled(true);
+                    } else {
+                        if(check.get(0) && check.get(2))
+                            newquestpopup_save.setEnabled(true);
+                    }
+                }
+            }
         });
 
         add_quest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(task1.getChildCount() <= 5) {
+                    int id_num = task1.getChildCount();
+
                     AutoCompleteTextView new_quest = new AutoCompleteTextView(newQuestPopupView.getContext());
-                    new_quest.setHint("Quest " + task1.getChildCount());
+                    new_quest.setHint("Quest " + id_num);
+                    check_quests.add(false);
                     new_quest.setAdapter(adapter);
                     new_quest.addTextChangedListener(new TextWatcher() {
                         @Override
@@ -340,11 +419,29 @@ public class QuestsFragment extends Fragment {
 
                         @Override
                         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                            check_quests.set(id_num - 1, false);
+                            if(newquestpopup_save.isEnabled())
+                                newquestpopup_save.setEnabled(false);
                         }
 
                         @Override
                         public void afterTextChanged(Editable editable) {}
+                    });
+                    new_quest.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            check_quests.set(id_num - 1, true);
+                            if(!check_quests.contains(false)) {
+                                check.set(0, true);
+
+                                if(meters.isEnabled())
+                                    if(check.get(0) && check.get(1) && check.get(2))
+                                        newquestpopup_save.setEnabled(true);
+                                else
+                                    if(check.get(0) && check.get(2))
+                                        newquestpopup_save.setEnabled(true);
+                            }
+                        }
                     });
                     task1.addView(new_quest);
                 } else {
@@ -353,9 +450,97 @@ public class QuestsFragment extends Fragment {
             }
         });
 
+        checkBox2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(meters.isEnabled())
+                    meters.setEnabled(false);
+                else
+                    meters.setEnabled(true);
 
-        CheckBox checkBox2 = newQuestPopupView.findViewById(R.id.checkbox_2);
-        CheckBox checkBox3 = newQuestPopupView.findViewById(R.id.checkbox_3);
+                if((add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
+                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if((add_quest.isEnabled() && quest1.isEnabled()) && !meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if(!(add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else {
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+            }
+        });
+
+        meters.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String str = charSequence.toString();
+                if(str.length() > 0 && str.matches("[0-9]+"))
+                    check.set(1, true);
+                else {
+                    check.set(1, false);
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+
+                if((add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
+                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if((add_quest.isEnabled() && quest1.isEnabled()) && !meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if(!(add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else {
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        time.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String str = charSequence.toString();
+                if(str.length() > 0 && str.matches("[0-9]+"))
+                    check.set(2, true);
+                else {
+                    check.set(2, false);
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+
+                if((add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
+                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if((add_quest.isEnabled() && quest1.isEnabled()) && !meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else if(!(add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
+                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
+                        newquestpopup_save.setEnabled(true);
+                } else {
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
 
         dialogBuilder.setView(newQuestPopupView);
         dialog = dialogBuilder.create();

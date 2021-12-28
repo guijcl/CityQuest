@@ -43,17 +43,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginTop="15dp"
             android:id="@+id/task_1">
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_weight="10">
+                android:weightSum="10">
                 <CheckBox
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:id="@+id/checkbox_1" />
+                    android:id="@+id/checkbox_1"
+                    android:checked="true"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -65,20 +67,23 @@
                     android:layout_height="match_parent"
                     android:layout_weight="2"
                     android:text="+"
-                    android:id="@+id/add_quest"/>
+                    android:id="@+id/add_quest"
+                    android:enabled="true"/>
             </LinearLayout>
 
             <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Quest 1"
-                android:id="@+id/quest_1"/>
+                android:id="@+id/quest_1"
+                android:enabled="true"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginTop="15dp"
             android:id="@+id/task_2">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -101,36 +106,34 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Meters" />
+                android:hint="Meters"
+                android:id="@+id/meters"
+                android:enabled="false"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginTop="15dp"
             android:id="@+id/task_3">
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:orientation="horizontal"
-                android:layout_weight="10">
-                <CheckBox
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:id="@+id/checkbox_3"/>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="9"
                     android:text="Time to complete"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:paddingStart="5dp"/>
             </LinearLayout>
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Time in Hours" />
+                android:hint="Time in Hours"
+                android:id="@+id/time_to_complete"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -149,6 +152,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="create"
+        android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.246"
         app:layout_constraintStart_toStartOf="parent"
