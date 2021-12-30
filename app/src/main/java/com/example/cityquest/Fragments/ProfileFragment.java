@@ -96,7 +96,7 @@ public class ProfileFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, "profile_quest_list");
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, "profile_quest_list");
                                 childFragTrans.add(R.id.user_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -117,7 +117,7 @@ public class ProfileFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, "profile_quest_list");
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, "profile_quest_list");
                                 childFragTrans.add(R.id.user_completed_quests, questFragment);
                             }
                             childFragTrans.commit();

@@ -45,18 +45,22 @@ public class QuestFragment extends Fragment {
     private final double latitude;
     private final double longitude;
     private final String type;
-    private final HashMap<String, String> tasks;
+    private final HashMap<String, String> quests;
+    private final String meters;
+    private final String time;
     private final String fragment_type;
 
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
-                         String type, HashMap<String, String> tasks, String fragment_type) {
+                         String type, HashMap<String, String> quests, String meters, String time, String fragment_type) {
         this.id = id;
         this.name = name;
         this.desc = desc;
         this.latitude = latitude;
         this.longitude = longitude;
         this.type = type;
-        this.tasks = tasks;
+        this.quests = quests;
+        this.meters = meters;
+        this.time = time;
         this.fragment_type = fragment_type;
     }
 
@@ -91,10 +95,10 @@ public class QuestFragment extends Fragment {
             ((TextView) view.findViewById(R.id.quest_desc)).setText(desc);
 
             if (type.equals("elaborate_quest")) {
-                ((TextView) view.findViewById(R.id.task_1)).setText(tasks.get("Task_1"));
-                ((TextView) view.findViewById(R.id.task_2)).setText(tasks.get("Task_2"));
-                ((TextView) view.findViewById(R.id.task_3)).setText(tasks.get("Task_3"));
-                ((TextView) view.findViewById(R.id.task_4)).setText(tasks.get("Task_4"));
+                /*((TextView) view.findViewById(R.id.task_1)).setText(quests.get("Task_1"));
+                ((TextView) view.findViewById(R.id.task_2)).setText(quests.get("Task_2"));
+                ((TextView) view.findViewById(R.id.task_3)).setText(quests.get("Task_3"));
+                ((TextView) view.findViewById(R.id.task_4)).setText(quests.get("Task_4"));*/
             }
 
             LinearLayout clickable_layout = view.findViewById(R.id.list_quest_layout);
@@ -130,14 +134,21 @@ public class QuestFragment extends Fragment {
                         } else {
                             loc_button.setOnClickListener(view12 -> {
                                 db.collection("users")
-                                        .document(currentUser).collection("user_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
+                                        .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
                                 loc_button.setEnabled(false);
                                 elaborate_button.setEnabled(false);
                             });
 
                             elaborate_button.setOnClickListener(view1 -> {
-                                db.collection("users")
-                                        .document(currentUser).collection("user_quests").document(id).set(new ElaborateQuest(name, desc, tasks));
+                                if(quests != null && meters != null)
+                                    db.collection("users")
+                                            .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time));
+                                else if(quests != null && meters == null)
+                                    db.collection("users")
+                                            .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time));
+                                else if(quests == null && meters != null)
+                                    db.collection("users")
+                                            .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time));
                                 loc_button.setEnabled(false);
                                 elaborate_button.setEnabled(false);
                             });

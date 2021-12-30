@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -124,7 +125,7 @@ public class QuestsFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, "quests_list");
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,"quests_list");
                                 childFragTrans.add(R.id.all_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -143,7 +144,7 @@ public class QuestsFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        0, 0,"elaborate_quest", (HashMap<String, String>) data.get("tasks"), "quests_list");
+                                        0, 0,"elaborate_quest", (HashMap<String, String>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"), "quests_list");
                                 childFragTrans.add(R.id.all_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -263,7 +264,8 @@ public class QuestsFragment extends Fragment {
                                                     @Override
                                                     public void onSuccess(DocumentReference documentReference) {
                                                         QuestFragment questFragment = new QuestFragment(documentReference.getId(),
-                                                                n_lq.getName(), n_lq.getDesc(), selected_item_latitude, selected_item_longitude, "loc_quest",null, "quests_list");
+                                                                n_lq.getName(), n_lq.getDesc(), selected_item_latitude, selected_item_longitude,
+                                                                "loc_quest",null, null, null, "quests_list");
                                                         childFragTrans.add(R.id.all_quests, questFragment);
                                                         childFragTrans.commit();
                                                     }
@@ -310,10 +312,14 @@ public class QuestsFragment extends Fragment {
             }
         });
 
-        List<Boolean> check = new ArrayList<>();
-        check.add(false);
-        check.add(false);
-        check.add(false);
+        List<Boolean> check1 = new ArrayList<>();
+        check1.add(false);
+        check1.add(false);
+
+        List<Boolean> check2 = new ArrayList<>();
+        check2.add(false);
+        check2.add(false);
+        check2.add(false);
 
         EditText name = newQuestPopupView.findViewById(R.id.name);
         EditText desc = newQuestPopupView.findViewById(R.id.desc);
@@ -334,38 +340,72 @@ public class QuestsFragment extends Fragment {
         List<Boolean> check_quests = new ArrayList<>();
         check_quests.add(false);
 
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String s = charSequence.toString();
+                if(s.length() > 0) {
+                    if (!check1.get(0)) {
+                        check1.set(0, true);
+                        check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
+                    }
+                } else {
+                    if (check1.get(0)) {
+                        check1.set(0, false);
+                        check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        desc.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String s = charSequence.toString();
+                if(s.length() > 0) {
+                    if (!check1.get(1)) {
+                        check1.set(1, true);
+                        check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
+                    }
+                } else {
+                    if (check1.get(1)) {
+                        check1.set(1, false);
+                        check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
         checkBox1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(add_quest.isEnabled() && quest1.isEnabled()) {
+                if(add_quest.isEnabled()) {
                     add_quest.setEnabled(false);
-                    //quest1.setEnabled(false);
                     for(int i = 0; i < task1.getChildCount(); i++) {
                         if(i != 0)
                             task1.getChildAt(i).setEnabled(false);
                     }
                 } else {
                     add_quest.setEnabled(true);
-                    //quest1.setEnabled(true);
                     for(int i = 0; i < task1.getChildCount(); i++) {
                         if(i != 0)
                             task1.getChildAt(i).setEnabled(true);
                     }
                 }
 
-                if(add_quest.isEnabled() && meters.isEnabled()) {
-                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if(add_quest.isEnabled() && !meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if(!add_quest.isEnabled() && meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else {
-                    if(newquestpopup_save.isEnabled())
-                        newquestpopup_save.setEnabled(false);
-                }
+                check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
             }
         });
 
@@ -390,19 +430,20 @@ public class QuestsFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 check_quests.set(0, true);
                 if(!check_quests.contains(false)) {
-                    check.set(0, true);
+                    check2.set(0, true);
 
                     if(meters.isEnabled()) {
-                        if (check.get(0) && check.get(1) && check.get(2))
+                        if (check2.get(0) && check2.get(1) && check2.get(2))
                             newquestpopup_save.setEnabled(true);
                     } else {
-                        if(check.get(0) && check.get(2))
+                        if(check2.get(0) && check2.get(2))
                             newquestpopup_save.setEnabled(true);
                     }
                 }
             }
         });
 
+        List<String> used_quest_names = new ArrayList<>();
         add_quest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -412,6 +453,11 @@ public class QuestsFragment extends Fragment {
                     AutoCompleteTextView new_quest = new AutoCompleteTextView(newQuestPopupView.getContext());
                     new_quest.setHint("Quest " + id_num);
                     check_quests.add(false);
+
+                    check2.set(0, false);
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+
                     new_quest.setAdapter(adapter);
                     new_quest.addTextChangedListener(new TextWatcher() {
                         @Override
@@ -422,24 +468,33 @@ public class QuestsFragment extends Fragment {
                             check_quests.set(id_num - 1, false);
                             if(newquestpopup_save.isEnabled())
                                 newquestpopup_save.setEnabled(false);
+
+                            if(used_quest_names.size() >= id_num - 1)
+                                used_quest_names.remove(id_num - 2);
                         }
 
                         @Override
                         public void afterTextChanged(Editable editable) {}
                     });
+
                     new_quest.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            check_quests.set(id_num - 1, true);
-                            if(!check_quests.contains(false)) {
-                                check.set(0, true);
+                            String q_name = new_quest.getText().toString();
+                            if(!used_quest_names.contains(q_name) && !q_name.equals(quest1.getText().toString())) {
+                                if(used_quest_names.size() >= id_num - 1)
+                                    used_quest_names.set(id_num - 2, q_name);
+                                else used_quest_names.add(q_name);
 
-                                if(meters.isEnabled())
-                                    if(check.get(0) && check.get(1) && check.get(2))
-                                        newquestpopup_save.setEnabled(true);
-                                else
-                                    if(check.get(0) && check.get(2))
-                                        newquestpopup_save.setEnabled(true);
+                                check_quests.set(id_num - 1, true);
+                                if (!check_quests.contains(false)) {
+                                    check2.set(0, true);
+
+                                    check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
+                                }
+                            } else {
+                                new_quest.setText("");
+                                Toast.makeText(requireContext(), "QUEST HAS ALREADY BEEN CHOSEN", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -458,19 +513,7 @@ public class QuestsFragment extends Fragment {
                 else
                     meters.setEnabled(true);
 
-                if((add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
-                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if((add_quest.isEnabled() && quest1.isEnabled()) && !meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if(!(add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else {
-                    if(newquestpopup_save.isEnabled())
-                        newquestpopup_save.setEnabled(false);
-                }
+                check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
             }
         });
 
@@ -482,26 +525,14 @@ public class QuestsFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String str = charSequence.toString();
                 if(str.length() > 0 && str.matches("[0-9]+"))
-                    check.set(1, true);
+                    check2.set(1, true);
                 else {
-                    check.set(1, false);
+                    check2.set(1, false);
                     if(newquestpopup_save.isEnabled())
                         newquestpopup_save.setEnabled(false);
                 }
 
-                if((add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
-                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if((add_quest.isEnabled() && quest1.isEnabled()) && !meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if(!(add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else {
-                    if(newquestpopup_save.isEnabled())
-                        newquestpopup_save.setEnabled(false);
-                }
+                check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
             }
 
             @Override
@@ -516,26 +547,14 @@ public class QuestsFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String str = charSequence.toString();
                 if(str.length() > 0 && str.matches("[0-9]+"))
-                    check.set(2, true);
+                    check2.set(2, true);
                 else {
-                    check.set(2, false);
+                    check2.set(2, false);
                     if(newquestpopup_save.isEnabled())
                         newquestpopup_save.setEnabled(false);
                 }
 
-                if((add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
-                    if (!newquestpopup_save.isEnabled() && check.get(0) && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if((add_quest.isEnabled() && quest1.isEnabled()) && !meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(0) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else if(!(add_quest.isEnabled() && quest1.isEnabled()) && meters.isEnabled()) {
-                    if(!newquestpopup_save.isEnabled() && check.get(1) && check.get(2))
-                        newquestpopup_save.setEnabled(true);
-                } else {
-                    if(newquestpopup_save.isEnabled())
-                        newquestpopup_save.setEnabled(false);
-                }
+                check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
             }
 
             @Override
@@ -546,32 +565,66 @@ public class QuestsFragment extends Fragment {
         dialog = dialogBuilder.create();
         dialog.show();
 
-        /*newquestpopup_save.setOnClickListener(view -> {
-            HashMap<String, String> tasks = new HashMap<String, String>() {{
-                put("Task_1", task1.getText().toString());
-                put("Task_2", task2.getText().toString());
-                put("Task_3", task3.getText().toString());
-            }};
+        newquestpopup_save.setOnClickListener(view -> {
+            HashMap<String, String> quests = new HashMap<>();
+            for(int i = 0; i < task1.getChildCount(); i++) {
+                if(i != 0) quests.put(((AutoCompleteTextView) task1.getChildAt(i)).getHint().toString(),
+                        ((AutoCompleteTextView) task1.getChildAt(i)).getText().toString());
+            }
 
-            ElaborateQuest n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), tasks);
+            ElaborateQuest n_eq = null;
+            if(check2.get(0) && check2.get(1))
+                n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
+                        meters.getText().toString(), time.getText().toString());
+            else if(check2.get(0))
+                n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
+                        time.getText().toString());
+            else if(check2.get(1))
+                n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(),
+                        meters.getText().toString(), time.getText().toString());
             db.collection("elaborate_quests")
                     .add(n_eq)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            QuestFragment questFragment = new QuestFragment(documentReference.getId(), name.getText().toString(), desc.getText().toString(),
-                                    0, 0, "elaborate_quest", tasks, "quests_list");
+                            QuestFragment questFragment = new QuestFragment(documentReference.getId(), name.getText().toString(),
+                                    desc.getText().toString(), 0, 0, "elaborate_quest", quests,
+                                    meters.getText().toString(), time.getText().toString(), "quests_list");
                             childFragTrans.add(R.id.all_quests, questFragment);
                             childFragTrans.commit();
                         }
                     })
                     .addOnFailureListener(e -> { });
             dialog.dismiss();
-        });*/
+        });
 
         newquestpopup_cancel.setOnClickListener(view -> {
             dialog.dismiss();
         });
+    }
+
+    private void check_elaborate_quest(View newquestpopup_save, View add_quest, View meters, List<Boolean> check1, List<Boolean> check2) {
+        if(check1.contains(false)) {
+            if(newquestpopup_save.isEnabled())
+                newquestpopup_save.setEnabled(false);
+            return;
+        }
+        if(add_quest.isEnabled() && meters.isEnabled()) {
+            if (check2.get(0) && check2.get(1) && check2.get(2))
+                newquestpopup_save.setEnabled(true);
+            else newquestpopup_save.setEnabled(false);
+        } else if(add_quest.isEnabled() && !meters.isEnabled()) {
+            if(check2.get(0) && check2.get(2))
+                newquestpopup_save.setEnabled(true);
+            else newquestpopup_save.setEnabled(false);
+        } else if(!add_quest.isEnabled() && meters.isEnabled()) {
+            if(check2.get(1) && check2.get(2))
+                newquestpopup_save.setEnabled(true);
+            else newquestpopup_save.setEnabled(false);
+        } else {
+            if(newquestpopup_save.isEnabled())
+                newquestpopup_save.setEnabled(false);
+        }
     }
 
     private String getLocationsString(Address address) {
