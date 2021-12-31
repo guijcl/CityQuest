@@ -1,10 +1,5 @@
 package com.example.cityquest.Fragments;
 
-import static android.app.Activity.RESULT_OK;
-
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,9 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.cityquest.Prevalent.Prevalent;
 import com.example.cityquest.R;
@@ -28,8 +21,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.HashMap;
@@ -106,7 +97,7 @@ public class ProfileFragment extends Fragment {
                     }
                 });
 
-        //TALVEZ ADICIONAR AQUI O MESMO CÓDIGO PARA ELABORATE QUESTS
+        /* TALVEZ ADICIONAR AQUI O MESMO CÓDIGO PARA ELABORATE QUESTS */
 
         db.collection("users").document(currentUser).collection("user_completed_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

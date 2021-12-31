@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class QuestsFragment extends Fragment {
@@ -58,6 +59,8 @@ public class QuestsFragment extends Fragment {
     String[] orderByItems = {"Latest Quests", "Oldest Quests", "Nearest Quests", "Most Distant Quests", "Most Popular Quests"};
     AutoCompleteTextView autoCompleteTextOrder;
     ArrayAdapter<String> adapterItemsOrder;
+
+    private HashMap<String, String> all_loc_quests;
 
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
@@ -101,8 +104,8 @@ public class QuestsFragment extends Fragment {
             }
         });
 
-
         geocoder = new Geocoder(this.requireContext());
+        all_loc_quests = new HashMap<>();
 
         Button create_local_quest = view.findViewById(R.id.local_quest);
         create_local_quest.setOnClickListener(view1 -> {
@@ -126,7 +129,8 @@ public class QuestsFragment extends Fragment {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
                                         (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,"quests_list");
-                                childFragTrans.add(R.id.all_quests, questFragment);
+                                childFragTrans.add(R.id.all_quests, questFragment, document.getId());
+                                all_loc_quests.put((String) data.get("name"), document.getId());
                             }
                             childFragTrans.commit();
                         } else {
@@ -143,9 +147,9 @@ public class QuestsFragment extends Fragment {
                             FragmentTransaction childFragTrans = childFragMan.beginTransaction();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
-                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        0, 0,"elaborate_quest", (HashMap<String, String>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"), "quests_list");
-                                childFragTrans.add(R.id.all_quests, questFragment);
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"), 0, 0,
+                                        "elaborate_quest", (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"), "quests_list");
+                                childFragTrans.add(R.id.all_quests, questFragment, document.getId());
                             }
                             childFragTrans.commit();
                         } else {
@@ -266,7 +270,7 @@ public class QuestsFragment extends Fragment {
                                                         QuestFragment questFragment = new QuestFragment(documentReference.getId(),
                                                                 n_lq.getName(), n_lq.getDesc(), selected_item_latitude, selected_item_longitude,
                                                                 "loc_quest",null, null, null, "quests_list");
-                                                        childFragTrans.add(R.id.all_quests, questFragment);
+                                                        childFragTrans.add(R.id.all_quests, questFragment, documentReference.getId());
                                                         childFragTrans.commit();
                                                     }
                                                 })
@@ -566,10 +570,17 @@ public class QuestsFragment extends Fragment {
         dialog.show();
 
         newquestpopup_save.setOnClickListener(view -> {
-            HashMap<String, String> quests = new HashMap<>();
+            HashMap<String, HashMap> quests = new HashMap<>();
             for(int i = 0; i < task1.getChildCount(); i++) {
-                if(i != 0) quests.put(((AutoCompleteTextView) task1.getChildAt(i)).getHint().toString(),
-                        ((AutoCompleteTextView) task1.getChildAt(i)).getText().toString());
+                if(i != 0) {
+                    if(all_loc_quests.containsKey(((AutoCompleteTextView) task1.getChildAt(i)).getText().toString())) {
+                        HashMap<String, Object> info = new HashMap<>();
+                        info.put("name", ((AutoCompleteTextView) task1.getChildAt(i)).getText().toString());
+                        info.put("done", false);
+                        quests.put(all_loc_quests.get(((AutoCompleteTextView) task1.getChildAt(i)).getText().toString()), info);
+                    }
+                }
+
             }
 
             ElaborateQuest n_eq = null;
@@ -590,7 +601,7 @@ public class QuestsFragment extends Fragment {
                             QuestFragment questFragment = new QuestFragment(documentReference.getId(), name.getText().toString(),
                                     desc.getText().toString(), 0, 0, "elaborate_quest", quests,
                                     meters.getText().toString(), time.getText().toString(), "quests_list");
-                            childFragTrans.add(R.id.all_quests, questFragment);
+                            childFragTrans.add(R.id.all_quests, questFragment, documentReference.getId());
                             childFragTrans.commit();
                         }
                     })
@@ -627,9 +638,15 @@ public class QuestsFragment extends Fragment {
         }
     }
 
-    private String getLocationsString(Address address) {
-        List<String> res = new ArrayList<>();
+    public void disable_loc_quest_buttons(HashMap<String, HashMap> list, String currentUser) {
+        for(String id : list.keySet()) {
+            ((QuestFragment) getChildFragmentManager().findFragmentByTag(id)).disableQuestButton();
+            db.collection("users").document(currentUser).
+                    collection("user_loc_quests").document(id).delete();
+        }
+    }
 
+    private String getLocationsString(Address address) {
         String str = "";
         if(address != null) {
             str = address.getFeatureName() + ", " + address.getAdminArea() + ", " +

@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Text;
@@ -37,6 +38,8 @@ public class QuestFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    private View view;
+
     private String currentUser;
 
     private final String id;
@@ -45,13 +48,13 @@ public class QuestFragment extends Fragment {
     private final double latitude;
     private final double longitude;
     private final String type;
-    private final HashMap<String, String> quests;
+    private final HashMap<String, HashMap> quests;
     private final String meters;
     private final String time;
     private final String fragment_type;
 
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
-                         String type, HashMap<String, String> quests, String meters, String time, String fragment_type) {
+                         String type, HashMap<String, HashMap> quests, String meters, String time, String fragment_type) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -73,6 +76,7 @@ public class QuestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quest, container, false);
+        this.view = view;
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -94,11 +98,76 @@ public class QuestFragment extends Fragment {
             ((TextView) view.findViewById(R.id.quest_name)).setText(name);
             ((TextView) view.findViewById(R.id.quest_desc)).setText(desc);
 
-            if (type.equals("elaborate_quest")) {
+            Button loc_button = view.findViewById(R.id.start_local_quest);
+            Button elaborate_button = view.findViewById(R.id.start_elaborate_quest);
+
+            if (type.equals("loc_quest")) {
+                db.collection("users").document(currentUser).
+                        collection("user_loc_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().exists()) {
+                                loc_button.setEnabled(false);
+                            } else {
+                                loc_button.setOnClickListener(view12 -> {
+                                    db.collection("users")
+                                            .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
+                                    loc_button.setEnabled(false);
+                                });
+                            }
+                        }
+                    }
+                });
+
+                db.collection("users").document(currentUser).
+                        collection("user_elaborate_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if(document.getId().equals(id)) {
+                                    loc_button.setEnabled(false);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (type.equals("elaborate_quest")) {
                 /*((TextView) view.findViewById(R.id.task_1)).setText(quests.get("Task_1"));
                 ((TextView) view.findViewById(R.id.task_2)).setText(quests.get("Task_2"));
                 ((TextView) view.findViewById(R.id.task_3)).setText(quests.get("Task_3"));
                 ((TextView) view.findViewById(R.id.task_4)).setText(quests.get("Task_4"));*/
+
+                db.collection("users").document(currentUser).
+                        collection("user_elaborate_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().exists()) {
+                                elaborate_button.setEnabled(false);
+                            } else {
+                                elaborate_button.setOnClickListener(view1 -> {
+                                    if(quests != null && meters != null)
+                                        db.collection("users")
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time));
+                                    else if(quests != null && meters == null)
+                                        db.collection("users")
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time));
+                                    else if(quests == null && meters != null)
+                                        db.collection("users")
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time));
+
+                                    if(quests != null)
+                                        ((QuestsFragment) getParentFragment()).disable_loc_quest_buttons(quests, currentUser);
+
+                                    elaborate_button.setEnabled(false);
+                                });
+                            }
+                        }
+                    }
+                });
             }
 
             LinearLayout clickable_layout = view.findViewById(R.id.list_quest_layout);
@@ -117,47 +186,19 @@ public class QuestFragment extends Fragment {
                         else if (card_v.getVisibility() == View.GONE)
                             card_v.setVisibility(View.VISIBLE);
                     }
-
                 }
             });
 
-            Button loc_button = view.findViewById(R.id.start_local_quest);
-            Button elaborate_button = view.findViewById(R.id.start_elaborate_quest);
-            db.collection("users").document(currentUser).
-                    collection("user_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        if (task.getResult().exists()) {
-                            loc_button.setEnabled(false);
-                            elaborate_button.setEnabled(false);
-                        } else {
-                            loc_button.setOnClickListener(view12 -> {
-                                db.collection("users")
-                                        .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
-                                loc_button.setEnabled(false);
-                                elaborate_button.setEnabled(false);
-                            });
 
-                            elaborate_button.setOnClickListener(view1 -> {
-                                if(quests != null && meters != null)
-                                    db.collection("users")
-                                            .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time));
-                                else if(quests != null && meters == null)
-                                    db.collection("users")
-                                            .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time));
-                                else if(quests == null && meters != null)
-                                    db.collection("users")
-                                            .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time));
-                                loc_button.setEnabled(false);
-                                elaborate_button.setEnabled(false);
-                            });
-                        }
-                    }
-                }
-            });
         }
 
         return view;
+    }
+
+    public void disableQuestButton() {
+        Button loc_button = view.findViewById(R.id.start_local_quest);
+        Button elaborate_button = view.findViewById(R.id.start_elaborate_quest);
+        loc_button.setEnabled(false);
+        elaborate_button.setEnabled(false);
     }
 }
