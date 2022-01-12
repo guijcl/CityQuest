@@ -43,8 +43,10 @@ import com.squareup.picasso.Picasso;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.paperdb.Paper;
@@ -71,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private FragmentManager fragmentManager;
 
     FirebaseAuth mAuth;
+
+    HashMap<String, HashMap> loc_quests;
+    HashMap<String, HashMap> elaborate_quests;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +166,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
 
         //------------------------------------------------------------------------------------------
+
+        loc_quests = new HashMap<>();
+        elaborate_quests = new HashMap<>();
 
         if(getSupportActionBar() != null) getSupportActionBar().hide();
 
@@ -291,5 +299,21 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     public void onBackStackChanged() {
         if(fragmentManager.getBackStackEntryCount() == 0)
             finish();
+    }
+
+    public HashMap<String, HashMap> getLocQuests() {
+        return loc_quests;
+    }
+
+    public void addLocQuest(String id, HashMap temp) {
+        loc_quests.put(id, temp);
+    }
+
+    public HashMap<String, HashMap> getElaborateQuests() {
+        return elaborate_quests;
+    }
+
+    public void addElaborateQuest(String id, HashMap temp) {
+        elaborate_quests.put(id, temp);
     }
 }

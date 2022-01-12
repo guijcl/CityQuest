@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.cityquest.Activities.MainActivity;
 import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.R;
@@ -111,6 +112,13 @@ public class QuestFragment extends Fragment {
                                 loc_button.setEnabled(false);
                             } else {
                                 loc_button.setOnClickListener(view12 -> {
+                                    HashMap<String, String> quest = new HashMap<>();
+                                    quest.put("name", name);
+                                    quest.put("desc", desc);
+                                    quest.put("latitude", String.valueOf(latitude));
+                                    quest.put("longitude", String.valueOf(longitude));
+                                    ((MainActivity) getActivity()).addLocQuest(id, quest);
+
                                     db.collection("users")
                                             .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
                                     loc_button.setEnabled(false);
@@ -135,10 +143,18 @@ public class QuestFragment extends Fragment {
                     }
                 });
             } else if (type.equals("elaborate_quest")) {
-                /*((TextView) view.findViewById(R.id.task_1)).setText(quests.get("Task_1"));
-                ((TextView) view.findViewById(R.id.task_2)).setText(quests.get("Task_2"));
-                ((TextView) view.findViewById(R.id.task_3)).setText(quests.get("Task_3"));
-                ((TextView) view.findViewById(R.id.task_4)).setText(quests.get("Task_4"));*/
+                TextView desc_layout = (TextView) view.findViewById(R.id.desc);
+                if(!quests.isEmpty()) {
+                    int count = 1;
+                    for (String id_quest : quests.keySet()) {
+                        desc_layout.setText(desc_layout.getText() + "Location " + count + " > " + (String) quests.get(id_quest).get("name") + "\n");
+                        count++;
+                    }
+                }
+
+                if(meters != null)
+                    desc_layout.setText(desc_layout.getText() + "Meters > " + meters + "\n");
+                desc_layout.setText("\n" + desc_layout.getText() + "Time to complete > " + time + " hours" + "\n");
 
                 db.collection("users").document(currentUser).
                         collection("user_elaborate_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -149,6 +165,14 @@ public class QuestFragment extends Fragment {
                                 elaborate_button.setEnabled(false);
                             } else {
                                 elaborate_button.setOnClickListener(view1 -> {
+                                    HashMap<String, Object> quest = new HashMap<>();
+                                    quest.put("name", name);
+                                    quest.put("desc", desc);
+                                    quest.put("quests", quests);
+                                    quest.put("meters", meters);
+                                    quest.put("time", time);
+                                    ((MainActivity) getActivity()).addElaborateQuest(id, quest);
+
                                     if(quests != null && meters != null)
                                         db.collection("users")
                                                 .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time));
