@@ -74,8 +74,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     FirebaseAuth mAuth;
 
-    HashMap<String, HashMap> loc_quests;
-    HashMap<String, HashMap> elaborate_quests;
+    private String currentUser;
+
+    HashMap<String, HashMap> loc_quests = new HashMap<>();
+    HashMap<String, HashMap> elaborate_quests = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         //-------------------------------------AUTHENTICATION---------------------------------------
 
         mAuth = FirebaseAuth.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         //----------------------------------------SIDE MENU-----------------------------------------
 
@@ -167,9 +170,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         //------------------------------------------------------------------------------------------
 
-        loc_quests = new HashMap<>();
-        elaborate_quests = new HashMap<>();
-
         if(getSupportActionBar() != null) getSupportActionBar().hide();
 
         fragmentManager = getSupportFragmentManager();
@@ -233,6 +233,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     @Override
     public void onItemSelected(int position) {
+        for(String id : elaborate_quests.keySet()) {
+            db.collection("users").document(currentUser).
+                    collection("user_elaborate_quests").document(id).update(elaborate_quests.get(id));
+        }
+
         fragmentManager = getSupportFragmentManager();
         switch (position) {
             case POS_MAIN_MAP:
@@ -308,6 +313,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     public void addLocQuest(String id, HashMap temp) {
         loc_quests.put(id, temp);
     }
+
+    public void deleteLocQuest(String id) { loc_quests.remove(id); }
 
     public HashMap<String, HashMap> getElaborateQuests() {
         return elaborate_quests;

@@ -40,11 +40,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -63,13 +61,12 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     private Geocoder geocoder;
 
     private String currentUser;
-    //private List<HashMap<String, String>> user_loc_quests;
     private MainActivity mainActivity;
     private HashMap<String, HashMap> user_loc_quests;
     private HashMap<String, HashMap> user_elaborate_quests;
 
     private GoogleMap googleMap;
-    private HashMap<String, Marker> hashMapMarker = new HashMap<String, Marker>();
+    private HashMap<String, Marker> hashMapMarker = new HashMap<>();
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest mLocationRequest;
@@ -79,13 +76,15 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
 
+    private Location last_loc = null;
+
     public MapFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //PERMISSÕES - RESOLVER PROBLEMA DE SER NECESSÁRIO REINICIAR APP PARA FUNCIONAR
+        //PERMISSÕES - RESOLVER PROBLEMA
         ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
             } else {
@@ -118,6 +117,25 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 super.onLocationResult(locationResult);
                 //CODE FOR UPDATING USER LOCATION ON MAP (CLEARS ALL MARKERS, SO IGNORE FOR NOW)
                 Location location = locationResult.getLastLocation();
+
+                if(last_loc == null) {
+                    last_loc = location;
+                } else {
+                    double distance = last_loc.distanceTo(location);
+                    if(distance >= 1) {
+                        for (String id : user_elaborate_quests.keySet()) {
+                            HashMap quest = user_elaborate_quests.get(id);
+                            if (quest.get("meters") != "") {
+                                double current_meters = Double.parseDouble(String.valueOf(quest.get("meters_traveled")));
+                                current_meters += distance;
+                                user_elaborate_quests.get(id).put("meters_traveled", current_meters);
+                            }
+                        }
+                    }
+
+                    last_loc = location;
+                }
+
                 if (googleMap != null) {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
@@ -188,24 +206,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                              Bundle savedInstanceState) {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_map, container, false);
 
-        /*O QUE É ISTO?
-        Toolbar toolbar = view.findViewById(R.id.main_toolbar);
-        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
-
-        DrawerLayout drawerLayout = view.findViewById(R.id.drawer);
-        NavigationView navigationView = view.findViewById(R.id.nav_menu);
-
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
-                requireActivity(), drawerLayout, toolbar, R.string.open, R.string.close
-        );
-
-        drawerLayout.addDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);*/
+        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         geocoder = new Geocoder(this.requireContext());
-
-        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if(user_loc_quests.isEmpty()) {
             db.collection("users").document(currentUser).
@@ -238,6 +241,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                             q.put("desc", (String) document.getData().get("desc"));
                             q.put("quests", (HashMap) document.getData().get("quests"));
                             q.put("meters", String.valueOf(document.getData().get("meters")));
+                            q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled"))); //ADD TO DB
                             q.put("time", String.valueOf(document.getData().get("time")));
                             mainActivity.addElaborateQuest(document.getId(), q);
                         }
@@ -288,18 +292,26 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                     LatLng latLng = new LatLng(Double.parseDouble(String.valueOf(data.get("latitude"))),
                                             Double.parseDouble(String.valueOf(data.get("longitude"))));
 
-                                    List<String> quests_from_elaborate_quests = new ArrayList<>();
+                                    HashMap<String, Boolean> quests_from_elaborate_quests = new HashMap<>();
                                     for(String quest_id : user_elaborate_quests.keySet()) {
-                                        for(Object loc_quests : ((HashMap) ((HashMap) user_elaborate_quests.get(quest_id)).get("quests")).keySet() ) {
-                                            quests_from_elaborate_quests.add((String) loc_quests);
+                                        for(Object loc_quests : ((HashMap) ((HashMap) user_elaborate_quests.get(quest_id)).get("quests")).keySet()){
+                                            Boolean b = (Boolean) ((HashMap) ((HashMap) (user_elaborate_quests.get(quest_id)).get("quests"))
+                                                    .get((String) loc_quests)).get("done");
+                                            quests_from_elaborate_quests.put((String) loc_quests, b);
                                         }
                                     }
 
                                     MarkerOptions markerOptions;
-                                    if(quests_from_elaborate_quests.contains(document.getId())) {
-                                        markerOptions = new MarkerOptions().
-                                                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)).
-                                                position(latLng).title((String) data.get("name"));
+                                    if(quests_from_elaborate_quests.containsKey(document.getId())) {
+                                        if(!quests_from_elaborate_quests.get(document.getId())) {
+                                            markerOptions = new MarkerOptions().
+                                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).
+                                                    position(latLng).title((String) data.get("name"));
+                                        } else {
+                                            markerOptions = new MarkerOptions().
+                                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)).
+                                                    position(latLng).title((String) data.get("name"));
+                                        }
                                     } else if(user_loc_quests.containsKey(document.getId())) {
                                         markerOptions = new MarkerOptions().
                                             icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).
@@ -330,36 +342,52 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                         if (addressList.size() > 0) {
 
                             String str = getOnTapLocationString(addressList);
-                            /*String str1 = listStrs.get(0), str2 = listStrs.get(1), str3 = listStrs.get(2),
-                                    str4 = listStrs.get(3), str5 = listStrs.get(4);*/
 
+                            //LOC QUEST
                             for(String key : user_loc_quests.keySet()) {
-                                //DEBUG
                                 HashMap<String, Object> map = user_loc_quests.get(key);
-                                Log.d("LOCALIZAÇÕES2.1", str + " ; " + (String) map.get("name"));
 
                                 List<String> tmp_s = Arrays.asList(((String) map.get("name")).split(","));
                                 boolean check = true;
                                 for(String s : tmp_s) {
-                                    Log.d("LOCALIZAÇÕES2.0", str.contains(s) + ";" + s);
                                     if(!str.contains(s))
                                         check = false;
                                 }
                                 if(check) {
-                                    LatLng latLng_marker = new LatLng(Double.parseDouble((String) map.get("latitude")),
-                                            Double.parseDouble((String) map.get("longitude")));
-                                    Marker to_rmv_marker = hashMapMarker.get(map.get("id"));
-                                    MarkerOptions markerOptions = new MarkerOptions().position(latLng_marker).title(to_rmv_marker.getTitle());
-                                    to_rmv_marker.remove();
-                                    Marker marker = googleMap.addMarker(markerOptions);
-                                    hashMapMarker.put(key, marker);
+                                    Marker temp_marker = hashMapMarker.get(map.get("id"));
+                                    temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                                    hashMapMarker.put(key, temp_marker);
                                     db.collection("users").document(currentUser)
-                                            .collection("user_quests").document((String) map.get("id")).delete();
+                                            .collection("user_loc_quests").document((String) map.get("id")).delete();
 
                                     LocQuest n_lq = new LocQuest((String) map.get("name"), (String) map.get("desc"),
                                             Double.parseDouble((String) map.get("latitude")), Double.parseDouble((String) map.get("longitude")));
                                     db.collection("users").document(currentUser).collection("user_completed_quests")
                                             .document((String) map.get("id")).set(n_lq);
+                                }
+                            }
+
+                            //ELABORATE QUEST LOCATION CHECK
+                            for(String key : user_elaborate_quests.keySet()) {
+                                for(Object quest : ((HashMap) user_elaborate_quests.get(key).get("quests")).keySet()) {
+                                    HashMap<String, Object> map = (HashMap<String, Object>) ((HashMap<String, HashMap>) user_elaborate_quests
+                                            .get(key)
+                                            .get("quests"))
+                                            .get((String) quest);
+
+                                    List<String> tmp_s = Arrays.asList(((String) map.get("name")).split(","));
+                                    boolean check = true;
+                                    for(String s : tmp_s) {
+                                        if(!str.contains(s))
+                                            check = false;
+                                    }
+                                    if(check) {
+                                        Marker temp_marker = hashMapMarker.get((String) quest);
+                                        temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                        hashMapMarker.put(key, temp_marker);
+
+                                        ((HashMap<String, Object>) ((HashMap<String, HashMap>) user_elaborate_quests.get(key).get("quests")).get((String) quest)).put("done", true);
+                                    }
                                 }
                             }
                         }
@@ -476,20 +504,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         return s;
     }
 
-    private static int compareStringsPercentage(String s1, String s2) {
-        int percentage = 0;
-
-        int total = 0;
-        int fullMatch = 0;
-        // Check for each character at same location
-        total += charMatch(s1, s2);
-        fullMatch += charMatch(s1, s1);
-
-        // Calc percentage
-        percentage = (int) Math.round(total / (fullMatch / 100.0));
-        return percentage;
-    }
-
     private static int charMatch(String s1, String s2) {
         char[] as1 = s1.toCharArray();
         char[] as2 = s2.toCharArray();
@@ -501,15 +515,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     match++;
                 }
             }
-
         }
         return match;
     }
-
-    /*@Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        boolean ret = ((MainActivity) requireActivity()).onNavigationItemSelected(item);
-        if(ret) ((DrawerLayout) view.findViewById(R.id.drawer)).closeDrawer(GravityCompat.START);
-        return ret;
-    }*/
 }

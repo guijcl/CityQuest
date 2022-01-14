@@ -39,6 +39,10 @@ public class QuestFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    private MainActivity mainActivity;
+    private HashMap<String, HashMap> user_loc_quests;
+    private HashMap<String, HashMap> user_elaborate_quests;
+
     private View view;
 
     private String currentUser;
@@ -78,6 +82,10 @@ public class QuestFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quest, container, false);
         this.view = view;
+
+        mainActivity = (MainActivity) getActivity();
+        user_loc_quests = mainActivity.getLocQuests();
+        user_elaborate_quests = mainActivity.getElaborateQuests();
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -123,6 +131,10 @@ public class QuestFragment extends Fragment {
                                             .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
                                     loc_button.setEnabled(false);
                                 });
+                                for(String id_temp : user_elaborate_quests.keySet()) {
+                                    if(user_elaborate_quests.get(id_temp).containsKey(id))
+                                        loc_button.setEnabled(false);
+                                }
                             }
                         }
                     }
@@ -173,18 +185,22 @@ public class QuestFragment extends Fragment {
                                     quest.put("time", time);
                                     ((MainActivity) getActivity()).addElaborateQuest(id, quest);
 
-                                    if(quests != null && meters != null)
+                                    if(quests != null && meters != null) {
+                                        quest.put("meters_traveled", "0");
                                         db.collection("users")
                                                 .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time));
-                                    else if(quests != null && meters == null)
+                                    } else if(quests != null && meters == null) {
+                                        quest.put("meters_traveled", "");
                                         db.collection("users")
                                                 .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time));
-                                    else if(quests == null && meters != null)
+                                    } else if(quests == null && meters != null) {
+                                        quest.put("meters_traveled", "0");
                                         db.collection("users")
                                                 .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time));
+                                    }
 
                                     if(quests != null)
-                                        ((QuestsFragment) getParentFragment()).disable_loc_quest_buttons(quests, currentUser);
+                                        ((QuestsFragment) getParentFragment()).disable_loc_quest_buttons(quests);
 
                                     elaborate_button.setEnabled(false);
                                 });

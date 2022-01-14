@@ -28,12 +28,14 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.cityquest.Activities.MainActivity;
 import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -50,7 +52,14 @@ import java.util.stream.Collectors;
 public class QuestsFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private String currentUser;
+
     private Geocoder geocoder;
+
+    private MainActivity mainActivity;
+    private HashMap<String, HashMap> user_loc_quests;
+    private HashMap<String, HashMap> user_elaborate_quests;
 
     String[] categoryItems = {"Elaborate Quest", "Local Quest"};
     AutoCompleteTextView autoCompleteTextCat;
@@ -60,7 +69,7 @@ public class QuestsFragment extends Fragment {
     AutoCompleteTextView autoCompleteTextOrder;
     ArrayAdapter<String> adapterItemsOrder;
 
-    private HashMap<String, String> all_loc_quests;
+    private HashMap<String, HashMap> all_loc_quests;
 
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
@@ -81,6 +90,12 @@ public class QuestsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quests, container, false);
+
+        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        mainActivity = (MainActivity) getActivity();
+        user_loc_quests = mainActivity.getLocQuests();
+        user_elaborate_quests = mainActivity.getElaborateQuests();
 
         autoCompleteTextCat = view.findViewById(R.id.autoCompleteOne);
         adapterItemsCat = new ArrayAdapter<String>(getActivity(),R.layout.list_item_questsfrag, categoryItems);
@@ -129,8 +144,14 @@ public class QuestsFragment extends Fragment {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
                                         (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,"quests_list");
+
                                 childFragTrans.add(R.id.all_quests, questFragment, document.getId());
-                                all_loc_quests.put((String) data.get("name"), document.getId());
+
+                                HashMap temp_hash = new HashMap();
+                                temp_hash.put("id", document.getId());
+                                temp_hash.put("latitude", data.get("latitude"));
+                                temp_hash.put("longitude", data.get("longitude"));
+                                all_loc_quests.put((String) data.get("name"), temp_hash);
                             }
                             childFragTrans.commit();
                         } else {
@@ -157,6 +178,7 @@ public class QuestsFragment extends Fragment {
                         }
                     }
                 });
+
         return view;
     }
 
@@ -576,8 +598,10 @@ public class QuestsFragment extends Fragment {
                     if(all_loc_quests.containsKey(((AutoCompleteTextView) task1.getChildAt(i)).getText().toString())) {
                         HashMap<String, Object> info = new HashMap<>();
                         info.put("name", ((AutoCompleteTextView) task1.getChildAt(i)).getText().toString());
+                        info.put("latitude", String.valueOf(all_loc_quests.get(((AutoCompleteTextView) task1.getChildAt(i)).getText().toString()).get("latitude")));
+                        info.put("longitude", String.valueOf(all_loc_quests.get(((AutoCompleteTextView) task1.getChildAt(i)).getText().toString()).get("longitude")));
                         info.put("done", false);
-                        quests.put(all_loc_quests.get(((AutoCompleteTextView) task1.getChildAt(i)).getText().toString()), info);
+                        quests.put((String) all_loc_quests.get(((AutoCompleteTextView) task1.getChildAt(i)).getText().toString()).get("id"), info);
                     }
                 }
 
@@ -638,9 +662,10 @@ public class QuestsFragment extends Fragment {
         }
     }
 
-    public void disable_loc_quest_buttons(HashMap<String, HashMap> list, String currentUser) {
+    public void disable_loc_quest_buttons(HashMap<String, HashMap> list) {
         for(String id : list.keySet()) {
             ((QuestFragment) getChildFragmentManager().findFragmentByTag(id)).disableQuestButton();
+            mainActivity.deleteLocQuest(id);
             db.collection("users").document(currentUser).
                     collection("user_loc_quests").document(id).delete();
         }
@@ -652,8 +677,6 @@ public class QuestsFragment extends Fragment {
             str = address.getFeatureName() + ", " + address.getAdminArea() + ", " +
                     address.getSubAdminArea() + ", " + address.getLocality() + ", " + address.getThoroughfare() +
                     ", " + address.getCountryName();
-            /*str = address.getFeatureName() + ", " + address.getAdminArea() +
-                    ", " + address.getCountryName();*/
             str = str.replaceAll("null, ", "");
             str = deDup(str);
         }
