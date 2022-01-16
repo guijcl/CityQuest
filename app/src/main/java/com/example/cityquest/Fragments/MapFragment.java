@@ -42,16 +42,23 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickListener {
@@ -115,20 +122,24 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
-                //CODE FOR UPDATING USER LOCATION ON MAP (CLEARS ALL MARKERS, SO IGNORE FOR NOW)
                 Location location = locationResult.getLastLocation();
 
                 if(last_loc == null) {
                     last_loc = location;
                 } else {
                     double distance = last_loc.distanceTo(location);
-                    if(distance >= 1) {
-                        for (String id : user_elaborate_quests.keySet()) {
-                            HashMap quest = user_elaborate_quests.get(id);
-                            if (quest.get("meters") != "") {
+                    for (String id : user_elaborate_quests.keySet()) {
+                        HashMap quest = user_elaborate_quests.get(id);
+                        if (!quest.get("meters").equals("") && !quest.get("meters").equals("null")) {
+                            if(Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(quest.get("meters")))) {
                                 double current_meters = Double.parseDouble(String.valueOf(quest.get("meters_traveled")));
                                 current_meters += distance;
                                 user_elaborate_quests.get(id).put("meters_traveled", current_meters);
+
+                                if(Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) >= Double.parseDouble(String.valueOf(quest.get("meters")))) {
+                                    ((MainActivity) getActivity()).updateElaborateQuest(id);
+                                    removeElaboratedQuest(id);
+                                }
                             }
                         }
                     }
@@ -155,7 +166,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                 String str = address.getAddressLine(0);
                                 for(String key : user_loc_quests.keySet()) {
                                     HashMap map = user_loc_quests.get(key);
-                                    Log.d("LOCALIZAÇÕES", str + " ; " + (String) map.get("name"));
                                     if(str.contains((String) map.get("name"))) {
                                         //TODO
                                     }
@@ -210,46 +220,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
         geocoder = new Geocoder(this.requireContext());
 
-        if(user_loc_quests.isEmpty()) {
-            db.collection("users").document(currentUser).
-                    collection("user_loc_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            HashMap<String, String> q = new HashMap<>();
-                            q.put("name", (String) document.getData().get("name"));
-                            q.put("desc", (String) document.getData().get("desc"));
-                            q.put("latitude", String.valueOf(document.getData().get("latitude")));
-                            q.put("longitude", String.valueOf(document.getData().get("longitude")));
-                            mainActivity.addLocQuest(document.getId(), q);
-                        }
-                    }
-                }
-            });
-        }
-
-        if(user_elaborate_quests.isEmpty()) {
-            db.collection("users").document(currentUser).
-                    collection("user_elaborate_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            HashMap<String, Object> q = new HashMap<>();
-                            q.put("name", (String) document.getData().get("name"));
-                            q.put("desc", (String) document.getData().get("desc"));
-                            q.put("quests", (HashMap) document.getData().get("quests"));
-                            q.put("meters", String.valueOf(document.getData().get("meters")));
-                            q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled"))); //ADD TO DB
-                            q.put("time", String.valueOf(document.getData().get("time")));
-                            mainActivity.addElaborateQuest(document.getId(), q);
-                        }
-                    }
-                }
-            });
-        }
-
         SupportMapFragment supportMapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.google_map);
 
@@ -294,9 +264,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
                                     HashMap<String, Boolean> quests_from_elaborate_quests = new HashMap<>();
                                     for(String quest_id : user_elaborate_quests.keySet()) {
-                                        for(Object loc_quests : ((HashMap) ((HashMap) user_elaborate_quests.get(quest_id)).get("quests")).keySet()){
+                                        for(Object loc_quests : ((HashMap) user_elaborate_quests.get(quest_id).get("quests")).keySet()){
                                             Boolean b = (Boolean) ((HashMap) ((HashMap) (user_elaborate_quests.get(quest_id)).get("quests"))
-                                                    .get((String) loc_quests)).get("done");
+                                                    .get(loc_quests)).get("done");
                                             quests_from_elaborate_quests.put((String) loc_quests, b);
                                         }
                                     }
@@ -361,7 +331,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                             .collection("user_loc_quests").document((String) map.get("id")).delete();
 
                                     LocQuest n_lq = new LocQuest((String) map.get("name"), (String) map.get("desc"),
-                                            Double.parseDouble((String) map.get("latitude")), Double.parseDouble((String) map.get("longitude")));
+                                            Double.parseDouble((String) map.get("latitude")), Double.parseDouble((String) map.get("longitude")), (Integer) map.get("popularity"));
                                     db.collection("users").document(currentUser).collection("user_completed_quests")
                                             .document((String) map.get("id")).set(n_lq);
                                 }
@@ -373,7 +343,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                     HashMap<String, Object> map = (HashMap<String, Object>) ((HashMap<String, HashMap>) user_elaborate_quests
                                             .get(key)
                                             .get("quests"))
-                                            .get((String) quest);
+                                            .get(quest);
 
                                     List<String> tmp_s = Arrays.asList(((String) map.get("name")).split(","));
                                     boolean check = true;
@@ -386,7 +356,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                         temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
                                         hashMapMarker.put(key, temp_marker);
 
-                                        ((HashMap<String, Object>) ((HashMap<String, HashMap>) user_elaborate_quests.get(key).get("quests")).get((String) quest)).put("done", true);
+                                        ((HashMap<String, Object>) ((HashMap<String, HashMap>) user_elaborate_quests.get(key).get("quests")).get(quest)).put("done", true);
+                                        ((MainActivity) getActivity()).updateElaborateQuest(key);
+                                        removeElaboratedQuest(key);
                                     }
                                 }
                             }
@@ -428,6 +400,43 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         dialog.show();
 
         return false;
+    }
+
+    private boolean elaborateQuestCompletedCheck(String id) {
+        HashMap elaborate_quest = user_elaborate_quests.get(id);
+        for(Object quest_id : ((HashMap) elaborate_quest.get("quests")).keySet()) {
+            HashMap quest = (HashMap) ((HashMap) user_elaborate_quests.get(id).get("quests")).get(quest_id);
+            if(! (boolean) quest.get("done"))
+                return false;
+        }
+        if(Double.parseDouble(String.valueOf(elaborate_quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(elaborate_quest.get("meters"))))
+            return false;
+        return true;
+    }
+
+    private boolean elaborateQuestTimeLimitExceeded(String id) {
+        HashMap elaborate_quest = user_elaborate_quests.get(id);
+        Date currentTime = Calendar.getInstance().getTime();
+        Date limit_date = null;
+        if(elaborate_quest.get("time") instanceof Timestamp)
+            limit_date = ((Timestamp) elaborate_quest.get("time")).toDate();
+        else
+            limit_date = (Date) elaborate_quest.get("time");
+        return currentTime.after(limit_date);
+    }
+
+    private void removeElaboratedQuest(String id) {
+        if(elaborateQuestCompletedCheck(id) || elaborateQuestTimeLimitExceeded(id)) {
+            for(Object id_quest : ((HashMap) user_elaborate_quests.get(id).get("quests")).keySet()) {
+                Marker temp_marker = hashMapMarker.get(id_quest);
+                temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                hashMapMarker.put((String) id_quest, temp_marker);
+            }
+
+            user_elaborate_quests.remove(id);
+            db.collection("users").document(currentUser).collection("user_elaborate_quests")
+                    .document(id).delete();
+        }
     }
 
     private String getOnTapLocationString(List<Address> addressList) {

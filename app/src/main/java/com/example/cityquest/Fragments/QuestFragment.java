@@ -31,7 +31,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -56,10 +62,11 @@ public class QuestFragment extends Fragment {
     private final HashMap<String, HashMap> quests;
     private final String meters;
     private final String time;
+    private final int popularity;
     private final String fragment_type;
 
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
-                         String type, HashMap<String, HashMap> quests, String meters, String time, String fragment_type) {
+                         String type, HashMap<String, HashMap> quests, String meters, String time, int popularity, String fragment_type) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -69,6 +76,7 @@ public class QuestFragment extends Fragment {
         this.quests = quests;
         this.meters = meters;
         this.time = time;
+        this.popularity = popularity;
         this.fragment_type = fragment_type;
     }
 
@@ -125,10 +133,11 @@ public class QuestFragment extends Fragment {
                                     quest.put("desc", desc);
                                     quest.put("latitude", String.valueOf(latitude));
                                     quest.put("longitude", String.valueOf(longitude));
+                                    quest.put("popularity", String.valueOf(popularity));
                                     ((MainActivity) getActivity()).addLocQuest(id, quest);
 
                                     db.collection("users")
-                                            .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude));
+                                            .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude, popularity));
                                     loc_button.setEnabled(false);
                                 });
                                 for(String id_temp : user_elaborate_quests.keySet()) {
@@ -182,22 +191,38 @@ public class QuestFragment extends Fragment {
                                     quest.put("desc", desc);
                                     quest.put("quests", quests);
                                     quest.put("meters", meters);
-                                    quest.put("time", time);
-                                    ((MainActivity) getActivity()).addElaborateQuest(id, quest);
+
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy:MM:dd:HH:mm");
+                                    String currentDateandTime = sdf.format(new Date());
+
+                                    Date date = null;
+                                    try {
+                                        date = sdf.parse(currentDateandTime);
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(date);
+                                    calendar.add(Calendar.HOUR, Integer.parseInt(time));
+
+                                    quest.put("time", calendar.getTime());
+                                    quest.put("popularity", popularity);
 
                                     if(quests != null && meters != null) {
                                         quest.put("meters_traveled", "0");
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time, popularity));
                                     } else if(quests != null && meters == null) {
                                         quest.put("meters_traveled", "");
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time, popularity));
                                     } else if(quests == null && meters != null) {
                                         quest.put("meters_traveled", "0");
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time, popularity));
                                     }
+
+                                    ((MainActivity) getActivity()).addElaborateQuest(id, quest);
 
                                     if(quests != null)
                                         ((QuestsFragment) getParentFragment()).disable_loc_quest_buttons(quests);

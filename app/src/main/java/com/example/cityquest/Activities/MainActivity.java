@@ -172,6 +172,42 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         if(getSupportActionBar() != null) getSupportActionBar().hide();
 
+        db.collection("users").document(currentUser).
+                collection("user_loc_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap<String, String> q = new HashMap<>();
+                        q.put("name", (String) document.getData().get("name"));
+                        q.put("desc", (String) document.getData().get("desc"));
+                        q.put("latitude", String.valueOf(document.getData().get("latitude")));
+                        q.put("longitude", String.valueOf(document.getData().get("longitude")));
+                        addLocQuest(document.getId(), q);
+                    }
+                }
+            }
+        });
+
+        db.collection("users").document(currentUser).
+                collection("user_elaborate_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap<String, Object> q = new HashMap<>();
+                        q.put("name", document.getData().get("name"));
+                        q.put("desc", document.getData().get("desc"));
+                        q.put("quests", document.getData().get("quests"));
+                        q.put("meters", String.valueOf(document.getData().get("meters")));
+                        q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled"))); //ADD TO DB
+                        q.put("time", document.getData().get("time"));
+                        addElaborateQuest(document.getId(), q);
+                    }
+                }
+            }
+        });
+
         fragmentManager = getSupportFragmentManager();
         fragmentManager.addOnBackStackChangedListener(this);
 
@@ -233,10 +269,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     @Override
     public void onItemSelected(int position) {
-        for(String id : elaborate_quests.keySet()) {
-            db.collection("users").document(currentUser).
-                    collection("user_elaborate_quests").document(id).update(elaborate_quests.get(id));
-        }
+        updateElaborateQuests();
 
         fragmentManager = getSupportFragmentManager();
         switch (position) {
@@ -322,5 +355,17 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     public void addElaborateQuest(String id, HashMap temp) {
         elaborate_quests.put(id, temp);
+    }
+
+    public void updateElaborateQuests() {
+        for(String id : elaborate_quests.keySet()) {
+            db.collection("users").document(currentUser).
+                    collection("user_elaborate_quests").document(id).update(elaborate_quests.get(id));
+        }
+    }
+
+    public void updateElaborateQuest(String id) {
+        db.collection("users").document(currentUser).
+                collection("user_elaborate_quests").document(id).update(elaborate_quests.get(id));
     }
 }
