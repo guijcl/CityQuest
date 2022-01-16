@@ -62,11 +62,11 @@ public class QuestFragment extends Fragment {
     private final HashMap<String, HashMap> quests;
     private final String meters;
     private final String time;
-    private final int popularity;
+    private final String popularity;
     private final String fragment_type;
 
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
-                         String type, HashMap<String, HashMap> quests, String meters, String time, int popularity, String fragment_type) {
+                         String type, HashMap<String, HashMap> quests, String meters, String time, String popularity, String fragment_type) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -133,7 +133,7 @@ public class QuestFragment extends Fragment {
                                     quest.put("desc", desc);
                                     quest.put("latitude", String.valueOf(latitude));
                                     quest.put("longitude", String.valueOf(longitude));
-                                    quest.put("popularity", String.valueOf(popularity));
+                                    quest.put("popularity", popularity);
                                     ((MainActivity) getActivity()).addLocQuest(id, quest);
 
                                     db.collection("users")
@@ -213,7 +213,6 @@ public class QuestFragment extends Fragment {
                                         db.collection("users")
                                                 .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time, popularity));
                                     } else if(quests != null && meters == null) {
-                                        quest.put("meters_traveled", "");
                                         db.collection("users")
                                                 .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time, popularity));
                                     } else if(quests == null && meters != null) {

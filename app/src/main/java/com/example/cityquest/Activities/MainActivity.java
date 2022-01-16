@@ -178,11 +178,12 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap<String, String> q = new HashMap<>();
+                        HashMap<String, Object> q = new HashMap<>();
                         q.put("name", (String) document.getData().get("name"));
                         q.put("desc", (String) document.getData().get("desc"));
                         q.put("latitude", String.valueOf(document.getData().get("latitude")));
                         q.put("longitude", String.valueOf(document.getData().get("longitude")));
+                        q.put("popularity", document.getData().get("popularity"));
                         addLocQuest(document.getId(), q);
                     }
                 }
@@ -199,9 +200,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         q.put("name", document.getData().get("name"));
                         q.put("desc", document.getData().get("desc"));
                         q.put("quests", document.getData().get("quests"));
-                        q.put("meters", String.valueOf(document.getData().get("meters")));
-                        q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled"))); //ADD TO DB
+                        q.put("meters", document.getData().get("meters"));
+                        q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled")));
                         q.put("time", document.getData().get("time"));
+                        q.put("popularity", document.getData().get("popularity"));
                         addElaborateQuest(document.getId(), q);
                     }
                 }

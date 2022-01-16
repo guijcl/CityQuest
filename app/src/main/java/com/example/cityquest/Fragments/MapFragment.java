@@ -124,28 +124,25 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
 
-                if(last_loc == null) {
-                    last_loc = location;
-                } else {
+                if (last_loc != null) {
                     double distance = last_loc.distanceTo(location);
                     for (String id : user_elaborate_quests.keySet()) {
                         HashMap quest = user_elaborate_quests.get(id);
-                        if (!quest.get("meters").equals("") && !quest.get("meters").equals("null")) {
-                            if(Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(quest.get("meters")))) {
+                        if (quest.containsKey("meters") && quest.get("meters") != null) {
+                            if (Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(quest.get("meters")))) {
                                 double current_meters = Double.parseDouble(String.valueOf(quest.get("meters_traveled")));
                                 current_meters += distance;
                                 user_elaborate_quests.get(id).put("meters_traveled", current_meters);
 
-                                if(Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) >= Double.parseDouble(String.valueOf(quest.get("meters")))) {
+                                if (Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) >= Double.parseDouble(String.valueOf(quest.get("meters")))) {
                                     ((MainActivity) getActivity()).updateElaborateQuest(id);
                                     removeElaboratedQuest(id);
                                 }
                             }
                         }
                     }
-
-                    last_loc = location;
                 }
+                last_loc = location;
 
                 if (googleMap != null) {
                     double latitude = location.getLatitude();
@@ -331,7 +328,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                             .collection("user_loc_quests").document((String) map.get("id")).delete();
 
                                     LocQuest n_lq = new LocQuest((String) map.get("name"), (String) map.get("desc"),
-                                            Double.parseDouble((String) map.get("latitude")), Double.parseDouble((String) map.get("longitude")), (Integer) map.get("popularity"));
+                                            Double.parseDouble((String) map.get("latitude")), Double.parseDouble((String) map.get("longitude")), (String) map.get("popularity"));
                                     db.collection("users").document(currentUser).collection("user_completed_quests")
                                             .document((String) map.get("id")).set(n_lq);
                                 }
@@ -409,8 +406,10 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
             if(! (boolean) quest.get("done"))
                 return false;
         }
-        if(Double.parseDouble(String.valueOf(elaborate_quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(elaborate_quest.get("meters"))))
-            return false;
+        if (elaborate_quest.containsKey("meters") && elaborate_quest.get("meters") != null) {
+            if(Double.parseDouble(String.valueOf(elaborate_quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(elaborate_quest.get("meters"))))
+                return false;
+        }
         return true;
     }
 
@@ -427,6 +426,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
     private void removeElaboratedQuest(String id) {
         if(elaborateQuestCompletedCheck(id) || elaborateQuestTimeLimitExceeded(id)) {
+            if(elaborateQuestCompletedCheck(id)) {
+                db.collection("elaborate_quests").document(id).update("popularity",
+                        String.valueOf((Integer.parseInt((String) user_elaborate_quests.get(id).get("popularity"))) + 1));
+            }
+
             for(Object id_quest : ((HashMap) user_elaborate_quests.get(id).get("quests")).keySet()) {
                 Marker temp_marker = hashMapMarker.get(id_quest);
                 temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
