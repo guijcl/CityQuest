@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         q.put("latitude", String.valueOf(document.getData().get("latitude")));
                         q.put("longitude", String.valueOf(document.getData().get("longitude")));
                         q.put("popularity", document.getData().get("popularity"));
+                        q.put("experience", document.getData().get("experience"));
                         addLocQuest(document.getId(), q);
                     }
                 }
@@ -204,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled")));
                         q.put("time", document.getData().get("time"));
                         q.put("popularity", document.getData().get("popularity"));
+                        q.put("experience", document.getData().get("experience"));
                         addElaborateQuest(document.getId(), q);
                     }
                 }

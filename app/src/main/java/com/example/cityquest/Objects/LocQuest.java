@@ -7,13 +7,15 @@ public class LocQuest extends Quest {
     private double latitude;
     private double longitude;
     private String popularity;
+    private String experience;
 
-    public LocQuest(String name, String desc, double latitude, double longitude, String popularity) {
+    public LocQuest(String name, String desc, double latitude, double longitude, String popularity, String experience) {
         super(name, desc);
 
         this.latitude = latitude;
         this.longitude = longitude;
         this.popularity = popularity;
+        this.experience = experience;
     }
 
     public double getLongitude() {
@@ -25,4 +27,8 @@ public class LocQuest extends Quest {
     public String getPopularity() {
         return popularity;
     }
+    public String getExperience() {
+        return experience;
+    }
+
 }

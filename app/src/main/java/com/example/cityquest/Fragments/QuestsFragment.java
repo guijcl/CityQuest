@@ -139,7 +139,8 @@ public class QuestsFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, (String) data.get("popularity"),"quests_list");
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,
+                                        (String) data.get("popularity"), (String) data.get("experience"), "quests_list");
 
                                 childFragTrans.add(R.id.all_quests, questFragment, document.getId());
 
@@ -165,7 +166,8 @@ public class QuestsFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"), 0, 0,
-                                        "elaborate_quest", (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"), (String) data.get("popularity"), "quests_list");
+                                        "elaborate_quest", (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"),
+                                        (String) data.get("popularity"), (String) data.get("experience"), "quests_list");
                                 childFragTrans.add(R.id.all_quests, questFragment, document.getId());
                             }
                             childFragTrans.commit();
@@ -219,8 +221,8 @@ public class QuestsFragment extends Fragment {
                         for(Address address : addressList) {
                             loc_quests_suggestions.add(getLocationsString(address));
                             HashMap<String, Double> coords = new HashMap<>();
-                            coords.put("latitude", (double) address.getLatitude());
-                            coords.put("longitude", (double) address.getLongitude());
+                            coords.put("latitude", address.getLatitude());
+                            coords.put("longitude", address.getLongitude());
                             loc_quests_suggestions_coords.add(coords);
                         }
                     }
@@ -278,7 +280,7 @@ public class QuestsFragment extends Fragment {
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
                                     if(task.getResult().size() == 0) {
-                                        LocQuest n_lq = new LocQuest(selected_item, desc.getText().toString(), selected_item_latitude, selected_item_longitude, "0");
+                                        LocQuest n_lq = new LocQuest(selected_item, desc.getText().toString(), selected_item_latitude, selected_item_longitude, "0", "50");
                                         db.collection("loc_quests")
                                                 .add(n_lq)
                                                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -286,7 +288,7 @@ public class QuestsFragment extends Fragment {
                                                     public void onSuccess(DocumentReference documentReference) {
                                                         QuestFragment questFragment = new QuestFragment(documentReference.getId(),
                                                                 n_lq.getName(), n_lq.getDesc(), selected_item_latitude, selected_item_longitude,
-                                                                "loc_quest",null, null, null, "0", "quests_list");
+                                                                "loc_quest",null, null, null, "0", "50", "quests_list");
 
                                                         HashMap temp_hash = new HashMap();
                                                         temp_hash.put("id", documentReference.getId());
@@ -609,15 +611,23 @@ public class QuestsFragment extends Fragment {
             }
 
             ElaborateQuest n_eq = null;
-            if(check2.get(0) && check2.get(1))
+            int experience = 0;
+            if(check2.get(0) && check2.get(1)) {
+                experience += 50 * quests.size();
+                experience += Integer.parseInt(meters.getText().toString()) * 0.1;
                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
-                        meters.getText().toString(), time.getText().toString(), "0");
-            else if(check2.get(0))
+                        meters.getText().toString(), time.getText().toString(), "0", String.valueOf(experience));
+            } else if(check2.get(0)) {
+                experience += 50 * quests.size();
                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
-                        time.getText().toString(), "0");
-            else if(check2.get(1))
+                        time.getText().toString(), "0", String.valueOf(experience));
+            } else if(check2.get(1)) {
+                experience += Long.parseLong(meters.getText().toString()) * 0.1;
                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(),
-                        meters.getText().toString(), time.getText().toString(), "0");
+                        meters.getText().toString(), time.getText().toString(), "0", String.valueOf(experience));
+            }
+
+            int finalExperience = experience;
             db.collection("elaborate_quests")
                     .add(n_eq)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -629,7 +639,7 @@ public class QuestsFragment extends Fragment {
 
                             QuestFragment questFragment = new QuestFragment(documentReference.getId(), name.getText().toString(),
                                     desc.getText().toString(), 0, 0, "elaborate_quest", quests,
-                                    temp_meters, time.getText().toString(), "0", "quests_list");
+                                    temp_meters, time.getText().toString(), "0", String.valueOf(finalExperience),"quests_list");
                             childFragTrans.add(R.id.all_quests, questFragment, documentReference.getId());
                             childFragTrans.commit();
                         }

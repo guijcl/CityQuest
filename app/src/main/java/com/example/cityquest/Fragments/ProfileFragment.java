@@ -18,6 +18,7 @@ import com.example.cityquest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -47,26 +48,35 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view =inflater.inflate(R.layout.fragment_profile, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         //VERIFICAR COM ID SO USER: FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap data = (HashMap) document.getData();
-                        String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
-                        if(data.get("email").equals(emailSaved)) {
-                            TextView username = view.findViewById(R.id.username_profile);
-                            TextView email = view.findViewById(R.id.email_profile);
-                            CircleImageView profileImage = view.findViewById(R.id.profileImage);
-                            username.setText(data.get("username").toString());
-                            email.setText(data.get("email").toString());
-                            //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
-                        }
-                    }
+                    DocumentSnapshot document = task.getResult();
+                    HashMap data = (HashMap) document.getData();
+                    String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                    TextView username = view.findViewById(R.id.username_profile);
+                    TextView email = view.findViewById(R.id.email_profile);
+                    CircleImageView profileImage = view.findViewById(R.id.profileImage);
+
+                    username.setText(data.get("username").toString());
+                    email.setText(data.get("email").toString());
+                    //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
                 }
+            }
+        });
+
+        db.collection("users").document(currentUser).collection("stats_collection")
+                .document("stats").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                HashMap stats_data = (HashMap) document.getData();
+                TextView ranking_number = view.findViewById(R.id.ranking_number);
+                ranking_number.setText((String) stats_data.get("rank"));
             }
         });
 
@@ -78,7 +88,7 @@ public class ProfileFragment extends Fragment {
         });
 
         FragmentManager childFragMan = getChildFragmentManager();
-        db.collection("users").document(currentUser).collection("user_quests").get()
+        /*db.collection("users").document(currentUser).collection("user_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -87,7 +97,7 @@ public class ProfileFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, (String) data.get("popularity"), "profile_quest_list");
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, (String) data.get("popularity"), (String) data.get("experience"), "profile_quest_list");
                                 childFragTrans.add(R.id.user_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -95,11 +105,9 @@ public class ProfileFragment extends Fragment {
                             Log.w("ERROR", "Error getting documents.", task.getException());
                         }
                     }
-                });
+                });*/
 
-        /* TALVEZ ADICIONAR AQUI O MESMO CÓDIGO PARA ELABORATE QUESTS */
-
-        db.collection("users").document(currentUser).collection("user_completed_quests").get()
+        /*db.collection("users").document(currentUser).collection("user_completed_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -108,7 +116,7 @@ public class ProfileFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
                                 QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, (String) data.get("popularity"), "profile_quest_list");
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, (String) data.get("popularity"), (String) data.get("experience"), "profile_quest_list");
                                 childFragTrans.add(R.id.user_completed_quests, questFragment);
                             }
                             childFragTrans.commit();
@@ -116,7 +124,7 @@ public class ProfileFragment extends Fragment {
                             Log.w("ERROR", "Error getting documents.", task.getException());
                         }
                     }
-                });
+                });*/
         return view;
     }
 

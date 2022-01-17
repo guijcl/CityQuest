@@ -63,10 +63,11 @@ public class QuestFragment extends Fragment {
     private final String meters;
     private final String time;
     private final String popularity;
+    private final String experience;
     private final String fragment_type;
 
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
-                         String type, HashMap<String, HashMap> quests, String meters, String time, String popularity, String fragment_type) {
+                         String type, HashMap<String, HashMap> quests, String meters, String time, String popularity, String experience, String fragment_type) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -77,6 +78,7 @@ public class QuestFragment extends Fragment {
         this.meters = meters;
         this.time = time;
         this.popularity = popularity;
+        this.experience = experience;
         this.fragment_type = fragment_type;
     }
 
@@ -134,10 +136,11 @@ public class QuestFragment extends Fragment {
                                     quest.put("latitude", String.valueOf(latitude));
                                     quest.put("longitude", String.valueOf(longitude));
                                     quest.put("popularity", popularity);
+                                    quest.put("experience", experience);
                                     ((MainActivity) getActivity()).addLocQuest(id, quest);
 
                                     db.collection("users")
-                                            .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude, popularity));
+                                            .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude, popularity, experience));
                                     loc_button.setEnabled(false);
                                 });
                                 for(String id_temp : user_elaborate_quests.keySet()) {
@@ -207,18 +210,19 @@ public class QuestFragment extends Fragment {
 
                                     quest.put("time", calendar.getTime());
                                     quest.put("popularity", popularity);
+                                    quest.put("experience", experience);
 
                                     if(quests != null && meters != null) {
                                         quest.put("meters_traveled", "0");
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time, popularity));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time, popularity, experience));
                                     } else if(quests != null && meters == null) {
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time, popularity));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time, popularity, experience));
                                     } else if(quests == null && meters != null) {
                                         quest.put("meters_traveled", "0");
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time, popularity));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time, popularity, experience));
                                     }
 
                                     ((MainActivity) getActivity()).addElaborateQuest(id, quest);
