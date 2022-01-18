@@ -39,7 +39,7 @@ public class QuestFragment extends Fragment {
     private HashMap<String, HashMap> user_loc_quests;
     private HashMap<String, HashMap> user_elaborate_quests;
 
-    private View view;
+    private View questView;
 
     private String currentUser;
 
@@ -88,7 +88,7 @@ public class QuestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quest, container, false);
-        this.view = view;
+        this.questView = view;
 
         mainActivity = (MainActivity) getActivity();
         user_loc_quests = mainActivity.getLocQuests();
@@ -115,7 +115,9 @@ public class QuestFragment extends Fragment {
             ((TextView) view.findViewById(R.id.quest_desc)).setText(desc);
 
             Button loc_button = view.findViewById(R.id.start_local_quest);
+            Button loc_button_details = view.findViewById(R.id.loc_quest_details);
             Button elaborate_button = view.findViewById(R.id.start_elaborate_quest);
+            Button elaborate_button_details = view.findViewById(R.id.elaborate_quest_details);
 
             if (type.equals("loc_quest")) {
                 db.collection("users").document(currentUser).
@@ -146,6 +148,13 @@ public class QuestFragment extends Fragment {
                                         loc_button.setEnabled(false);
                                 }
                             }
+
+                            loc_button_details.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    ((MainActivity) getActivity()).showLocQuestPopup(id, null, questView);
+                                }
+                            });
                         }
                     }
                 });
@@ -233,8 +242,16 @@ public class QuestFragment extends Fragment {
                                         ((QuestsFragment) getParentFragment()).disable_loc_quest_buttons(quests);
 
                                     elaborate_button.setEnabled(false);
+
+                                    ((MainActivity) getActivity()).updateElaborateQuests();
                                 });
                             }
+                            elaborate_button_details.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    ((MainActivity) getActivity()).showElaborateQuestPopup(id, questView);
+                                }
+                            });
                         }
                     }
                 });
@@ -280,8 +297,8 @@ public class QuestFragment extends Fragment {
     }
 
     public void disableQuestButton() {
-        Button loc_button = view.findViewById(R.id.start_local_quest);
-        Button elaborate_button = view.findViewById(R.id.start_elaborate_quest);
+        Button loc_button = questView.findViewById(R.id.start_local_quest);
+        Button elaborate_button = questView.findViewById(R.id.start_elaborate_quest);
         loc_button.setEnabled(false);
         elaborate_button.setEnabled(false);
     }
