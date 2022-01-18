@@ -1,14 +1,10 @@
 package com.example.cityquest.Fragments;
 
-import android.animation.LayoutTransition;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,25 +17,19 @@ import com.example.cityquest.Objects.ElaborateQuest;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.w3c.dom.Text;
-
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 
 public class QuestFragment extends Fragment {
 
@@ -64,10 +54,14 @@ public class QuestFragment extends Fragment {
     private final String time;
     private final String popularity;
     private final String experience;
+    private final String cooldown;
+    private final Date creation_date;
+
     private final String fragment_type;
 
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
-                         String type, HashMap<String, HashMap> quests, String meters, String time, String popularity, String experience, String fragment_type) {
+                         String type, HashMap<String, HashMap> quests, String meters, String time,
+                         String popularity, String experience, String cooldown, Date creation_date, String fragment_type) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -79,6 +73,9 @@ public class QuestFragment extends Fragment {
         this.time = time;
         this.popularity = popularity;
         this.experience = experience;
+        this.cooldown = cooldown;
+        this.creation_date = creation_date;
+
         this.fragment_type = fragment_type;
     }
 
@@ -140,7 +137,8 @@ public class QuestFragment extends Fragment {
                                     ((MainActivity) getActivity()).addLocQuest(id, quest);
 
                                     db.collection("users")
-                                            .document(currentUser).collection("user_loc_quests").document(id).set(new LocQuest(name, desc, latitude, longitude, popularity, experience));
+                                            .document(currentUser).collection("user_loc_quests").document(id)
+                                            .set(new LocQuest(name, desc, latitude, longitude, popularity, experience, creation_date));
                                     loc_button.setEnabled(false);
                                 });
                                 for(String id_temp : user_elaborate_quests.keySet()) {
@@ -167,7 +165,7 @@ public class QuestFragment extends Fragment {
                     }
                 });
             } else if (type.equals("elaborate_quest")) {
-                TextView desc_layout = (TextView) view.findViewById(R.id.desc);
+                TextView desc_layout = view.findViewById(R.id.desc);
                 if(!quests.isEmpty()) {
                     int count = 1;
                     for (String id_quest : quests.keySet()) {
@@ -211,18 +209,22 @@ public class QuestFragment extends Fragment {
                                     quest.put("time", calendar.getTime());
                                     quest.put("popularity", popularity);
                                     quest.put("experience", experience);
+                                    quest.put("cooldown", cooldown);
 
                                     if(quests != null && meters != null) {
                                         quest.put("meters_traveled", "0");
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, meters, time, popularity, experience));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id)
+                                                .set(new ElaborateQuest(name, desc, quests, meters, calendar.getTime().toString(), popularity, experience, cooldown, creation_date));
                                     } else if(quests != null && meters == null) {
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, quests, time, popularity, experience));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id)
+                                                .set(new ElaborateQuest(name, desc, quests, calendar.getTime().toString(), popularity, experience, cooldown, creation_date));
                                     } else if(quests == null && meters != null) {
                                         quest.put("meters_traveled", "0");
                                         db.collection("users")
-                                                .document(currentUser).collection("user_elaborate_quests").document(id).set(new ElaborateQuest(name, desc, meters, time, popularity, experience));
+                                                .document(currentUser).collection("user_elaborate_quests").document(id)
+                                                .set(new ElaborateQuest(name, desc, meters, calendar.getTime().toString(), popularity, experience, cooldown, creation_date));
                                     }
 
                                     ((MainActivity) getActivity()).addElaborateQuest(id, quest);
@@ -232,6 +234,20 @@ public class QuestFragment extends Fragment {
 
                                     elaborate_button.setEnabled(false);
                                 });
+                            }
+                        }
+                    }
+                });
+
+                db.collection("users").document(currentUser).collection("completed_elaborate_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()) {
+                            if(task.getResult().exists()) {
+                                Date current_time = Calendar.getInstance().getTime();
+                                Date cooldown_until = ((Timestamp) task.getResult().getData().get("cooldown_until")).toDate();
+                                if(current_time.before(cooldown_until))
+                                    elaborate_button.setEnabled(false);
                             }
                         }
                     }

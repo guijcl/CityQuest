@@ -73,10 +73,12 @@ public class ProfileFragment extends Fragment {
                 .document("stats").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                DocumentSnapshot document = task.getResult();
-                HashMap stats_data = (HashMap) document.getData();
-                TextView ranking_number = view.findViewById(R.id.ranking_number);
-                ranking_number.setText((String) stats_data.get("rank"));
+                if(task.getResult().exists()) {
+                    DocumentSnapshot document = task.getResult();
+                    HashMap stats_data = (HashMap) document.getData();
+                    TextView ranking_number = view.findViewById(R.id.ranking_number);
+                    ranking_number.setText((String) stats_data.get("rank"));
+                }
             }
         });
 

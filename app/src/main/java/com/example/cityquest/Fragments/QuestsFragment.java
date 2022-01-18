@@ -35,15 +35,19 @@ import com.example.cityquest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -59,13 +63,11 @@ public class QuestsFragment extends Fragment {
 
     private MainActivity mainActivity;
 
-    String[] categoryItems = {"Elaborate Quest", "Local Quest"};
-    AutoCompleteTextView autoCompleteTextCat;
-    ArrayAdapter<String> adapterItemsCat;
+    private final String[] categoryItems = {"Local Quests", "Elaborate Quests"};
+    private String lastCategorySelected = null;
 
-    String[] orderByItems = {"Latest Quests", "Oldest Quests", "Nearest Quests", "Most Distant Quests", "Most Popular Quests"};
-    AutoCompleteTextView autoCompleteTextOrder;
-    ArrayAdapter<String> adapterItemsOrder;
+    private final String[] orderByItems = {"Latest Quests", "Oldest Quests", "Most Popular Quests"};
+    private String lastOrderSelected = null;
 
     private HashMap<String, HashMap> all_loc_quests;
 
@@ -87,97 +89,70 @@ public class QuestsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_quests, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_quests, container, false);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         mainActivity = (MainActivity) getActivity();
 
-        autoCompleteTextCat = view.findViewById(R.id.autoCompleteOne);
-        adapterItemsCat = new ArrayAdapter<>(getActivity(),R.layout.list_item_questsfrag, categoryItems);
+        geocoder = new Geocoder(this.requireContext());
+
+        all_loc_quests = new HashMap<>();
+
+        FragmentManager childFragMan = getChildFragmentManager();
+
+        loadLocQuests(childFragMan);
+        loadElaborateQuests(childFragMan);
+
+        AutoCompleteTextView autoCompleteTextCat = fragmentView.findViewById(R.id.autoCompleteOne);
+        ArrayAdapter<String> adapterItemsCat = new ArrayAdapter<>(getActivity(),R.layout.list_item_questsfrag, categoryItems);
         autoCompleteTextCat.setAdapter(adapterItemsCat);
         autoCompleteTextCat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LinearLayout linearLayout = fragmentView.findViewById(R.id.all_quests);
+                linearLayout.removeAllViews();
+
                 String item = adapterView.getItemAtPosition(i).toString();
-                //filter by category
+                if(lastOrderSelected != null) {
+                    if (item.equals("Local Quests"))
+                        loadLocQuests(childFragMan, lastOrderSelected);
+                    else loadElaborateQuests(childFragMan, lastOrderSelected);
+                } else {
+                    if (item.equals("Local Quests"))
+                        loadLocQuests(childFragMan);
+                    else loadElaborateQuests(childFragMan);
+                }
+                lastCategorySelected = item;
             }
         });
 
-        autoCompleteTextOrder = view.findViewById(R.id.autoCompleteTwo);
-        adapterItemsOrder = new ArrayAdapter<>(getActivity(),R.layout.list_item_questsfrag, orderByItems);
+        AutoCompleteTextView autoCompleteTextOrder = fragmentView.findViewById(R.id.autoCompleteTwo);
+        ArrayAdapter<String> adapterItemsOrder = new ArrayAdapter<>(getActivity(),R.layout.list_item_questsfrag, orderByItems);
         autoCompleteTextOrder.setAdapter(adapterItemsOrder);
         autoCompleteTextOrder.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String item = adapterView.getItemAtPosition(i).toString();
-                //filter by category
+                LinearLayout linearLayout = fragmentView.findViewById(R.id.all_quests);
+                linearLayout.removeAllViews();
+                if(lastCategorySelected.equals("Local Quests"))
+                    loadLocQuests(childFragMan, item);
+                else loadElaborateQuests(childFragMan, item);
+                lastOrderSelected = item;
             }
         });
 
-        geocoder = new Geocoder(this.requireContext());
-        all_loc_quests = new HashMap<>();
-
-        Button create_local_quest = view.findViewById(R.id.local_quest);
+        Button create_local_quest = fragmentView.findViewById(R.id.local_quest);
         create_local_quest.setOnClickListener(view1 -> {
             createNewLocalQuestDialog();
         });
 
-        Button create_elaborate_quest = view.findViewById(R.id.elaborate_quest);
+        Button create_elaborate_quest = fragmentView.findViewById(R.id.elaborate_quest);
         create_elaborate_quest.setOnClickListener(view1 -> {
             createNewElaborateQuestDialog();
         });
 
-        FragmentManager childFragMan = getChildFragmentManager();
-
-        db.collection(  "loc_quests").get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            FragmentTransaction childFragTrans = childFragMan.beginTransaction();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                HashMap data = (HashMap) document.getData();
-                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,
-                                        (String) data.get("popularity"), (String) data.get("experience"), "quests_list");
-
-                                childFragTrans.add(R.id.all_quests, questFragment, document.getId());
-
-                                HashMap temp_hash = new HashMap();
-                                temp_hash.put("id", document.getId());
-                                temp_hash.put("latitude", data.get("latitude"));
-                                temp_hash.put("longitude", data.get("longitude"));
-                                all_loc_quests.put((String) data.get("name"), temp_hash);
-                            }
-                            childFragTrans.commit();
-                        } else {
-                            Log.w("ERROR", "Error getting documents.", task.getException());
-                        }
-                    }
-                });
-
-        db.collection("elaborate_quests").get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            FragmentTransaction childFragTrans = childFragMan.beginTransaction();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                HashMap data = (HashMap) document.getData();
-                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"), 0, 0,
-                                        "elaborate_quest", (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"),
-                                        (String) data.get("popularity"), (String) data.get("experience"), "quests_list");
-                                childFragTrans.add(R.id.all_quests, questFragment, document.getId());
-                            }
-                            childFragTrans.commit();
-                        } else {
-                            Log.w("ERROR", "Error getting documents.", task.getException());
-                        }
-                    }
-                });
-
-        return view;
+        return fragmentView;
     }
 
     public void createNewLocalQuestDialog() {
@@ -280,7 +255,8 @@ public class QuestsFragment extends Fragment {
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
                                     if(task.getResult().size() == 0) {
-                                        LocQuest n_lq = new LocQuest(selected_item, desc.getText().toString(), selected_item_latitude, selected_item_longitude, "0", "50");
+                                        Date creation_date = Calendar.getInstance().getTime();
+                                        LocQuest n_lq = new LocQuest(selected_item, desc.getText().toString(), selected_item_latitude, selected_item_longitude, "0", "50", creation_date);
                                         db.collection("loc_quests")
                                                 .add(n_lq)
                                                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -288,7 +264,7 @@ public class QuestsFragment extends Fragment {
                                                     public void onSuccess(DocumentReference documentReference) {
                                                         QuestFragment questFragment = new QuestFragment(documentReference.getId(),
                                                                 n_lq.getName(), n_lq.getDesc(), selected_item_latitude, selected_item_longitude,
-                                                                "loc_quest",null, null, null, "0", "50", "quests_list");
+                                                                "loc_quest",null, null, null, "0", "50", null, creation_date, "quests_list");
 
                                                         HashMap temp_hash = new HashMap();
                                                         temp_hash.put("id", documentReference.getId());
@@ -350,6 +326,7 @@ public class QuestsFragment extends Fragment {
         check2.add(false);
         check2.add(false);
         check2.add(false);
+        check2.add(false);
 
         EditText name = newQuestPopupView.findViewById(R.id.name);
         EditText desc = newQuestPopupView.findViewById(R.id.desc);
@@ -366,6 +343,7 @@ public class QuestsFragment extends Fragment {
         AutoCompleteTextView quest1 = newQuestPopupView.findViewById(R.id.quest_1);
         EditText meters = newQuestPopupView.findViewById(R.id.meters);
         EditText time = newQuestPopupView.findViewById(R.id.time_to_complete);
+        EditText cooldown = newQuestPopupView.findViewById(R.id.cooldown_time);
 
         List<Boolean> check_quests = new ArrayList<>();
         check_quests.add(false);
@@ -462,13 +440,7 @@ public class QuestsFragment extends Fragment {
                 if(!check_quests.contains(false)) {
                     check2.set(0, true);
 
-                    if(meters.isEnabled()) {
-                        if (check2.get(0) && check2.get(1) && check2.get(2))
-                            newquestpopup_save.setEnabled(true);
-                    } else {
-                        if(check2.get(0) && check2.get(2))
-                            newquestpopup_save.setEnabled(true);
-                    }
+                    check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
                 }
             }
         });
@@ -591,6 +563,28 @@ public class QuestsFragment extends Fragment {
             public void afterTextChanged(Editable editable) {}
         });
 
+        cooldown.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String str = charSequence.toString();
+                if(str.length() > 0 && str.matches("[0-9]+"))
+                    check2.set(3, true);
+                else {
+                    check2.set(3, false);
+                    if(newquestpopup_save.isEnabled())
+                        newquestpopup_save.setEnabled(false);
+                }
+
+                check_elaborate_quest(newquestpopup_save, add_quest, meters, check1, check2);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
         dialogBuilder.setView(newQuestPopupView);
         dialog = dialogBuilder.create();
         dialog.show();
@@ -612,19 +606,23 @@ public class QuestsFragment extends Fragment {
 
             ElaborateQuest n_eq = null;
             int experience = 0;
+            Date creation_date = Calendar.getInstance().getTime();
             if(check2.get(0) && check2.get(1)) {
                 experience += 50 * quests.size();
                 experience += Integer.parseInt(meters.getText().toString()) * 0.1;
                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
-                        meters.getText().toString(), time.getText().toString(), "0", String.valueOf(experience));
+                        meters.getText().toString(), time.getText().toString(), "0",
+                        String.valueOf(experience), cooldown.getText().toString(), creation_date);
             } else if(check2.get(0)) {
                 experience += 50 * quests.size();
                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
-                        time.getText().toString(), "0", String.valueOf(experience));
+                        time.getText().toString(), "0", String.valueOf(experience),
+                        cooldown.getText().toString(), creation_date);
             } else if(check2.get(1)) {
                 experience += Long.parseLong(meters.getText().toString()) * 0.1;
                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(),
-                        meters.getText().toString(), time.getText().toString(), "0", String.valueOf(experience));
+                        meters.getText().toString(), time.getText().toString(), "0",
+                        String.valueOf(experience), cooldown.getText().toString(), creation_date);
             }
 
             int finalExperience = experience;
@@ -639,7 +637,8 @@ public class QuestsFragment extends Fragment {
 
                             QuestFragment questFragment = new QuestFragment(documentReference.getId(), name.getText().toString(),
                                     desc.getText().toString(), 0, 0, "elaborate_quest", quests,
-                                    temp_meters, time.getText().toString(), "0", String.valueOf(finalExperience),"quests_list");
+                                    temp_meters, time.getText().toString(), "0", String.valueOf(finalExperience),
+                                    cooldown.getText().toString(), creation_date, "quests_list");
                             childFragTrans.add(R.id.all_quests, questFragment, documentReference.getId());
                             childFragTrans.commit();
                         }
@@ -653,6 +652,164 @@ public class QuestsFragment extends Fragment {
         });
     }
 
+    private void loadLocQuests(FragmentManager childFragMan) {
+        db.collection(  "loc_quests").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                HashMap data = (HashMap) document.getData();
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
+                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,
+                                        (String) data.get("popularity"), (String) data.get("experience"), null, ((Timestamp) data.get("creationDate")).toDate(), "quests_list");
+
+                                childFragTrans.add(R.id.all_quests, questFragment, document.getId());
+
+                                HashMap temp_hash = new HashMap();
+                                temp_hash.put("id", document.getId());
+                                temp_hash.put("latitude", data.get("latitude"));
+                                temp_hash.put("longitude", data.get("longitude"));
+                                all_loc_quests.put((String) data.get("name"), temp_hash);
+                            }
+                            childFragTrans.commit();
+                        } else {
+                            Log.w("ERROR", "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void loadElaborateQuests(FragmentManager childFragMan) {
+        db.collection("elaborate_quests").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                HashMap data = (HashMap) document.getData();
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"), 0, 0,
+                                        "elaborate_quest", (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"),
+                                        (String) data.get("popularity"), (String) data.get("experience"), (String) data.get("cooldown"), ((Timestamp) data.get("creationDate")).toDate(), "quests_list");
+                                childFragTrans.add(R.id.all_quests, questFragment, document.getId());
+                            }
+                            childFragTrans.commit();
+                        } else {
+                            Log.w("ERROR", "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void loadLocQuests(FragmentManager childFragMan, String orderBy) {
+        if(orderBy.equals("Latest Quests") || orderBy.equals("Oldest Quests")) {
+            Query.Direction direction;
+            if(orderBy.equals("Latest Quests")) direction = Query.Direction.DESCENDING;
+            else direction = Query.Direction.ASCENDING;
+            db.collection("loc_quests").orderBy("creationDate", direction).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            HashMap data = (HashMap) document.getData();
+                            QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
+                                    (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,
+                                    (String) data.get("popularity"), (String) data.get("experience"), null, ((Timestamp) data.get("creationDate")).toDate(), "quests_list");
+
+                            childFragTrans.add(R.id.all_quests, questFragment, document.getId());
+
+                            HashMap temp_hash = new HashMap();
+                            temp_hash.put("id", document.getId());
+                            temp_hash.put("latitude", data.get("latitude"));
+                            temp_hash.put("longitude", data.get("longitude"));
+                            all_loc_quests.put((String) data.get("name"), temp_hash);
+                        }
+                        childFragTrans.commit();
+                    } else {
+                        Log.w("ERROR", "Error getting documents.", task.getException());
+                    }
+                }
+            });
+        } else if(orderBy.equals("Most Popular Quests")) {
+            db.collection("loc_quests").orderBy("popularity", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            HashMap data = (HashMap) document.getData();
+                            QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
+                                    (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null,
+                                    (String) data.get("popularity"), (String) data.get("experience"), null, ((Timestamp) data.get("creationDate")).toDate(), "quests_list");
+
+                            childFragTrans.add(R.id.all_quests, questFragment, document.getId());
+
+                            HashMap temp_hash = new HashMap();
+                            temp_hash.put("id", document.getId());
+                            temp_hash.put("latitude", data.get("latitude"));
+                            temp_hash.put("longitude", data.get("longitude"));
+                            all_loc_quests.put((String) data.get("name"), temp_hash);
+                        }
+                        childFragTrans.commit();
+                    } else {
+                        Log.w("ERROR", "Error getting documents.", task.getException());
+                    }
+                }
+            });
+        }
+    }
+
+    private void loadElaborateQuests(FragmentManager childFragMan, String orderBy) {
+        if(orderBy.equals("Latest Quests") || orderBy.equals("Oldest Quests")) {
+            Query.Direction direction;
+            if(orderBy.equals("Latest Quests")) direction = Query.Direction.DESCENDING;
+            else direction = Query.Direction.ASCENDING;
+            db.collection("elaborate_quests").orderBy("creationDate", direction).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            HashMap data = (HashMap) document.getData();
+                            QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"),
+                                    (String) data.get("desc"), 0, 0, "elaborate_quest", (HashMap<String, HashMap>) data.get("quests"),
+                                    (String) data.get("meters"), (String) data.get("time"), (String) data.get("popularity"), (String) data.get("experience"),
+                                    (String) data.get("cooldown"), ((Timestamp) data.get("creationDate")).toDate(), "quests_list");
+                            childFragTrans.add(R.id.all_quests, questFragment, document.getId());
+                        }
+                        childFragTrans.commit();
+                    } else {
+                        Log.w("ERROR", "Error getting documents.", task.getException());
+                    }
+                }
+            });
+        } else if(orderBy.equals("Most Popular Quests")) {
+            db.collection("elaborate_quests").orderBy("popularity", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            HashMap data = (HashMap) document.getData();
+                            QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"),
+                                    (String) data.get("desc"), 0, 0, "elaborate_quest",
+                                    (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"), (String) data.get("time"),
+                                    (String) data.get("popularity"), (String) data.get("experience"), (String) data.get("cooldown"),
+                                    ((Timestamp) data.get("creationDate")).toDate(), "quests_list");
+                            childFragTrans.add(R.id.all_quests, questFragment, document.getId());
+                        }
+                        childFragTrans.commit();
+                    } else {
+                        Log.w("ERROR", "Error getting documents.", task.getException());
+                    }
+                }
+            });
+        }
+    }
+
     private void check_elaborate_quest(View newquestpopup_save, View add_quest, View meters, List<Boolean> check1, List<Boolean> check2) {
         if(check1.contains(false)) {
             if(newquestpopup_save.isEnabled())
@@ -660,15 +817,15 @@ public class QuestsFragment extends Fragment {
             return;
         }
         if(add_quest.isEnabled() && meters.isEnabled()) {
-            if (check2.get(0) && check2.get(1) && check2.get(2))
+            if (!check2.contains(false))
                 newquestpopup_save.setEnabled(true);
             else newquestpopup_save.setEnabled(false);
         } else if(add_quest.isEnabled() && !meters.isEnabled()) {
-            if(check2.get(0) && check2.get(2))
+            if(check2.get(0) && check2.get(2) && check2.get(3))
                 newquestpopup_save.setEnabled(true);
             else newquestpopup_save.setEnabled(false);
         } else if(!add_quest.isEnabled() && meters.isEnabled()) {
-            if(check2.get(1) && check2.get(2))
+            if(check2.get(1) && check2.get(2) && check2.get(3))
                 newquestpopup_save.setEnabled(true);
             else newquestpopup_save.setEnabled(false);
         } else {

@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,6 +57,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -488,7 +490,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 db.collection("elaborate_quests").document(id).update("popularity",
                         String.valueOf((Integer.parseInt((String) user_elaborate_quests.get(id).get("popularity"))) + 1));
 
-                db.collection("users").document(currentUser).collection("stats_collection")
+                Task task1 = db.collection("users").document(currentUser).collection("stats_collection")
                         .document("stats").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -512,31 +514,55 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                     db.collection("users").document(currentUser).collection("stats_collection").document("stats")
                                             .update("rank", String.valueOf(2));
                             }
-                            user_elaborate_quests.remove(id);
                         } else {
                             Log.d("ERROR", "Failed with: ", task.getException());
                         }
                     }
                 });
 
-                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
+                Task task2 = db.collection("users").document(currentUser).collection("completed_elaborate_quests")
                         .document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy:MM:dd:HH:mm");
+                            String currentDateandTime = sdf.format(new Date());
+
+                            Date date = null;
+                            try {
+                                date = sdf.parse(currentDateandTime);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+                            calendar.add(Calendar.HOUR, Integer.parseInt((String) user_elaborate_quests.get(id).get("cooldown")));
+
                             if (document.exists()) {
+                                HashMap<String, Object> temp = new HashMap<>();
+                                temp.put("completed_num", (long) document.get("completed_num") + 1);
+                                temp.put("cooldown_until", calendar);
                                 db.collection("users").document(currentUser).collection("completed_elaborate_quests")
-                                        .document(id).update("completed_num", (long) document.get("completed_num") + 1);
+                                        .document(id).update(temp);
                             } else {
-                                HashMap<String, Integer> temp = new HashMap<>();
+                                HashMap<String, Object> temp = new HashMap<>();
                                 temp.put("completed_num", 1);
+                                temp.put("cooldown_until", calendar.getTime());
                                 db.collection("users").document(currentUser).collection("completed_elaborate_quests")
                                         .document(id).set(temp);
                             }
                         } else {
                             Log.d("ERROR", "Failed with: ", task.getException());
                         }
+                    }
+                });
+
+                Tasks.whenAllComplete(task1, task2).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<List<Task<?>>> task) {
+                        user_elaborate_quests.remove(id);
                     }
                 });
             } else {
