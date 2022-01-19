@@ -231,7 +231,7 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            if(task.getResult().size() == 0) {
+                            if(task.getResult().size() != 0) {
                                 FragmentTransaction childFragTrans = childFragMan.beginTransaction();
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     db.collection("elaborate_quests").document(document.getId()).get()
@@ -267,7 +267,7 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            if (task.getResult().size() == 0) {
+                            if (task.getResult().size() != 0) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     db.collection("elaborate_quests").document(document.getId()).get()
                                             .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

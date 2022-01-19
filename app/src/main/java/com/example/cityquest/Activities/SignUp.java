@@ -135,8 +135,8 @@ public class SignUp extends AppCompatActivity {
                             //FOLLOWING
                             user.put("following", "0");
                             //RANKING
-                            user.put("ranking", "0");
-                            user.put("experience", "1");
+                            user.put("ranking", "1");
+                            user.put("experience", "0");
                             //STATUS
                             user.put("status", "offline");
 
