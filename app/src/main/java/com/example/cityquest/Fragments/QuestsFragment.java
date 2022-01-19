@@ -73,7 +73,7 @@ public class QuestsFragment extends Fragment {
 
     private MainActivity mainActivity;
 
-    private final String[] categoryItems = {"Local Quests", "Elaborate Quests"};
+    private final String[] categoryItems = {"All Quests", "Local Quests", "Elaborate Quests"};
     private String lastCategorySelected = null;
 
     private final String[] orderByItems = {"Latest Quests", "Oldest Quests", "Most Popular Quests"};
@@ -160,13 +160,23 @@ public class QuestsFragment extends Fragment {
 
                 String item = adapterView.getItemAtPosition(i).toString();
                 if(lastOrderSelected != null) {
-                    if (item.equals("Local Quests"))
+                    if (item.equals("Local Quests")) {
                         loadLocQuests(childFragMan, lastOrderSelected);
-                    else loadElaborateQuests(childFragMan, lastOrderSelected);
+                    } else if(item.equals("Elaborate Quests")){
+                        loadElaborateQuests(childFragMan, lastOrderSelected);
+                    } else {
+                        loadLocQuests(childFragMan, lastOrderSelected);
+                        loadElaborateQuests(childFragMan, lastOrderSelected);
+                    }
                 } else {
-                    if (item.equals("Local Quests"))
+                    if (item.equals("Local Quests")) {
                         loadLocQuests(childFragMan);
-                    else loadElaborateQuests(childFragMan);
+                    } else if(item.equals("Elaborate Quests")){
+                        loadElaborateQuests(childFragMan);
+                    } else {
+                        loadLocQuests(childFragMan);
+                        loadElaborateQuests(childFragMan);
+                    }
                 }
                 lastCategorySelected = item;
             }

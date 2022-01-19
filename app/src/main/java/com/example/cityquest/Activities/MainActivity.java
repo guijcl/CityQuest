@@ -3,13 +3,17 @@ package com.example.cityquest.Activities;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cityquest.Fragments.AboutFragment;
+import com.example.cityquest.Fragments.CompetitiveFragment;
 import com.example.cityquest.Fragments.MapFragment;
 import com.example.cityquest.Fragments.ProfileFragment;
 import com.example.cityquest.Fragments.QuestFragment;
@@ -104,10 +109,59 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
-        //-------------------------------------AUTHENTICATION---------------------------------------
+        //------------------------------AUTHENTICATION AND GET DATA---------------------------------
 
         mAuth = FirebaseAuth.getInstance();
-        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        db = FirebaseFirestore.getInstance();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap data = (HashMap) document.getData();
+                        String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                        if(data.get("email").equals(emailSaved)) {
+                            TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
+                            TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
+                            ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+
+                            Paper.book().write(Prevalent.UserUsernameKey, data.get("username").toString());
+                            Paper.book().write(Prevalent.ProfileImageKey, data.get("profileImage").toString());
+                            Paper.book().write(Prevalent.followers, data.get("followers").toString());
+                            Paper.book().write(Prevalent.following, data.get("following").toString());
+                            Paper.book().write(Prevalent.ranking, data.get("ranking").toString());
+
+
+                            username.setText(data.get("username").toString());
+                            email.setText(data.get("email").toString());
+                            decodeImage(profileImage, data.get("profileImage").toString());
+                        }
+                    }
+                }
+            }
+        });
+
+        Toolbar menuIcon = findViewById(R.id.main_toolbar);
+        menuIcon.setOnClickListener(v -> {
+            db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            HashMap data = (HashMap) document.getData();
+                            String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                            if(data.get("email").equals(emailSaved)) {
+                                ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+                                decodeImage(profileImage, data.get("profileImage").toString());
+                            }
+                        }
+                    }
+                }
+            });
+            slidingRootNav.openMenu();
+        });
+
 
         //----------------------------------------SIDE MENU-----------------------------------------
 
@@ -153,75 +207,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         adapter.setSelected(POS_MAIN_MAP);
 
-        //VERIFICAR COM ID SO USER: FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db = FirebaseFirestore.getInstance();
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-           @Override
-           public void onComplete(@NonNull Task<QuerySnapshot> task) {
-               if (task.isSuccessful()) {
-                   for (QueryDocumentSnapshot document : task.getResult()) {
-                       HashMap data = (HashMap) document.getData();
-                       String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
-                       if(data.get("email").equals(emailSaved)) {
-                           TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
-                           TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
-                           //CircleImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
-                           username.setText(data.get("username").toString());
-                           email.setText(data.get("email").toString());
-                           //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
-                       }
-                   }
-               }
-           }
-        });
-
-        Toolbar menuIcon = findViewById(R.id.main_toolbar);
-        menuIcon.setOnClickListener(v -> slidingRootNav.openMenu());
-
-
         //------------------------------------------------------------------------------------------
 
         if(getSupportActionBar() != null) getSupportActionBar().hide();
-
-        db.collection("users").document(currentUser).
-                collection("user_loc_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap<String, Object> q = new HashMap<>();
-                        q.put("name", (String) document.getData().get("name"));
-                        q.put("desc", (String) document.getData().get("desc"));
-                        q.put("latitude", String.valueOf(document.getData().get("latitude")));
-                        q.put("longitude", String.valueOf(document.getData().get("longitude")));
-                        q.put("popularity", document.getData().get("popularity"));
-                        q.put("experience", document.getData().get("experience"));
-                        addLocQuest(document.getId(), q);
-                    }
-                }
-            }
-        });
-
-        db.collection("users").document(currentUser).
-                collection("user_elaborate_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap<String, Object> q = new HashMap<>();
-                        q.put("name", document.getData().get("name"));
-                        q.put("desc", document.getData().get("desc"));
-                        q.put("quests", document.getData().get("quests"));
-                        q.put("meters", document.getData().get("meters"));
-                        q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled")));
-                        q.put("time", document.getData().get("time"));
-                        q.put("popularity", document.getData().get("popularity"));
-                        q.put("experience", document.getData().get("experience"));
-                        addElaborateQuest(document.getId(), q);
-                    }
-                }
-            }
-        });
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.addOnBackStackChangedListener(this);
@@ -233,6 +221,12 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .replace(R.id.frame_layout, fragment, "map")
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void decodeImage(ImageView profileImageDecoded, String profileImage) {
+        byte[] decodedString = Base64.decode(profileImage, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        profileImageDecoded.setImageBitmap(decodedByte);
     }
 
     @Override
@@ -284,8 +278,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     @Override
     public void onItemSelected(int position) {
-        updateElaborateQuests();
-
         fragmentManager = getSupportFragmentManager();
         switch (position) {
             case POS_MAIN_MAP:
@@ -311,12 +303,13 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_COMPETITIVE:
                 /*CompetitiveFragment competitive = new CompetitiveFragment();
+                currentFragment = competitive;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, competitive, "competitive")
                         .addToBackStack(null)
-                        .commit();*/
-                Toast.makeText(getApplicationContext(), "COMING SOON", Toast.LENGTH_LONG).show();
-                break;
+                        .commit();
+                break;*/
+                Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();
             case POS_SOCIAL:
                 SocialFragment social = new SocialFragment();
                 fragmentManager.beginTransaction()
@@ -324,6 +317,14 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         .addToBackStack(null)
                         .commit();
                 break;
+            case POS_SETTINGS:
+                /*SettingsFragment settings = new SettingsFragment();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.frame_layout, settings, "settings")
+                        .addToBackStack(null)
+                        .commit();
+                break;*/
+                Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();
             case POS_ABOUT:
                 AboutFragment about = new AboutFragment();
                 fragmentManager.beginTransaction()

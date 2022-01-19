@@ -364,19 +364,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
             setMap(googleMap);
         });
 
-        View bottomSheet = view.findViewById(R.id.bottom_sheet);
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        bottomSheetBehavior.setPeekHeight(200);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-        ListView listView = view.findViewById(R.id.listQuests);
-        ArrayList<BottomSheetItem> arr = new ArrayList<>();
-        while(arr.size() < 3) {
-            arr.add(new BottomSheetItem());
-        }
-        BottomSheetItemAdapter adapter = new BottomSheetItemAdapter(getActivity(),0,arr);
-        listView.setAdapter(adapter);
-
         return view;
     }
 
