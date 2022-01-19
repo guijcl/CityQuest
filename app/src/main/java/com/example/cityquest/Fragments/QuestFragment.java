@@ -97,13 +97,21 @@ public class QuestFragment extends Fragment {
         currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if(fragment_type.equals("profile_quest_list")) {
+            LinearLayout profile_quest = view.findViewById(R.id.profile_quest_layout);
             if(view.findViewById(R.id.list_quest_layout).getVisibility() == View.VISIBLE)
                 view.findViewById(R.id.list_quest_layout).setVisibility(View.GONE);
-            view.findViewById(R.id.profile_quest_layout).setVisibility(View.VISIBLE);
+            profile_quest.setVisibility(View.VISIBLE);
 
-            String[] strs = name.split(", ");
-            String str_name = strs[0];
-            ((TextView) view.findViewById(R.id.p_quest_name)).setText(str_name);
+            profile_quest.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(type.equals("loc_quest"))
+                        ((MainActivity) getActivity()).showLocQuestPopup(id, null, questView, "profile_quest_list");
+                    else ((MainActivity) getActivity()).showElaborateQuestPopup(id, questView, "profile_quest_list");
+                }
+            });
+
+            ((TextView) view.findViewById(R.id.p_quest_name)).setText(name);
         }
 
         if(fragment_type.equals("quests_list")) {
@@ -152,24 +160,9 @@ public class QuestFragment extends Fragment {
                             loc_button_details.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    ((MainActivity) getActivity()).showLocQuestPopup(id, null, questView);
+                                    ((MainActivity) getActivity()).showLocQuestPopup(id, null, questView, "quests_list");
                                 }
                             });
-                        }
-                    }
-                });
-
-                db.collection("users").document(currentUser).
-                        collection("user_elaborate_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if(document.getId().equals(id)) {
-                                    loc_button.setEnabled(false);
-                                    break;
-                                }
-                            }
                         }
                     }
                 });
@@ -249,7 +242,7 @@ public class QuestFragment extends Fragment {
                             elaborate_button_details.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    ((MainActivity) getActivity()).showElaborateQuestPopup(id, questView);
+                                    ((MainActivity) getActivity()).showElaborateQuestPopup(id, questView, "quests_list");
                                 }
                             });
                         }

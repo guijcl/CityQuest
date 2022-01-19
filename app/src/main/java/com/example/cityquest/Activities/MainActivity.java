@@ -9,10 +9,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
-import android.view.WindowManager;
-import android.widget.ImageView;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,14 +26,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cityquest.Fragments.AboutFragment;
+import com.example.cityquest.Fragments.CompetitiveFragment;
 import com.example.cityquest.Fragments.MapFragment;
 import com.example.cityquest.Fragments.ProfileFragment;
 import com.example.cityquest.Fragments.QuestFragment;
 import com.example.cityquest.Fragments.QuestsFragment;
+import com.example.cityquest.Fragments.SettingsFragment;
 import com.example.cityquest.Fragments.SocialFragment;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.Prevalent.Prevalent;
@@ -59,6 +64,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener, FragmentManager.OnBackStackChangedListener {
@@ -69,8 +75,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int POS_QUESTS = 3;
     private static final int POS_COMPETITIVE = 4;
     private static final int POS_SOCIAL = 5;
-    private static final int POS_ABOUT = 6;
-    private static final int POS_LOG_OUT = 7;
+    private static final int POS_SETTINGS = 6;
+    private static final int POS_ABOUT = 7;
+    private static final int POS_LOG_OUT = 8;
 
     private String[] screenTitles;
     private Drawable[] screenIcons;
@@ -105,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         //------------------------------AUTHENTICATION AND GET DATA---------------------------------
 
         mAuth = FirebaseAuth.getInstance();
-        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         db = FirebaseFirestore.getInstance();
         db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -187,8 +193,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 createItemFor(POS_QUESTS),
                 createItemFor(POS_COMPETITIVE),
                 createItemFor(POS_SOCIAL),
+                createItemFor(POS_SETTINGS),
                 createItemFor(POS_ABOUT),
-                new SpaceItem(80),
+                new SpaceItem(40),
                 createItemFor(POS_LOG_OUT)
         ));
         adapter.setListener(this);
@@ -204,46 +211,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         if(getSupportActionBar() != null) getSupportActionBar().hide();
 
-        db.collection("users").document(currentUser).
-                collection("user_loc_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap<String, Object> q = new HashMap<>();
-                        q.put("name", (String) document.getData().get("name"));
-                        q.put("desc", (String) document.getData().get("desc"));
-                        q.put("latitude", String.valueOf(document.getData().get("latitude")));
-                        q.put("longitude", String.valueOf(document.getData().get("longitude")));
-                        q.put("popularity", document.getData().get("popularity"));
-                        q.put("experience", document.getData().get("experience"));
-                        addLocQuest(document.getId(), q);
-                    }
-                }
-            }
-        });
-
-        db.collection("users").document(currentUser).
-                collection("user_elaborate_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap<String, Object> q = new HashMap<>();
-                        q.put("name", document.getData().get("name"));
-                        q.put("desc", document.getData().get("desc"));
-                        q.put("quests", document.getData().get("quests"));
-                        q.put("meters", document.getData().get("meters"));
-                        q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled")));
-                        q.put("time", document.getData().get("time"));
-                        q.put("popularity", document.getData().get("popularity"));
-                        q.put("experience", document.getData().get("experience"));
-                        addElaborateQuest(document.getId(), q);
-                    }
-                }
-            }
-        });
-
         fragmentManager = getSupportFragmentManager();
         fragmentManager.addOnBackStackChangedListener(this);
 
@@ -256,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .commit();
 
         System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        System.out.println((String) Paper.book().read(Prevalent.chkBox));
+        System.out.println((String)Paper.book().read(Prevalent.chkBox));
     }
 
     private void decodeImage(ImageView profileImageDecoded, String profileImage) {
@@ -314,8 +281,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     @Override
     public void onItemSelected(int position) {
-        updateElaborateQuests();
-
         fragmentManager = getSupportFragmentManager();
         switch (position) {
             case POS_MAIN_MAP:
@@ -343,19 +308,26 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         .commit();
                 break;
             case POS_COMPETITIVE:
-                /*CompetitiveFragment competitive = new CompetitiveFragment();
+                CompetitiveFragment competitive = new CompetitiveFragment();
                 currentFragment = competitive;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, competitive, "competitive")
                         .addToBackStack(null)
-                        .commit();*/
-                Toast.makeText(getApplicationContext(), "COMING SOON", Toast.LENGTH_LONG).show();
+                        .commit();
                 break;
             case POS_SOCIAL:
                 SocialFragment social = new SocialFragment();
                 currentFragment = social;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, social, "social")
+                        .addToBackStack(null)
+                        .commit();
+                break;
+            case POS_SETTINGS:
+                SettingsFragment settings = new SettingsFragment();
+                currentFragment = settings;
+                fragmentManager.beginTransaction()
+                        .replace(R.id.frame_layout, settings, "settings")
                         .addToBackStack(null)
                         .commit();
                 break;
@@ -416,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 collection("user_elaborate_quests").document(id).update(elaborate_quests.get(id));
     }
 
-    public void showLocQuestPopup(String id, HashMap<String, Marker> hashMapMarker, View quest) {
+    public void showLocQuestPopup(String id, HashMap<String, Marker> hashMapMarker, View quest, String fragmentType) {
         dialogBuilder = new AlertDialog.Builder(this);
         final View locQuestPopupView = getLayoutInflater().inflate(R.layout.loc_quest_popup, null);
 
@@ -449,6 +421,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         Button loc_button = quest.findViewById(R.id.start_local_quest);
                         loc_button.setEnabled(true);
                     }
+                }
+
+                if(fragmentType.equals("profile_quest_list")) {
+                    Fragment profile = fragmentManager.findFragmentByTag("profile");
+                    profile.getChildFragmentManager().beginTransaction().remove(profile.getChildFragmentManager().findFragmentByTag(id + " active")).commit();
                 }
             }
         });
@@ -542,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         dialog.show();
     }
 
-    public void showElaborateQuestPopup(String id, View quest){
+    public void showElaborateQuestPopup(String id, View quest, String fragmentType){
         dialogBuilder = new AlertDialog.Builder(this);
         final View elaborateQuestPopupView = getLayoutInflater().inflate(R.layout.elaborate_quest_popup, null);
 
@@ -571,6 +548,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                     complete_until.setVisibility(View.GONE);
                     Button elaborate_button = quest.findViewById(R.id.start_elaborate_quest);
                     elaborate_button.setEnabled(true);
+                }
+
+                if(fragmentType.equals("profile_quest_list")) {
+                    Fragment profile = fragmentManager.findFragmentByTag("profile");
+                    profile.getChildFragmentManager().beginTransaction().remove(profile.getChildFragmentManager().findFragmentByTag(id + " active")).commit();
                 }
             }
         });

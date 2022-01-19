@@ -6,7 +6,6 @@
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/drawable/bottom_sheet_item.xml" value="0.3828125" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/drawable/bottom_sheet_shape.xml" value="0.3828125" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/drawable/friend_card.xml" value="0.3828125" />
-        <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/drawable/menu.xml" value="0.3828125" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/drawable/profile_pic.xml" value="0.30104166666666665" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/drawable/push_bottom_sheet_icon.xml" value="0.3828125" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/drawable/quest.xml" value="0.30104166666666665" />
@@ -17,19 +16,16 @@
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/activity_splash_screen.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/bottom_sheet_item_layout.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/drawer_menu.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/elaborate_quest_popup.xml" value="0.22" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_about.xml" value="0.16822916666666668" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_competitive.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_map.xml" value="0.25" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_profile.xml" value="0.33" />
-        <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_quest.xml" value="0.25" />
+        <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_quest.xml" value="0.33" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_quests.xml" value="0.25" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_settings.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_signup.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/fragment_social.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/item_option.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/list_item_questsfrag.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/loc_quest_popup.xml" value="0.2028985507246377" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/marker_popup.xml" value="0.24791666666666667" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/new_elaboratequest_popup.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/layout/new_locquest_popup.xml" value="0.25" />
@@ -40,7 +36,6 @@
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/menu/drawermenu.xml" value="0.2760416666666667" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/menu/nav_menu.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/menu/profile_icon.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/menu/quest_icon.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/menu/signup_icon.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Guilherme Lopes/Desktop/Faculdade/Mestrado/Computacao Movel/CityQuest/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3828125" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.24358974358974358" />
@@ -56,6 +51,7 @@
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/menu.xml" value="0.1361111111111111" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/profile_icon.xml" value="0.2703125" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/profile_pic.xml" value="0.14635416666666667" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/push_bottom_sheet_icon.xml" value="0.15512820512820513" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/quest.xml" value="0.14635416666666667" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/settings_icon.xml" value="0.18958333333333333" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/toolbar_bg.xml" value="0.14635416666666667" />
@@ -69,11 +65,11 @@
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/drawer_menu.xml" value="0.2" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_about.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_competitive.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_map.xml" value="0.2" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_map.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_profile.xml" value="0.3523035230352303" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_profile_for_users.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_quest.xml" value="0.12916666666666668" />
-        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_quests.xml" value="0.2" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_quests.xml" value="0.176" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_settings.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_sign_up.xml" value="0.2" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_signin.xml" value="0.2" />

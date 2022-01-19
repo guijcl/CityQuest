@@ -413,32 +413,24 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
             setMap(googleMap);
         });
 
-        View bottomSheet = view.findViewById(R.id.bottom_sheet);
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        bottomSheetBehavior.setPeekHeight(200);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-        ListView listView = view.findViewById(R.id.listQuests);
-        ArrayList<BottomSheetItem> arr = new ArrayList<>();
-        while(arr.size() < 3) {
-            arr.add(new BottomSheetItem());
-        }
-        BottomSheetItemAdapter adapter = new BottomSheetItemAdapter(getActivity(),0,arr);
-        listView.setAdapter(adapter);
-
         return view;
     }
 
     @Override
     public boolean onMarkerClick(@NonNull Marker marker) {
+        boolean allowed = true;
         for(String id : hashMapMarker.keySet()) {
             if(hashMapMarker.get(id).equals(marker)) {
-                if(user_loc_quests.containsKey(id)) {
-                    ((MainActivity) getActivity()).showLocQuestPopup(id, hashMapMarker, null);
-                    return false;
-                } else {
-                    Toast.makeText(requireContext(), "BELONGS TO AN ELABORATE QUESTS", Toast.LENGTH_LONG).show();
+                for(String id_elaborate : user_elaborate_quests.keySet()) {
+                    if(((HashMap) user_elaborate_quests.get(id_elaborate).get("quests")).keySet().contains(id)) {
+                        Toast.makeText(requireContext(), "BELONGS TO AN ELABORATE QUESTS", Toast.LENGTH_LONG).show();
+                        allowed = false;
+                        break;
+                    }
                 }
+                if(allowed)
+                    ((MainActivity) getActivity()).showLocQuestPopup(id, hashMapMarker, null, null);
+                break;
             }
         }
         return false;
