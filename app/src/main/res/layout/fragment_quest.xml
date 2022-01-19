@@ -4,9 +4,9 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_marginTop="15dp"
     android:layout_marginLeft="15dp"
-    android:layout_marginRight="15dp">
+    android:layout_marginRight="15dp"
+    android:layout_marginTop="15dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -20,21 +20,20 @@
 
             <LinearLayout
                 android:layout_width="125dp"
-                android:layout_height="125dp"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:weightSum="6"
                 android:visibility="visible"
+                android:clickable="true"
                 android:id="@+id/profile_quest_layout">
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="5"
+                    android:layout_height="110dp"
                     android:background="@drawable/quest_drawable"/>
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:textSize="13sp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textColor="#969696"
                     android:id="@+id/p_quest_name"/>
             </LinearLayout>
 

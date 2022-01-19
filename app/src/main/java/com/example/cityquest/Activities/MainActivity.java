@@ -6,9 +6,11 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -385,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 collection("user_elaborate_quests").document(id).update(elaborate_quests.get(id));
     }
 
-    public void showLocQuestPopup(String id, HashMap<String, Marker> hashMapMarker, View quest) {
+    public void showLocQuestPopup(String id, HashMap<String, Marker> hashMapMarker, View quest, String fragmentType) {
         dialogBuilder = new AlertDialog.Builder(this);
         final View locQuestPopupView = getLayoutInflater().inflate(R.layout.loc_quest_popup, null);
 
@@ -418,6 +421,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         Button loc_button = quest.findViewById(R.id.start_local_quest);
                         loc_button.setEnabled(true);
                     }
+                }
+
+                if(fragmentType.equals("profile_quest_list")) {
+                    Fragment profile = fragmentManager.findFragmentByTag("profile");
+                    profile.getChildFragmentManager().beginTransaction().remove(profile.getChildFragmentManager().findFragmentByTag(id + " active")).commit();
                 }
             }
         });
@@ -511,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         dialog.show();
     }
 
-    public void showElaborateQuestPopup(String id, View quest){
+    public void showElaborateQuestPopup(String id, View quest, String fragmentType){
         dialogBuilder = new AlertDialog.Builder(this);
         final View elaborateQuestPopupView = getLayoutInflater().inflate(R.layout.elaborate_quest_popup, null);
 
@@ -540,6 +548,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                     complete_until.setVisibility(View.GONE);
                     Button elaborate_button = quest.findViewById(R.id.start_elaborate_quest);
                     elaborate_button.setEnabled(true);
+                }
+
+                if(fragmentType.equals("profile_quest_list")) {
+                    Fragment profile = fragmentManager.findFragmentByTag("profile");
+                    profile.getChildFragmentManager().beginTransaction().remove(profile.getChildFragmentManager().findFragmentByTag(id + " active")).commit();
                 }
             }
         });

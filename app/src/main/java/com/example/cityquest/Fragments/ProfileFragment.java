@@ -18,6 +18,7 @@ import com.example.cityquest.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -69,15 +70,14 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        db.collection("users").document(currentUser).collection("stats_collection")
-                .document("stats").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.getResult().exists()) {
                     DocumentSnapshot document = task.getResult();
-                    HashMap stats_data = (HashMap) document.getData();
+                    HashMap data = (HashMap) document.getData();
                     TextView ranking_number = view.findViewById(R.id.ranking_number);
-                    ranking_number.setText((String) stats_data.get("rank"));
+                    ranking_number.setText((String) data.get("ranking"));
                 }
             }
         });
@@ -90,26 +90,14 @@ public class ProfileFragment extends Fragment {
         });
 
         FragmentManager childFragMan = getChildFragmentManager();
-        /*db.collection("users").document(currentUser).collection("user_quests").get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            FragmentTransaction childFragTrans = childFragMan.beginTransaction();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                HashMap data = (HashMap) document.getData();
-                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, (String) data.get("popularity"), (String) data.get("experience"), "profile_quest_list");
-                                childFragTrans.add(R.id.user_quests, questFragment);
-                            }
-                            childFragTrans.commit();
-                        } else {
-                            Log.w("ERROR", "Error getting documents.", task.getException());
-                        }
-                    }
-                });*/
+        loadLocQuests(childFragMan);
+        loadElaborateQuests(childFragMan);
 
-        /*db.collection("users").document(currentUser).collection("user_completed_quests").get()
+        return view;
+    }
+
+    private void loadLocQuests(FragmentManager childFragMan) {
+        db.collection("users").document(currentUser).collection("user_loc_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -117,17 +105,115 @@ public class ProfileFragment extends Fragment {
                             FragmentTransaction childFragTrans = childFragMan.beginTransaction();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
-                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
-                                        (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, (String) data.get("popularity"), (String) data.get("experience"), "profile_quest_list");
-                                childFragTrans.add(R.id.user_completed_quests, questFragment);
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"),
+                                        (String) data.get("desc"), (double) data.get("latitude"), (double) data.get("longitude"),
+                                        "loc_quest", null, null, null, (String) data.get("popularity"),
+                                        (String) data.get("experience"), null, ((Timestamp) data.get("creationDate")).toDate()
+                                        , "profile_quest_list");
+
+                                childFragTrans.add(R.id.user_quests, questFragment, document.getId() + " active");
                             }
                             childFragTrans.commit();
                         } else {
                             Log.w("ERROR", "Error getting documents.", task.getException());
                         }
                     }
-                });*/
-        return view;
+                });
+
+        db.collection("users").document(currentUser).collection("completed_loc_quests").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                db.collection("loc_quests").document(document.getId()).get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.getResult().exists()) {
+                                                    FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                                                    HashMap data = (HashMap) task.getResult().getData();
+                                                    QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"),
+                                                            (String) data.get("desc"), (double) data.get("latitude"), (double) data.get("longitude"),
+                                                            "loc_quest", null, null, null, (String) data.get("popularity"),
+                                                            (String) data.get("experience"), null, ((Timestamp) data.get("creationDate")).toDate()
+                                                            , "profile_quest_list");
+
+                                                    childFragTrans.add(R.id.user_completed_quests, questFragment, document.getId() + " completed");
+
+                                                    childFragTrans.commit();
+                                                }
+                                            }
+                                        });
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void loadElaborateQuests(FragmentManager childFragMan) {
+        db.collection("users").document(currentUser).collection("user_elaborate_quests").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                db.collection("elaborate_quests").document(document.getId()).get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.getResult().exists()) {
+                                                    HashMap data = (HashMap) task.getResult().getData();
+                                                    QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"),
+                                                            (String) data.get("desc"), 0, 0, "elaborate_quest",
+                                                            (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"),
+                                                            (String) data.get("time"), (String) data.get("popularity"), (String) data.get("experience"),
+                                                            (String) data.get("cooldown"), ((Timestamp) data.get("creationDate")).toDate(),
+                                                            "profile_quest_list");
+                                                    childFragTrans.add(R.id.user_quests, questFragment, document.getId() + " active");
+
+                                                    childFragTrans.commit();
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.w("ERROR", "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+
+        db.collection("users").document(currentUser).collection("completed_elaborate_quests").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                db.collection("elaborate_quests").document(document.getId()).get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.getResult().exists()) {
+                                                    FragmentTransaction childFragTrans = childFragMan.beginTransaction();
+                                                    HashMap data = (HashMap) task.getResult().getData();
+                                                    QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"),
+                                                            (String) data.get("desc"), 0, 0, "elaborate_quest",
+                                                            (HashMap<String, HashMap>) data.get("quests"), (String) data.get("meters"),
+                                                            (String) data.get("time"), (String) data.get("popularity"), (String) data.get("experience"),
+                                                            (String) data.get("cooldown"), ((Timestamp) data.get("creationDate")).toDate(),
+                                                            "profile_quest_list");
+
+                                                    childFragTrans.add(R.id.user_completed_quests, questFragment, document.getId() + " completed");
+
+                                                    childFragTrans.commit();
+                                                }
+                                            }
+                                        });
+                            }
+                        }
+                    }
+                });
     }
 
 }
