@@ -351,10 +351,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                                             .update("experience", String.valueOf( Integer.parseInt((String) document.get("experience"))
                                                                     + Integer.parseInt(((String) user_loc_quests.get(key).get("experience"))) ));
                                                     if(Integer.parseInt((String) document.get("experience")) >= nextLevel(Integer.parseInt((String) document.get("ranking"))))
-                                                        db.collection("users").document(currentUser).update("ranking", String.valueOf(Integer.parseInt((String) document.get("rank")) + 1));
-                                                } else {
-                                                    db.collection("users").document(currentUser).update("ranking", "1");
-                                                    db.collection("users").document(currentUser).update("experience", (String) map.get("experience"));
+                                                        db.collection("users").document(currentUser).update("ranking", String.valueOf(Integer.parseInt((String) document.get("ranking")) + 1));
                                                 }
                                                 user_loc_quests.remove(key);
                                             } else {
@@ -393,7 +390,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
                                                     db.collection("loc_quests").document((String) quest)
-                                                            .update("popularity", String.valueOf(Integer.parseInt((String) document.get("popularity"))) + 1);
+                                                            .update("popularity", String.valueOf(Integer.parseInt((String) document.get("popularity")) + 1));
                                                 } else {
                                                     Log.d("ERROR", "Failed with: ", task.getException());
                                                 }
@@ -456,11 +453,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                 db.collection("users").document(currentUser).update("experience", String.valueOf(experience));
                                 if(experience >= nextLevel(current_level))
                                     db.collection("users").document(currentUser).update("ranking", String.valueOf(current_level + 1));
-                            } else {
-                                db.collection("users").document(currentUser).update("ranking", "1");
-                                db.collection("users").document(currentUser).update("experience", ((String) user_elaborate_quests.get(id).get("experience")));
-                                if(Integer.parseInt((String) user_elaborate_quests.get(id).get("experience")) >= nextLevel(1))
-                                    db.collection("users").document(currentUser).update("ranking", String.valueOf(2));
                             }
                         } else {
                             Log.d("ERROR", "Failed with: ", task.getException());

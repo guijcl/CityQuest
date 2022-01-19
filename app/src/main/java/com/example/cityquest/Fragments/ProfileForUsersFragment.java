@@ -49,6 +49,7 @@ public class ProfileForUsersFragment extends Fragment {
 
         View view =inflater.inflate(R.layout.fragment_profile, container, false);
 
+
         //--------------------------SET USERNAME, EMAIL AND PHOTO ON TOP----------------------------
         TextView username = view.findViewById(R.id.username_profile);
         TextView email = view.findViewById(R.id.email_profile);
@@ -66,6 +67,7 @@ public class ProfileForUsersFragment extends Fragment {
             //Fazer upload da imagem de perfil
         });
 
+        /*
         FragmentManager childFragMan = getChildFragmentManager();
         db.collection("users").document(currentUser).collection("user_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -86,8 +88,6 @@ public class ProfileForUsersFragment extends Fragment {
                     }
                 });
 
-        /* TALVEZ ADICIONAR AQUI O MESMO CÓDIGO PARA ELABORATE QUESTS */
-
         db.collection("users").document(currentUser).collection("user_completed_quests").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -106,6 +106,7 @@ public class ProfileForUsersFragment extends Fragment {
                         }
                     }
                 });
+        */
         return view;
     }
 

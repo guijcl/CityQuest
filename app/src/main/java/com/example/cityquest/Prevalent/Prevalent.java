@@ -10,5 +10,6 @@ public class Prevalent {
     public static final String chkBox = "0";
     public static final String followers = "0";
     public static final String following = "0";
-    public static final String ranking = "0";
+    public static final String ranking = "1";
+    public static final String experience = "0";
 }

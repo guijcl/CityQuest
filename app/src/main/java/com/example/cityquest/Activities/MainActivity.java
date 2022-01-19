@@ -85,10 +85,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private SlidingRootNav slidingRootNav;
 
     private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
 
     private FragmentManager fragmentManager;
-    Fragment currentFragment;
+
+    FirebaseAuth mAuth;
 
     private String currentUser;
 
@@ -104,63 +104,16 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Paper.init(this);
+
         //FULLSCREEN IN NOTCH DEVICES
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
-        //------------------------------AUTHENTICATION AND GET DATA---------------------------------
+        //-------------------------------------AUTHENTICATION---------------------------------------
 
         mAuth = FirebaseAuth.getInstance();
-
-        db = FirebaseFirestore.getInstance();
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap data = (HashMap) document.getData();
-                        String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
-                        if(data.get("email").equals(emailSaved)) {
-                            TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
-                            TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
-                            ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
-
-                            Paper.book().write(Prevalent.UserUsernameKey, data.get("username").toString());
-                            Paper.book().write(Prevalent.ProfileImageKey, data.get("profileImage").toString());
-                            Paper.book().write(Prevalent.followers, data.get("followers").toString());
-                            Paper.book().write(Prevalent.following, data.get("following").toString());
-                            Paper.book().write(Prevalent.ranking, data.get("ranking").toString());
-
-
-                            username.setText(data.get("username").toString());
-                            email.setText(data.get("email").toString());
-                            decodeImage(profileImage, data.get("profileImage").toString());
-                        }
-                    }
-                }
-            }
-        });
-
-        Toolbar menuIcon = findViewById(R.id.main_toolbar);
-        menuIcon.setOnClickListener(v -> {
-            db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            HashMap data = (HashMap) document.getData();
-                            String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
-                            if(data.get("email").equals(emailSaved)) {
-                                ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
-                                decodeImage(profileImage, data.get("profileImage").toString());
-                            }
-                        }
-                    }
-                }
-            });
-            slidingRootNav.openMenu();
-        });
 
         //----------------------------------------SIDE MENU-----------------------------------------
 
@@ -206,6 +159,32 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         list.setAdapter(adapter);
 
         adapter.setSelected(POS_MAIN_MAP);
+
+        //VERIFICAR COM ID SO USER: FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db = FirebaseFirestore.getInstance();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+           @Override
+           public void onComplete(@NonNull Task<QuerySnapshot> task) {
+               if (task.isSuccessful()) {
+                   for (QueryDocumentSnapshot document : task.getResult()) {
+                       HashMap data = (HashMap) document.getData();
+                       String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                       if(data.get("email").equals(emailSaved)) {
+                           TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
+                           TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
+                           CircleImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+                           username.setText(data.get("username").toString());
+                           email.setText(data.get("email").toString());
+                           //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
+                       }
+                   }
+               }
+           }
+        });
+
+        Toolbar menuIcon = findViewById(R.id.main_toolbar);
+        menuIcon.setOnClickListener(v -> slidingRootNav.openMenu());
+
 
         //------------------------------------------------------------------------------------------
 
@@ -285,7 +264,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         switch (position) {
             case POS_MAIN_MAP:
                 MapFragment map = new MapFragment();
-                currentFragment = map;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, map, "map")
                         .addToBackStack(null)
@@ -293,7 +271,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_PROFILE:
                 ProfileFragment profile = new ProfileFragment();
-                currentFragment = profile;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, profile, "profile")
                         .addToBackStack(null)
@@ -301,23 +278,22 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_QUESTS:
                 QuestsFragment quests = new QuestsFragment();
-                currentFragment = quests;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, quests, "quests")
                         .addToBackStack(null)
                         .commit();
                 break;
             case POS_COMPETITIVE:
-                CompetitiveFragment competitive = new CompetitiveFragment();
+                /*CompetitiveFragment competitive = new CompetitiveFragment();
                 currentFragment = competitive;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, competitive, "competitive")
                         .addToBackStack(null)
                         .commit();
-                break;
+                break;*/
+                Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();
             case POS_SOCIAL:
                 SocialFragment social = new SocialFragment();
-                currentFragment = social;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, social, "social")
                         .addToBackStack(null)
@@ -325,7 +301,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_SETTINGS:
                 SettingsFragment settings = new SettingsFragment();
-                currentFragment = settings;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, settings, "settings")
                         .addToBackStack(null)
@@ -333,14 +308,12 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_ABOUT:
                 AboutFragment about = new AboutFragment();
-                currentFragment = about;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, about, "about")
                         .addToBackStack(null)
                         .commit();
                 break;
             case POS_LOG_OUT:
-                currentFragment = null;
                 mAuth.signOut();
                 Paper.book().destroy();
                 startActivity(new Intent(MainActivity.this, SignIn.class));
@@ -353,9 +326,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     @Override
     public void onBackStackChanged() {
-        if(fragmentManager.getBackStackEntryCount() == 0) {
+        if(fragmentManager.getBackStackEntryCount() == 0)
             finish();
-        }
     }
 
     public HashMap<String, HashMap> getLocQuests() {

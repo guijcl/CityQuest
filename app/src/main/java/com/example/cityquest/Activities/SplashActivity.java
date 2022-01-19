@@ -38,7 +38,7 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         if(getSupportActionBar() != null) getSupportActionBar().hide();
-        new CountDownTimer(1000, 1000)  { //maybe change back to 2000 or 3000, 1000 is for testing purposes
+        new CountDownTimer(1000, 1000)  {
             @Override
             public void onTick(long l) {}
 
