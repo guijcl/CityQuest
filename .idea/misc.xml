@@ -47,6 +47,7 @@
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/bottom_sheet_shape.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/competitive_icon.xml" value="0.24739583333333334" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/friend_card.xml" value="0.24358974358974358" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/gallery_photo.xml" value="0.20897435897435898" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/ic_launcher_background.xml" value="0.24358974358974358" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/menu.xml" value="0.1361111111111111" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/drawable/photo_camera.xml" value="0.19444444444444445" />
@@ -67,6 +68,7 @@
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/alert_dialog_profile_picture.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/bottom_sheet_item_layout.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/drawer_menu.xml" value="0.2" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/elaborate_quest_popup.xml" value="0.19572649572649573" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_about.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_competitive.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_map.xml" value="0.264" />
@@ -81,16 +83,20 @@
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/fragment_social.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/item_option.xml" value="0.22708333333333333" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/list_item_questsfrag.xml" value="0.12916666666666668" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/loc_quest_popup.xml" value="0.536" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/marker_popup.xml" value="0.20854700854700856" />
-        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/new_elaboratequest_popup.xml" value="0.12916666666666668" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/new_elaboratequest_popup.xml" value="0.4" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/new_locquest_popup.xml" value="0.20854700854700856" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/layout/option_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/menu/about_icon.xml" value="0.12564102564102564" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/menu/dashboard_icon.xml" value="0.23125" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/menu/nav_menu.xml" value="0.2" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/menu/profile_icon.xml" value="0.23125" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/menu/quest_icon.xml" value="0.23125" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/menu/signup_icon.xml" value="0.23125" />
         <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/menu/social_icon.xml" value="0.23125" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1388888888888889" />
+        <entry key="..\:/Users/user/Documents/GitHub/CityQuest/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1388888888888889" />
       </map>
     </option>
   </component>

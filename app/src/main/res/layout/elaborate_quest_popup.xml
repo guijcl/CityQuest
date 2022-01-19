@@ -2,7 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@drawable/pop_ups_back"
+    android:padding="30dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,6 +23,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:id="@+id/quest_name"/>
 
         <TextView
@@ -28,6 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:id="@+id/desc"/>
 
         <TextView
@@ -35,6 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:id="@+id/tasks"/>
 
         <TextView
@@ -42,6 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:id="@+id/value"/>
 
         <TextView
@@ -49,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:id="@+id/cooldown_time"/>
 
         <TextView
@@ -57,6 +64,7 @@
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
             android:visibility="gone"
+            android:textColor="@color/white"
             android:id="@+id/in_cooldown_until"/>
 
         <TextView
@@ -65,6 +73,7 @@
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
             android:visibility="gone"
+            android:textColor="@color/white"
             android:id="@+id/time_to_complete"/>
 
         <TextView
@@ -73,6 +82,7 @@
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
             android:visibility="gone"
+            android:textColor="@color/white"
             android:id="@+id/complete_until"/>
 
         <TextView
@@ -80,6 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:id="@+id/times_completed"/>
 
         <LinearLayout
@@ -95,6 +106,7 @@
                 android:text="Cancel Quest"
                 android:id="@+id/cancel_quest"
                 android:visibility="visible"
+                android:textColor="@color/white"
                 android:layout_marginRight="10dp"/>
 
             <Button
@@ -102,6 +114,7 @@
                 android:layout_height="75dp"
                 android:layout_weight="1"
                 android:text="Close"
+                android:textColor="@color/white"
                 android:id="@+id/close_popup"/>
         </LinearLayout>
     </LinearLayout>
