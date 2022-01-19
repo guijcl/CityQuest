@@ -2,10 +2,14 @@ package com.example.cityquest.Activities;
 
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
@@ -24,7 +28,6 @@ import com.example.cityquest.Fragments.CompetitiveFragment;
 import com.example.cityquest.Fragments.MapFragment;
 import com.example.cityquest.Fragments.ProfileFragment;
 import com.example.cityquest.Fragments.QuestsFragment;
-import com.example.cityquest.Fragments.SettingsFragment;
 import com.example.cityquest.Fragments.SocialFragment;
 import com.example.cityquest.Prevalent.Prevalent;
 import com.example.cityquest.R;
@@ -39,14 +42,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Picasso;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener, FragmentManager.OnBackStackChangedListener {
@@ -57,9 +58,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int POS_QUESTS = 3;
     private static final int POS_COMPETITIVE = 4;
     private static final int POS_SOCIAL = 5;
-    private static final int POS_SETTINGS = 6;
-    private static final int POS_ABOUT = 7;
-    private static final int POS_LOG_OUT = 8;
+    private static final int POS_ABOUT = 6;
+    private static final int POS_LOG_OUT = 7;
 
     private String[] screenTitles;
     private Drawable[] screenIcons;
@@ -67,10 +67,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private SlidingRootNav slidingRootNav;
 
     private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     private FragmentManager fragmentManager;
-
-    FirebaseAuth mAuth;
+    Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,16 +78,63 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Paper.init(this);
-
         //FULLSCREEN IN NOTCH DEVICES
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
-        //-------------------------------------AUTHENTICATION---------------------------------------
+        //------------------------------AUTHENTICATION AND GET DATA---------------------------------
 
         mAuth = FirebaseAuth.getInstance();
+
+        db = FirebaseFirestore.getInstance();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap data = (HashMap) document.getData();
+                        String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                        if(data.get("email").equals(emailSaved)) {
+                            TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
+                            TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
+                            ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+
+                            Paper.book().write(Prevalent.UserUsernameKey, data.get("username").toString());
+                            Paper.book().write(Prevalent.ProfileImageKey, data.get("profileImage").toString());
+                            Paper.book().write(Prevalent.followers, data.get("followers").toString());
+                            Paper.book().write(Prevalent.following, data.get("following").toString());
+                            Paper.book().write(Prevalent.ranking, data.get("ranking").toString());
+
+
+                            username.setText(data.get("username").toString());
+                            email.setText(data.get("email").toString());
+                            decodeImage(profileImage, data.get("profileImage").toString());
+                        }
+                    }
+                }
+            }
+        });
+
+        Toolbar menuIcon = findViewById(R.id.main_toolbar);
+        menuIcon.setOnClickListener(v -> {
+            db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            HashMap data = (HashMap) document.getData();
+                            String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                            if(data.get("email").equals(emailSaved)) {
+                                ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+                                decodeImage(profileImage, data.get("profileImage").toString());
+                            }
+                        }
+                    }
+                }
+            });
+            slidingRootNav.openMenu();
+        });
 
         //----------------------------------------SIDE MENU-----------------------------------------
 
@@ -120,9 +167,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 createItemFor(POS_QUESTS),
                 createItemFor(POS_COMPETITIVE),
                 createItemFor(POS_SOCIAL),
-                createItemFor(POS_SETTINGS),
                 createItemFor(POS_ABOUT),
-                new SpaceItem(40),
+                new SpaceItem(80),
                 createItemFor(POS_LOG_OUT)
         ));
         adapter.setListener(this);
@@ -133,32 +179,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         list.setAdapter(adapter);
 
         adapter.setSelected(POS_MAIN_MAP);
-
-        //VERIFICAR COM ID SO USER: FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db = FirebaseFirestore.getInstance();
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-           @Override
-           public void onComplete(@NonNull Task<QuerySnapshot> task) {
-               if (task.isSuccessful()) {
-                   for (QueryDocumentSnapshot document : task.getResult()) {
-                       HashMap data = (HashMap) document.getData();
-                       String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
-                       if(data.get("email").equals(emailSaved)) {
-                           TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
-                           TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
-                           CircleImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
-                           username.setText(data.get("username").toString());
-                           email.setText(data.get("email").toString());
-                           //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
-                       }
-                   }
-               }
-           }
-        });
-
-        Toolbar menuIcon = findViewById(R.id.main_toolbar);
-        menuIcon.setOnClickListener(v -> slidingRootNav.openMenu());
-
 
         //------------------------------------------------------------------------------------------
 
@@ -174,6 +194,15 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .replace(R.id.frame_layout, fragment, "map")
                 .addToBackStack(null)
                 .commit();
+
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        System.out.println((String) Paper.book().read(Prevalent.chkBox));
+    }
+
+    private void decodeImage(ImageView profileImageDecoded, String profileImage) {
+        byte[] decodedString = Base64.decode(profileImage, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        profileImageDecoded.setImageBitmap(decodedByte);
     }
 
     @Override
@@ -229,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         switch (position) {
             case POS_MAIN_MAP:
                 MapFragment map = new MapFragment();
+                currentFragment = map;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, map, "map")
                         .addToBackStack(null)
@@ -236,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_PROFILE:
                 ProfileFragment profile = new ProfileFragment();
+                currentFragment = profile;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, profile, "profile")
                         .addToBackStack(null)
@@ -243,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_QUESTS:
                 QuestsFragment quests = new QuestsFragment();
+                currentFragment = quests;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, quests, "quests")
                         .addToBackStack(null)
@@ -250,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_COMPETITIVE:
                 CompetitiveFragment competitive = new CompetitiveFragment();
+                currentFragment = competitive;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, competitive, "competitive")
                         .addToBackStack(null)
@@ -257,26 +290,22 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 break;
             case POS_SOCIAL:
                 SocialFragment social = new SocialFragment();
+                currentFragment = social;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, social, "social")
                         .addToBackStack(null)
                         .commit();
                 break;
-            case POS_SETTINGS:
-                SettingsFragment settings = new SettingsFragment();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.frame_layout, settings, "settings")
-                        .addToBackStack(null)
-                        .commit();
-                break;
             case POS_ABOUT:
                 AboutFragment about = new AboutFragment();
+                currentFragment = about;
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, about, "about")
                         .addToBackStack(null)
                         .commit();
                 break;
             case POS_LOG_OUT:
+                currentFragment = null;
                 mAuth.signOut();
                 Paper.book().destroy();
                 startActivity(new Intent(MainActivity.this, SignIn.class));
@@ -289,7 +318,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     @Override
     public void onBackStackChanged() {
-        if(fragmentManager.getBackStackEntryCount() == 0)
+        if(fragmentManager.getBackStackEntryCount() == 0) {
             finish();
+        }
     }
 }

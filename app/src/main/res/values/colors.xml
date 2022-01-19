@@ -4,6 +4,7 @@
     <color name="purple_dark">#6c60ff</color>
     <color name="textColor">#454343</color>
     <color name="background_color">#fffcfe</color>
+    <color name="transparent">#00FFFFFF</color>
 
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -12,4 +13,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="backgroundIcon">#00FFFFFF</color>
+    <color name="mtrl_textinput_default_box_stroke_color">#fff</color>
 </resources>
