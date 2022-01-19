@@ -51,6 +51,7 @@
                 android:id="@+id/list_quest_layout"
                 android:layout_width="363dp"
                 android:layout_height="100dp"
+                android:visibility="gone"
                 android:clickable="true"
                 android:orientation="horizontal"
                 android:background="@drawable/alert_dialog_profilepic_shape">

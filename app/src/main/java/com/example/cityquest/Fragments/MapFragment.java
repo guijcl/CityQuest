@@ -148,9 +148,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
 
-                    Marker temp_marker = hashMapMarker.get("user_marker");
-                    temp_marker.setPosition(new LatLng(latitude, longitude));
-                    hashMapMarker.put("user_marker", temp_marker);
+                    if(hashMapMarker.containsKey("user_marker")) {
+                        Marker temp_marker = hashMapMarker.get("user_marker");
+                        temp_marker.setPosition(new LatLng(latitude, longitude));
+                        hashMapMarker.put("user_marker", temp_marker);
+                    }
                 }
             }
         }, null);

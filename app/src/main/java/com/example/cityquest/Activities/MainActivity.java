@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         }
         //------------------------------AUTHENTICATION AND GET DATA---------------------------------
 
+        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mAuth = FirebaseAuth.getInstance();
 
         db = FirebaseFirestore.getInstance();
@@ -131,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                             Paper.book().write(Prevalent.followers, data.get("followers").toString());
                             Paper.book().write(Prevalent.following, data.get("following").toString());
                             Paper.book().write(Prevalent.ranking, data.get("ranking").toString());
+                            Paper.book().write(Prevalent.experience, data.get("experience").toString());
 
 
                             username.setText(data.get("username").toString());
@@ -160,6 +162,46 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 }
             });
             slidingRootNav.openMenu();
+        });
+
+        db.collection("users").document(currentUser).
+                collection("user_loc_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap<String, Object> q = new HashMap<>();
+                        q.put("name", document.getData().get("name"));
+                        q.put("desc", document.getData().get("desc"));
+                        q.put("latitude", String.valueOf(document.getData().get("latitude")));
+                        q.put("longitude", String.valueOf(document.getData().get("longitude")));
+                        q.put("popularity", document.getData().get("popularity"));
+                        q.put("experience", document.getData().get("experience"));
+                        addLocQuest(document.getId(), q);
+                    }
+                }
+            }
+        });
+
+        db.collection("users").document(currentUser).
+                collection("user_elaborate_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap<String, Object> q = new HashMap<>();
+                        q.put("name", document.getData().get("name"));
+                        q.put("desc", document.getData().get("desc"));
+                        q.put("quests", document.getData().get("quests"));
+                        q.put("meters", document.getData().get("meters"));
+                        q.put("meters_traveled", String.valueOf(document.getData().get("meters_traveled")));
+                        q.put("time", document.getData().get("time"));
+                        q.put("popularity", document.getData().get("popularity"));
+                        q.put("experience", document.getData().get("experience"));
+                        addElaborateQuest(document.getId(), q);
+                    }
+                }
+            }
         });
 
 
@@ -317,14 +359,14 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         .addToBackStack(null)
                         .commit();
                 break;
-            case POS_SETTINGS:
-                /*SettingsFragment settings = new SettingsFragment();
+            /*case POS_SETTINGS:
+                SettingsFragment settings = new SettingsFragment();
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, settings, "settings")
                         .addToBackStack(null)
                         .commit();
-                break;*/
-                Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();
+                break;
+                Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();*/
             case POS_ABOUT:
                 AboutFragment about = new AboutFragment();
                 fragmentManager.beginTransaction()
@@ -617,6 +659,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         HashMap data = (HashMap) task.getResult().getData();
 
                         Date limit_date;
+                        Log.d("bsedruig", String.valueOf(elaborate_quests.get(id)));
                         if(elaborate_quests.get(id).get("time") instanceof Timestamp)
                             limit_date = ((Timestamp) elaborate_quests.get(id).get("time")).toDate();
                         else

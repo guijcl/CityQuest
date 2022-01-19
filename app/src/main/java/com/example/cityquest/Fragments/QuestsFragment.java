@@ -56,12 +56,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.stream.Collectors;
-
-import io.paperdb.Paper;
 
 public class QuestsFragment extends Fragment {
 
