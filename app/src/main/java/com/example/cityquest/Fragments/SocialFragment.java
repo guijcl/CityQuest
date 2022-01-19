@@ -22,7 +22,12 @@ public class SocialFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_social, container, false);
+        View v = inflater.inflate(R.layout.fragment_social, container, false);
+
+        //1) Fazer motor de pesquisa para encontrar users
+        //2) Ao Clicar num, vai para a pagina dele e pode dar follo ou unfollow (criar página de user para users)
+        //2) Fazer pedido à base de dados dos users que segyue
+
+        return v;
     }
 }

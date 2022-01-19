@@ -40,6 +40,7 @@ public class SignIn extends AppCompatActivity {
         signinPassword = findViewById(R.id.password_signin);
         btnSignIn = findViewById(R.id.btnSignIn_Login);
         chkBoxRemenberMe = findViewById(R.id.checkbox_siginin);
+
         Paper.init(this);
 
         mAuth = FirebaseAuth.getInstance();
@@ -57,6 +58,7 @@ public class SignIn extends AppCompatActivity {
         String password = signinPassword.getText().toString();
         Paper.book().write(Prevalent.UserEmailKey, email);
         Paper.book().write(Prevalent.UserPasswordKey, password);
+        Paper.book().write(Prevalent.ProfileImageKey, "ProfileImage");
 
         if(chkBoxRemenberMe.isChecked())
             Paper.book().write(Prevalent.chkBox, "1");

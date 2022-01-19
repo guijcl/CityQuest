@@ -352,9 +352,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                                                     + Integer.parseInt(((String) user_loc_quests.get(key).get("experience"))) ));
                                                     if(Integer.parseInt((String) document.get("experience")) >= nextLevel(Integer.parseInt((String) document.get("ranking"))))
                                                         db.collection("users").document(currentUser).update("ranking", String.valueOf(Integer.parseInt((String) document.get("ranking")) + 1));
-                                                } else {
-                                                    db.collection("users").document(currentUser).update("ranking", "1");
-                                                    db.collection("users").document(currentUser).update("experience", (String) map.get("experience"));
                                                 }
                                                 user_loc_quests.remove(key);
                                             } else {
@@ -469,11 +466,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                 db.collection("users").document(currentUser).update("experience", String.valueOf(experience));
                                 if(experience >= nextLevel(current_level))
                                     db.collection("users").document(currentUser).update("ranking", String.valueOf(current_level + 1));
-                            } else {
-                                db.collection("users").document(currentUser).update("ranking", "1");
-                                db.collection("users").document(currentUser).update("experience", ((String) user_elaborate_quests.get(id).get("experience")));
-                                if(Integer.parseInt((String) user_elaborate_quests.get(id).get("experience")) >= nextLevel(1))
-                                    db.collection("users").document(currentUser).update("ranking", String.valueOf(2));
                             }
                         } else {
                             Log.d("ERROR", "Failed with: ", task.getException());

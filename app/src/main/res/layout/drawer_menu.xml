@@ -21,11 +21,10 @@
         android:layout_width="wrap_content"
         android:layout_height="30dp"/>
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/profileImageMenu"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/profile_image"
         android:translationX="30dp"/>
 
     <androidx.legacy.widget.Space
