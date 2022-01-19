@@ -31,7 +31,6 @@ import com.example.cityquest.Fragments.MapFragment;
 import com.example.cityquest.Fragments.ProfileFragment;
 import com.example.cityquest.Fragments.QuestFragment;
 import com.example.cityquest.Fragments.QuestsFragment;
-import com.example.cityquest.Fragments.SettingsFragment;
 import com.example.cityquest.Fragments.SocialFragment;
 import com.example.cityquest.Objects.LocQuest;
 import com.example.cityquest.Prevalent.Prevalent;
@@ -70,9 +69,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int POS_QUESTS = 3;
     private static final int POS_COMPETITIVE = 4;
     private static final int POS_SOCIAL = 5;
-    private static final int POS_SETTINGS = 6;
-    private static final int POS_ABOUT = 7;
-    private static final int POS_LOG_OUT = 8;
+    private static final int POS_ABOUT = 6;
+    private static final int POS_LOG_OUT = 7;
 
     private String[] screenTitles;
     private Drawable[] screenIcons;
@@ -142,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 createItemFor(POS_QUESTS),
                 createItemFor(POS_COMPETITIVE),
                 createItemFor(POS_SOCIAL),
-                createItemFor(POS_SETTINGS),
                 createItemFor(POS_ABOUT),
                 new SpaceItem(40),
                 createItemFor(POS_LOG_OUT)
@@ -168,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                        if(data.get("email").equals(emailSaved)) {
                            TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
                            TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
-                           CircleImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+                           //CircleImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
                            username.setText(data.get("username").toString());
                            email.setText(data.get("email").toString());
                            //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
@@ -324,13 +321,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 SocialFragment social = new SocialFragment();
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, social, "social")
-                        .addToBackStack(null)
-                        .commit();
-                break;
-            case POS_SETTINGS:
-                SettingsFragment settings = new SettingsFragment();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.frame_layout, settings, "settings")
                         .addToBackStack(null)
                         .commit();
                 break;
