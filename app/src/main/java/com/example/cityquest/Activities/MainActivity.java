@@ -111,9 +111,59 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
-        //-------------------------------------AUTHENTICATION---------------------------------------
+        //------------------------------AUTHENTICATION AND GET DATA---------------------------------
 
         mAuth = FirebaseAuth.getInstance();
+
+        db = FirebaseFirestore.getInstance();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        HashMap data = (HashMap) document.getData();
+                        String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                        if(data.get("email").equals(emailSaved)) {
+                            TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
+                            TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
+                            ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+
+                            Paper.book().write(Prevalent.UserUsernameKey, data.get("username").toString());
+                            Paper.book().write(Prevalent.ProfileImageKey, data.get("profileImage").toString());
+                            Paper.book().write(Prevalent.followers, data.get("followers").toString());
+                            Paper.book().write(Prevalent.following, data.get("following").toString());
+                            Paper.book().write(Prevalent.ranking, data.get("ranking").toString());
+
+
+                            username.setText(data.get("username").toString());
+                            email.setText(data.get("email").toString());
+                            decodeImage(profileImage, data.get("profileImage").toString());
+                        }
+                    }
+                }
+            }
+        });
+
+        Toolbar menuIcon = findViewById(R.id.main_toolbar);
+        menuIcon.setOnClickListener(v -> {
+            db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            HashMap data = (HashMap) document.getData();
+                            String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
+                            if(data.get("email").equals(emailSaved)) {
+                                ImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
+                                decodeImage(profileImage, data.get("profileImage").toString());
+                            }
+                        }
+                    }
+                }
+            });
+            slidingRootNav.openMenu();
+        });
+
 
         //----------------------------------------SIDE MENU-----------------------------------------
 
@@ -160,32 +210,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         adapter.setSelected(POS_MAIN_MAP);
 
-        //VERIFICAR COM ID SO USER: FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db = FirebaseFirestore.getInstance();
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-           @Override
-           public void onComplete(@NonNull Task<QuerySnapshot> task) {
-               if (task.isSuccessful()) {
-                   for (QueryDocumentSnapshot document : task.getResult()) {
-                       HashMap data = (HashMap) document.getData();
-                       String emailSaved = Paper.book().read(Prevalent.UserEmailKey);
-                       if(data.get("email").equals(emailSaved)) {
-                           TextView username = slidingRootNav.getLayout().findViewById(R.id.username_sideMenu);
-                           TextView email = slidingRootNav.getLayout().findViewById(R.id.email_sideMenu);
-                           CircleImageView profileImage = slidingRootNav.getLayout().findViewById(R.id.profileImageMenu);
-                           username.setText(data.get("username").toString());
-                           email.setText(data.get("email").toString());
-                           //Picasso.get().load(data.get("profileImage").toString()).into(profileImage);
-                       }
-                   }
-               }
-           }
-        });
-
-        Toolbar menuIcon = findViewById(R.id.main_toolbar);
-        menuIcon.setOnClickListener(v -> slidingRootNav.openMenu());
-
-
         //------------------------------------------------------------------------------------------
 
         if(getSupportActionBar() != null) getSupportActionBar().hide();
@@ -200,9 +224,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .replace(R.id.frame_layout, fragment, "map")
                 .addToBackStack(null)
                 .commit();
-
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        System.out.println((String)Paper.book().read(Prevalent.chkBox));
     }
 
     private void decodeImage(ImageView profileImageDecoded, String profileImage) {
@@ -300,12 +321,13 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         .commit();
                 break;
             case POS_SETTINGS:
-                SettingsFragment settings = new SettingsFragment();
+                /*SettingsFragment settings = new SettingsFragment();
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, settings, "settings")
                         .addToBackStack(null)
                         .commit();
-                break;
+                break;*/
+                Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();
             case POS_ABOUT:
                 AboutFragment about = new AboutFragment();
                 fragmentManager.beginTransaction()

@@ -3,6 +3,7 @@ package com.example.cityquest.Fragments;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -60,6 +62,9 @@ public class QuestFragment extends Fragment {
 
     private final String fragment_type;
 
+    private ImageView v1;
+    private ImageView v2;
+
     public QuestFragment(String id, String name, String desc, double latitude, double longitude,
                          String type, HashMap<String, HashMap> quests, String meters, String time,
                          String popularity, String experience, String cooldown, Date creation_date, String fragment_type) {
@@ -91,6 +96,9 @@ public class QuestFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_quest, container, false);
         this.questView = view;
 
+        v1 = view.findViewById(R.id.type_quest1);
+        v2 = view.findViewById(R.id.type_quest2);
+
         mainActivity = (MainActivity) getActivity();
         user_loc_quests = mainActivity.getLocQuests();
         user_elaborate_quests = mainActivity.getElaborateQuests();
@@ -98,6 +106,12 @@ public class QuestFragment extends Fragment {
         currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if(fragment_type.equals("profile_quest_list")) {
+            if (type.equals("loc_quest")) {
+                v2.setImageResource(R.drawable.quests_local);
+            } else if (type.equals("elaborate_quest")) {
+                v2.setImageResource(R.drawable.quests_elaborate);
+            }
+
             LinearLayout profile_quest = view.findViewById(R.id.profile_quest_layout);
             if(view.findViewById(R.id.list_quest_layout).getVisibility() == View.VISIBLE)
                 view.findViewById(R.id.list_quest_layout).setVisibility(View.GONE);
@@ -116,8 +130,9 @@ public class QuestFragment extends Fragment {
         }
 
         if(fragment_type.equals("quests_list")) {
-            if(view.findViewById(R.id.profile_quest_layout).getVisibility() == View.VISIBLE)
+            if(view.findViewById(R.id.profile_quest_layout).getVisibility() == View.VISIBLE) {
                 view.findViewById(R.id.profile_quest_layout).setVisibility(View.GONE);
+            }
             view.findViewById(R.id.list_quest_layout).setVisibility(View.VISIBLE);
 
             ((TextView) view.findViewById(R.id.quest_name)).setText(name);
@@ -129,6 +144,7 @@ public class QuestFragment extends Fragment {
             Button elaborate_button_details = view.findViewById(R.id.elaborate_quest_details);
 
             if (type.equals("loc_quest")) {
+                v1.setImageResource(R.drawable.quests_local);
                 db.collection("users").document(currentUser).
                         collection("user_loc_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -169,6 +185,7 @@ public class QuestFragment extends Fragment {
                 });
             } else if (type.equals("elaborate_quest")) {
                 TextView desc_layout = view.findViewById(R.id.desc);
+                v1.setImageResource(R.drawable.quests_elaborate);
                 if(!quests.isEmpty()) {
                     int count = 1;
                     for (String id_quest : quests.keySet()) {
@@ -276,10 +293,13 @@ public class QuestFragment extends Fragment {
                         card_v = view.findViewById(R.id.extra_card_elaborate);
 
                     if (card_v != null) {
-                        if (card_v.getVisibility() == View.VISIBLE)
+                        if (card_v.getVisibility() == View.VISIBLE) {
+                            clickable_layout.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.alert_dialog_profilepic_shape));
                             card_v.setVisibility(View.GONE);
-                        else if (card_v.getVisibility() == View.GONE)
+                        } else if (card_v.getVisibility() == View.GONE){
                             card_v.setVisibility(View.VISIBLE);
+                            clickable_layout.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.quests_frag_shape));
+                        }
                     }
                 }
             });

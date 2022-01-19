@@ -77,9 +77,9 @@ public class ProfileForUsersFragment extends Fragment {
                             FragmentTransaction childFragTrans = childFragMan.beginTransaction();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
-                                /*QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
                                         (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, "profile_quest_list");
-                                childFragTrans.add(R.id.user_quests, questFragment);*/
+                                childFragTrans.add(R.id.user_quests, questFragment);
                             }
                             childFragTrans.commit();
                         } else {
@@ -96,9 +96,9 @@ public class ProfileForUsersFragment extends Fragment {
                             FragmentTransaction childFragTrans = childFragMan.beginTransaction();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 HashMap data = (HashMap) document.getData();
-                                /*QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
+                                QuestFragment questFragment = new QuestFragment(document.getId(), (String) data.get("name"), (String) data.get("desc"),
                                         (double) data.get("latitude"), (double) data.get("longitude"), "loc_quest", null, null, null, "profile_quest_list");
-                                childFragTrans.add(R.id.user_completed_quests, questFragment);*/
+                                childFragTrans.add(R.id.user_completed_quests, questFragment);
                             }
                             childFragTrans.commit();
                         } else {

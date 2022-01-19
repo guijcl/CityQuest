@@ -11,7 +11,8 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="#D2D2D2">
+        app:cardBackgroundColor="@color/white"
+        android:background="@drawable/alert_dialog_profilepic_shape">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -24,65 +25,77 @@
                 android:orientation="vertical"
                 android:visibility="visible"
                 android:clickable="true"
-                android:id="@+id/profile_quest_layout">
-                <View
+                android:id="@+id/profile_quest_layout"
+                android:background="@drawable/alert_dialog_profilepic_shape">
+                <ImageView
+                    android:id="@+id/type_quest2"
                     android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:background="@drawable/quest_drawable"/>
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:src="@drawable/quests_icon" />
+
                 <TextView
+                    android:id="@+id/p_quest_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="15sp"
-                    android:textColor="#969696"
-                    android:id="@+id/p_quest_name"/>
+                    android:paddingTop="5dp"
+                    android:paddingBottom="15dp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:textColor="#6C60FF"
+                    android:textStyle="bold"
+                    android:textSize="10dp"/>
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:orientation="horizontal"
                 android:id="@+id/list_quest_layout"
+                android:layout_width="363dp"
+                android:layout_height="100dp"
                 android:clickable="true"
-                android:visibility="gone">
-                <View
-                    android:layout_width="0dp"
+                android:orientation="horizontal"
+                android:background="@drawable/alert_dialog_profilepic_shape">
+
+                <ImageView
+                    android:id="@+id/type_quest1"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@drawable/quest_drawable"/>
+                    android:src="@drawable/quests_icon" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
                     android:layout_weight="3"
+                    android:orientation="vertical"
                     android:weightSum="2">
+
                     <TextView
+                        android:id="@+id/quest_name"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:gravity="center_vertical"
-                        android:layout_weight="1"
                         android:layout_marginTop="20dp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
                         android:paddingStart="15dp"
                         android:text="QUEST NAME"
+                        android:textColor="#6C60FF"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#969696"
-                        android:id="@+id/quest_name"/>
+                        android:textStyle="bold" />
+
                     <TextView
+                        android:id="@+id/quest_desc"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1"
                         android:layout_marginTop="-20dp"
+                        android:layout_weight="1"
                         android:gravity="center_vertical"
                         android:paddingStart="15dp"
                         android:text="DESCRIPTION"
+                        android:textColor="#6C60FF"
                         android:textSize="11sp"
-                        android:textStyle="italic|bold"
-                        android:textColor="#969696"
-                        android:id="@+id/quest_desc"/>
+                        android:textStyle="italic|bold" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -91,7 +104,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:visibility="gone"
-                android:layout_weight="2">
+                android:layout_weight="2"
+                android:background="#D26C60FF">
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -115,15 +129,16 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:weightSum="2"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="#D26C60FF">
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:layout_weight="1"
                     android:textSize="16sp"
-                    android:textColor="#8C8C8C"
-                    android:layout_marginLeft="5dp"
+                    android:paddingLeft="10dp"
+                    android:textColor="#fff"
                     android:id="@+id/desc"/>
 
                 <LinearLayout
@@ -135,7 +150,6 @@
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_marginLeft="15dp"
                         android:layout_marginRight="5dp"
                         android:layout_weight="1"
                         android:text="More Details"
