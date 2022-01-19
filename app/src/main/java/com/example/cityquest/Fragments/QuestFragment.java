@@ -25,8 +25,6 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -169,7 +167,7 @@ public class QuestFragment extends Fragment {
                                     loc_button.setEnabled(false);
                                 });
                                 for(String id_temp : user_elaborate_quests.keySet()) {
-                                    if(user_elaborate_quests.get(id_temp).containsKey(id))
+                                    if(((HashMap) user_elaborate_quests.get(id_temp).get("quests")).containsKey(id))
                                         loc_button.setEnabled(false);
                                 }
                             }
