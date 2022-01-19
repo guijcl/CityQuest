@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -43,7 +44,6 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-
                 String UserEmailKey = Paper.book().read(Prevalent.UserEmailKey);
                 String UserPasswordKey = Paper.book().read(Prevalent.UserPasswordKey);
                 String chkBox = Paper.book().read(Prevalent.chkBox);

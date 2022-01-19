@@ -2,13 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_marginTop="15dp"
-    android:layout_marginStart="15dp">
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="15dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="#D2D2D2">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,6 +49,9 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
                     android:background="@drawable/quest_drawable"/>
 
                 <LinearLayout
@@ -64,7 +70,7 @@
                         android:text="QUEST NAME"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="#CCCCCC"
+                        android:textColor="#969696"
                         android:id="@+id/quest_name"/>
                     <TextView
                         android:layout_width="match_parent"
@@ -76,7 +82,7 @@
                         android:text="DESCRIPTION"
                         android:textSize="11sp"
                         android:textStyle="italic|bold"
-                        android:textColor="#CCCCCC"
+                        android:textColor="#969696"
                         android:id="@+id/quest_desc"/>
                 </LinearLayout>
             </LinearLayout>
@@ -86,18 +92,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:visibility="gone"
-                android:layout_weight="4">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="MORE DETAILS"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:layout_weight="3"/>
+                android:layout_weight="2">
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"
+                    android:text="MORE DETAILS"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:id="@+id/loc_quest_details"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="5dp"
                     android:layout_weight="1"
                     android:text="Start Quest"
                     android:id="@+id/start_local_quest"/>
@@ -106,56 +113,44 @@
             <LinearLayout
                 android:id="@+id/extra_card_elaborate"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:weightSum="5">
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:weightSum="4"
-                    android:layout_weight="5"
-                    android:orientation="vertical"
+                android:weightSum="2"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:paddingStart="10dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="> "
-                        android:gravity="center_horizontal|center_vertical"
-                        android:layout_weight="1"
-                        android:id="@+id/task_1"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="> "
-                        android:gravity="center_horizontal|center_vertical"
-                        android:layout_weight="1"
-                        android:id="@+id/task_2"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="> "
-                        android:gravity="center_horizontal|center_vertical"
-                        android:layout_weight="1"
-                        android:id="@+id/task_3"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="> "
-                        android:gravity="center_horizontal|center_vertical"
-                        android:layout_weight="1"
-                        android:id="@+id/task_4"/>
-                </LinearLayout>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
                     android:layout_weight="1"
-                    android:text="Start Quest"
-                    android:id="@+id/start_elaborate_quest"/>
+                    android:textSize="16sp"
+                    android:textColor="#8C8C8C"
+                    android:layout_marginLeft="5dp"
+                    android:id="@+id/desc"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_weight="1"
+                    android:weightSum="2">
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_weight="1"
+                        android:text="More Details"
+                        android:id="@+id/elaborate_quest_details"/>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_weight="1"
+                        android:text="Start Quest"
+                        android:id="@+id/start_elaborate_quest"/>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 

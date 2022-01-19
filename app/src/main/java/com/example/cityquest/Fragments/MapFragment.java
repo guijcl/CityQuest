@@ -1,7 +1,6 @@
 package com.example.cityquest.Fragments;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -20,8 +19,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import com.example.cityquest.Objects.LocQuest;
+import com.example.cityquest.Activities.MainActivity;
 import com.example.cityquest.R;
 import com.example.cityquest.bottomSheet.BottomSheetItem;
 import com.example.cityquest.bottomSheet.BottomSheetItemAdapter;
@@ -39,18 +39,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,19 +67,19 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     private Geocoder geocoder;
 
     private String currentUser;
-    private List<HashMap<String, String>> user_loc_quests;
+    private MainActivity mainActivity;
+    private HashMap<String, HashMap> user_loc_quests;
+    private HashMap<String, HashMap> user_elaborate_quests;
 
     private GoogleMap googleMap;
-    //private MarkerOptions markerOptions;
-    private HashMap<String, Marker> hashMapMarker = new HashMap<String, Marker>();
+    private HashMap<String, Marker> hashMapMarker = new HashMap<>();
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest mLocationRequest;
 
     private BottomSheetBehavior bottomSheetBehavior;
 
-    private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
+    private Location last_loc = null;
 
     public MapFragment() {}
 
@@ -82,9 +87,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //markerOptions = new MarkerOptions();
-
-        //PERMISSÕES - RESOLVER PROBLEMA DE SER NECESSÁRIO REINICIAR APP PARA FUNCIONAR
+        //PERMISSÕES - RESOLVER PROBLEMA
         ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
             } else {
@@ -106,12 +109,37 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //return;
         }
+
+        mainActivity = (MainActivity) getActivity();
+        user_loc_quests = mainActivity.getLocQuests();
+        user_elaborate_quests = mainActivity.getElaborateQuests();
+
         fusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
-                //CODE FOR UPDATING USER LOCATION ON MAP (CLEARS ALL MARKERS, SO IGNORE FOR NOW)
                 Location location = locationResult.getLastLocation();
+
+                if (last_loc != null) {
+                    double distance = last_loc.distanceTo(location);
+                    for (String id : user_elaborate_quests.keySet()) {
+                        HashMap quest = user_elaborate_quests.get(id);
+                        if (quest.containsKey("meters") && quest.get("meters") != null) {
+                            if (Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(quest.get("meters")))) {
+                                double current_meters = Double.parseDouble(String.valueOf(quest.get("meters_traveled")));
+                                current_meters += distance;
+                                user_elaborate_quests.get(id).put("meters_traveled", current_meters);
+
+                                if (Double.parseDouble(String.valueOf(quest.get("meters_traveled"))) >= Double.parseDouble(String.valueOf(quest.get("meters")))) {
+                                    ((MainActivity) getActivity()).updateElaborateQuest(id);
+                                    removeElaboratedQuest(id);
+                                }
+                            }
+                        }
+                    }
+                }
+                last_loc = location;
+
                 if (googleMap != null) {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
@@ -129,8 +157,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                             if (addressList.size() > 0) {
                                 Address address = addressList.get(0);
                                 String str = address.getAddressLine(0);
-                                for(HashMap map : user_loc_quests) {
-                                    Log.d("LOCALIZAÇÕES", str + " ; " + (String) map.get("name"));
+                                for(String key : user_loc_quests.keySet()) {
+                                    HashMap map = user_loc_quests.get(key);
                                     if(str.contains((String) map.get("name"))) {
                                         //TODO
                                     }
@@ -181,42 +209,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                              Bundle savedInstanceState) {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_map, container, false);
 
-        /*O QUE É ISTO?
-        Toolbar toolbar = view.findViewById(R.id.main_toolbar);
-        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
-
-        DrawerLayout drawerLayout = view.findViewById(R.id.drawer);
-        NavigationView navigationView = view.findViewById(R.id.nav_menu);
-
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
-                requireActivity(), drawerLayout, toolbar, R.string.open, R.string.close
-        );
-
-        drawerLayout.addDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);*/
+        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         geocoder = new Geocoder(this.requireContext());
-
-        user_loc_quests = new ArrayList<>();
-        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("users").document(currentUser).
-                collection("user_quests").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap<String, String> q = new HashMap<>();
-                        q.put("id", document.getId());
-                        q.put("name", (String) document.getData().get("name"));
-                        q.put("desc", (String) document.getData().get("desc"));
-                        q.put("latitude", String.valueOf(document.getData().get("latitude")));
-                        q.put("longitude", String.valueOf(document.getData().get("longitude")));
-                        user_loc_quests.add(q);
-                    }
-                }
-            }
-        });
 
         SupportMapFragment supportMapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.google_map);
@@ -257,23 +252,32 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     HashMap data = (HashMap) document.getData();
 
-                                    HashMap<String, String> temp = new HashMap<>();
-                                    temp.put("id", document.getId());
-                                    temp.put("name", (String) data.get("name"));
-                                    temp.put("desc", (String) data.get("desc"));
-                                    temp.put("latitude", String.valueOf(data.get("latitude")));
-                                    temp.put("longitude", String.valueOf(data.get("longitude")));
+                                    LatLng latLng = new LatLng(Double.parseDouble(String.valueOf(data.get("latitude"))),
+                                            Double.parseDouble(String.valueOf(data.get("longitude"))));
 
-                                    LatLng latLng = new LatLng(Double.parseDouble(temp.get("latitude")),
-                                            Double.parseDouble(temp.get("longitude")));
+                                    HashMap<String, Boolean> quests_from_elaborate_quests = new HashMap<>();
+                                    for(String quest_id : user_elaborate_quests.keySet()) {
+                                        for(Object loc_quests : ((HashMap) user_elaborate_quests.get(quest_id).get("quests")).keySet()){
+                                            Boolean b = (Boolean) ((HashMap) ((HashMap) (user_elaborate_quests.get(quest_id)).get("quests"))
+                                                    .get(loc_quests)).get("done");
+                                            quests_from_elaborate_quests.put((String) loc_quests, b);
+                                        }
+                                    }
 
                                     MarkerOptions markerOptions;
-                                    if(!user_loc_quests.contains(temp)) {
-                                        markerOptions = new MarkerOptions().position(latLng).title((String) data.get("name"));
-                                    } else {
+                                    if(quests_from_elaborate_quests.containsKey(document.getId())) {
+                                        if(!quests_from_elaborate_quests.get(document.getId())) {
+                                            markerOptions = new MarkerOptions().
+                                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).position(latLng);
+                                        } else {
+                                            markerOptions = new MarkerOptions().
+                                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)).position(latLng);
+                                        }
+                                    } else if(user_loc_quests.containsKey(document.getId())) {
                                         markerOptions = new MarkerOptions().
-                                                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).
-                                                position(latLng).title((String) data.get("name"));
+                                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).position(latLng);
+                                    } else {
+                                        markerOptions = new MarkerOptions().position(latLng);
                                     }
                                     Marker marker = googleMap.addMarker(markerOptions);
                                     hashMapMarker.put(document.getId(), marker);
@@ -285,6 +289,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     });
 
             //FOR TEST PURPOSES, COMPLETE QUESTS ONMAPCLICK
+            googleMap.setOnMarkerClickListener(this);
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull LatLng latLng) {
@@ -296,39 +301,110 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     }
                     if (addressList != null) {
                         if (addressList.size() > 0) {
-
                             String str = getOnTapLocationString(addressList);
-                            /*String str1 = listStrs.get(0), str2 = listStrs.get(1), str3 = listStrs.get(2),
-                                    str4 = listStrs.get(3), str5 = listStrs.get(4);*/
 
-                            for(HashMap<String, String> map : user_loc_quests) {
-                                //DEBUG
-                                Log.d("LOCALIZAÇÕES2.1", str + " ; " + (String) map.get("name"));
+                            // ============= LOC QUEST =============
+                            for(String key : user_loc_quests.keySet()) {
+                                HashMap<String, Object> map = user_loc_quests.get(key);
 
                                 List<String> tmp_s = Arrays.asList(((String) map.get("name")).split(","));
                                 boolean check = true;
                                 for(String s : tmp_s) {
-                                    Log.d("LOCALIZAÇÕES2.0", str.contains(s) + ";" + s);
                                     if(!str.contains(s))
                                         check = false;
                                 }
                                 if(check) {
-                                    LatLng latLng_marker = new LatLng(Double.parseDouble(map.get("latitude")),
-                                            Double.parseDouble(map.get("longitude")));
-                                    Marker to_rmv_marker = hashMapMarker.get(map.get("id"));
-                                    MarkerOptions markerOptions = new MarkerOptions().position(latLng_marker).title(to_rmv_marker.getTitle());
-                                    to_rmv_marker.remove();
-                                    Marker marker = googleMap.addMarker(markerOptions);
-                                    hashMapMarker.put(map.get("id"), marker);
+                                    Marker temp_marker = hashMapMarker.get(key);
+                                    temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                                    hashMapMarker.put(key, temp_marker);
                                     db.collection("users").document(currentUser)
-                                            .collection("user_quests").document((String) map.get("id")).delete();
+                                            .collection("user_loc_quests").document(key).delete();
 
-                                    LocQuest n_lq = new LocQuest(map.get("name"), map.get("desc"),
-                                            Double.parseDouble(map.get("latitude")), Double.parseDouble(map.get("longitude")));
-                                    db.collection("users").document(currentUser).collection("user_completed_quests")
-                                            .document((String) map.get("id")).set(n_lq);
+                                    db.collection("users").document(currentUser).collection("completed_loc_quests")
+                                            .document(key).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot document = task.getResult();
+                                                if (document.exists()) {
+                                                    db.collection("users").document(currentUser).collection("completed_loc_quests")
+                                                            .document(key).update("completed_num", (long) document.get("completed_num") + 1);
+                                                } else {
+                                                    HashMap<String, Integer> temp = new HashMap<>();
+                                                    temp.put("completed_num", 1);
+                                                    db.collection("users").document(currentUser).collection("completed_loc_quests")
+                                                            .document(key).set(temp);
+                                                }
+                                            } else {
+                                                Log.d("ERROR", "Failed with: ", task.getException());
+                                            }
+                                        }
+                                    });
+
+                                    db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot document = task.getResult();
+                                                if (document.getData().containsKey("ranking") && document.getData().containsKey("experience")) {
+                                                    db.collection("users").document(currentUser)
+                                                            .update("experience", String.valueOf( Integer.parseInt((String) document.get("experience"))
+                                                                    + Integer.parseInt(((String) user_loc_quests.get(key).get("experience"))) ));
+                                                    if(Integer.parseInt((String) document.get("experience")) >= nextLevel(Integer.parseInt((String) document.get("ranking"))))
+                                                        db.collection("users").document(currentUser).update("ranking", String.valueOf(Integer.parseInt((String) document.get("rank")) + 1));
+                                                } else {
+                                                    db.collection("users").document(currentUser).update("ranking", "1");
+                                                    db.collection("users").document(currentUser).update("experience", (String) map.get("experience"));
+                                                }
+                                                user_loc_quests.remove(key);
+                                            } else {
+                                                Log.d("ERROR", "Failed with: ", task.getException());
+                                            }
+                                        }
+                                    });
                                 }
                             }
+                            // =====================================
+
+                            // ===== ELABORATE QUEST LOCATION CHECK =====
+                            for(String key : user_elaborate_quests.keySet()) {
+                                for(Object quest : ((HashMap) user_elaborate_quests.get(key).get("quests")).keySet()) {
+                                    HashMap<String, Object> map = (HashMap<String, Object>) ((HashMap<String, HashMap>) user_elaborate_quests
+                                            .get(key)
+                                            .get("quests"))
+                                            .get(quest);
+
+                                    List<String> tmp_s = Arrays.asList(((String) map.get("name")).split(","));
+                                    boolean check = true;
+                                    for(String s : tmp_s) {
+                                        if(!str.contains(s))
+                                            check = false;
+                                    }
+                                    if(check) {
+                                        Marker temp_marker = hashMapMarker.get(quest);
+                                        temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                        hashMapMarker.put(key, temp_marker);
+
+                                        ((HashMap<String, Object>) ((HashMap<String, HashMap>) user_elaborate_quests.get(key).get("quests")).get(quest)).put("done", true);
+
+                                        db.collection("loc_quests").document((String) quest).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    DocumentSnapshot document = task.getResult();
+                                                    db.collection("loc_quests").document((String) quest)
+                                                            .update("popularity", String.valueOf(Integer.parseInt((String) document.get("popularity"))) + 1);
+                                                } else {
+                                                    Log.d("ERROR", "Failed with: ", task.getException());
+                                                }
+                                            }
+                                        });
+
+                                        removeElaboratedQuest(key);
+                                    }
+                                }
+                            }
+                            // ==========================================
                         }
                     }
                 }
@@ -353,20 +429,140 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         return view;
     }
 
-    public void setMap(GoogleMap m) {
-        googleMap = m;
-    }
-
     @Override
     public boolean onMarkerClick(@NonNull Marker marker) {
-        dialogBuilder = new AlertDialog.Builder(requireActivity());
-        final View newQuestPopupView = getLayoutInflater().inflate(R.layout.marker_popup, null);
-
-        dialogBuilder.setView(newQuestPopupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
+        for(String id : hashMapMarker.keySet()) {
+            if(hashMapMarker.get(id).equals(marker)) {
+                if(user_loc_quests.containsKey(id)) {
+                    ((MainActivity) getActivity()).showLocQuestPopup(id, hashMapMarker, null);
+                    return false;
+                } else {
+                    Toast.makeText(requireContext(), "BELONGS TO AN ELABORATE QUESTS", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
         return false;
+    }
+
+    private void removeElaboratedQuest(String id) {
+        ((MainActivity) getActivity()).updateElaborateQuest(id);
+
+        if(elaborateQuestCompletedCheck(id) || elaborateQuestTimeLimitExceeded(id)) {
+            if(elaborateQuestCompletedCheck(id)) {
+                db.collection("elaborate_quests").document(id).update("popularity",
+                        String.valueOf((Integer.parseInt((String) user_elaborate_quests.get(id).get("popularity"))) + 1));
+
+                Task task1 = db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.getData().containsKey("ranking") && document.getData().containsKey("experience")) {
+                                int experience = Integer.parseInt((String) document.get("experience"))
+                                        + Integer.parseInt(((String) user_elaborate_quests.get(id).get("experience")));
+                                int current_level = Integer.parseInt((String) document.get("ranking"));
+                                db.collection("users").document(currentUser).update("experience", String.valueOf(experience));
+                                if(experience >= nextLevel(current_level))
+                                    db.collection("users").document(currentUser).update("ranking", String.valueOf(current_level + 1));
+                            } else {
+                                db.collection("users").document(currentUser).update("ranking", "1");
+                                db.collection("users").document(currentUser).update("experience", ((String) user_elaborate_quests.get(id).get("experience")));
+                                if(Integer.parseInt((String) user_elaborate_quests.get(id).get("experience")) >= nextLevel(1))
+                                    db.collection("users").document(currentUser).update("ranking", String.valueOf(2));
+                            }
+                        } else {
+                            Log.d("ERROR", "Failed with: ", task.getException());
+                        }
+                    }
+                });
+
+                Task task2 = db.collection("users").document(currentUser).collection("completed_elaborate_quests")
+                        .document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy:MM:dd:HH:mm");
+                            String currentDateandTime = sdf.format(new Date());
+
+                            Date date = null;
+                            try {
+                                date = sdf.parse(currentDateandTime);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+                            calendar.add(Calendar.HOUR, Integer.parseInt((String) user_elaborate_quests.get(id).get("cooldown")));
+
+                            if (document.exists()) {
+                                HashMap<String, Object> temp = new HashMap<>();
+                                temp.put("completed_num", (long) document.get("completed_num") + 1);
+                                temp.put("cooldown_until", calendar.getTime());
+                                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
+                                        .document(id).update(temp);
+                            } else {
+                                HashMap<String, Object> temp = new HashMap<>();
+                                temp.put("completed_num", 1);
+                                temp.put("cooldown_until", calendar.getTime());
+                                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
+                                        .document(id).set(temp);
+                            }
+                        } else {
+                            Log.d("ERROR", "Failed with: ", task.getException());
+                        }
+                    }
+                });
+
+                Tasks.whenAllComplete(task1, task2).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<List<Task<?>>> task) {
+                        user_elaborate_quests.remove(id);
+                    }
+                });
+            } else {
+                user_elaborate_quests.remove(id);
+            }
+
+            for(Object id_quest : ((HashMap) user_elaborate_quests.get(id).get("quests")).keySet()) {
+                Marker temp_marker = hashMapMarker.get(id_quest);
+                temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                hashMapMarker.put((String) id_quest, temp_marker);
+            }
+
+            db.collection("users").document(currentUser).collection("user_elaborate_quests")
+                    .document(id).delete();
+        }
+    }
+
+    private boolean elaborateQuestCompletedCheck(String id) {
+        HashMap elaborate_quest = user_elaborate_quests.get(id);
+        for(Object quest_id : ((HashMap) elaborate_quest.get("quests")).keySet()) {
+            HashMap quest = (HashMap) ((HashMap) user_elaborate_quests.get(id).get("quests")).get(quest_id);
+            if(! (boolean) quest.get("done"))
+                return false;
+        }
+        if (elaborate_quest.containsKey("meters") && elaborate_quest.get("meters") != null) {
+            if(Double.parseDouble(String.valueOf(elaborate_quest.get("meters_traveled"))) < Double.parseDouble(String.valueOf(elaborate_quest.get("meters"))))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean elaborateQuestTimeLimitExceeded(String id) {
+        HashMap elaborate_quest = user_elaborate_quests.get(id);
+        Date currentTime = Calendar.getInstance().getTime();
+        Date limit_date;
+        if(elaborate_quest.get("time") instanceof Timestamp)
+            limit_date = ((Timestamp) elaborate_quest.get("time")).toDate();
+        else
+            limit_date = (Date) elaborate_quest.get("time");
+        return currentTime.after(limit_date);
+    }
+
+    private int nextLevel(int current_level) {
+        return (int) (250 * Math.pow(current_level + 1, 2) - (250 * (current_level + 1)));
     }
 
     private String getOnTapLocationString(List<Address> addressList) {
@@ -443,40 +639,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         return s;
     }
 
-    private static int compareStringsPercentage(String s1, String s2) {
-        int percentage = 0;
-
-        int total = 0;
-        int fullMatch = 0;
-        // Check for each character at same location
-        total += charMatch(s1, s2);
-        fullMatch += charMatch(s1, s1);
-
-        // Calc percentage
-        percentage = (int) Math.round(total / (fullMatch / 100.0));
-        return percentage;
+    public void setMap(GoogleMap m) {
+        googleMap = m;
     }
-
-    private static int charMatch(String s1, String s2) {
-        char[] as1 = s1.toCharArray();
-        char[] as2 = s2.toCharArray();
-        int match = 0;
-        for (int i = 0; i < as1.length; i++) {
-            char c = as1[i];
-            if (i < as2.length) {
-                if (as2[i] == c) {
-                    match++;
-                }
-            }
-
-        }
-        return match;
-    }
-
-    /*@Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        boolean ret = ((MainActivity) requireActivity()).onNavigationItemSelected(item);
-        if(ret) ((DrawerLayout) view.findViewById(R.id.drawer)).closeDrawer(GravityCompat.START);
-        return ret;
-    }*/
 }
