@@ -494,26 +494,44 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 db.collection("elaborate_quests").document(id).update("popularity",
                         String.valueOf((Integer.parseInt((String) user_elaborate_quests.get(id).get("popularity"))) + 1));
 
-                Task task1 = db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                for(Object id_quest : ((HashMap) user_elaborate_quests.get(id).get("quests")).keySet()) {
+                    Marker temp_marker = hashMapMarker.get(id_quest);
+                    temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                    hashMapMarker.put((String) id_quest, temp_marker);
+                }
+
+                db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
-                            if (document.getData().containsKey("ranking") && document.getData().containsKey("experience")) {
-                                int experience = Integer.parseInt((String) document.get("experience"))
-                                        + Integer.parseInt(((String) user_elaborate_quests.get(id).get("experience")));
-                                int current_level = Integer.parseInt((String) document.get("ranking"));
-                                db.collection("users").document(currentUser).update("experience", String.valueOf(experience));
-                                if(experience >= nextLevel(current_level))
-                                    db.collection("users").document(currentUser).update("ranking", String.valueOf(current_level + 1));
-                            }
+
+                            db.collection("elaborate_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()) {
+                                        if(task.getResult().exists()) {
+                                            HashMap data = (HashMap) task.getResult().getData();
+
+                                            if (document.getData().containsKey("ranking") && document.getData().containsKey("experience")) {
+                                                double experience = Double.parseDouble((String) document.get("experience"))
+                                                        + Double.parseDouble(((String) data.get("experience")));
+                                                int current_level = Integer.parseInt((String) document.get("ranking"));
+                                                db.collection("users").document(currentUser).update("experience", String.valueOf(experience));
+                                                if(experience >= nextLevel(current_level))
+                                                    db.collection("users").document(currentUser).update("ranking", String.valueOf(current_level + 1));
+                                            }
+                                        }
+                                    }
+                                }
+                            });
                         } else {
                             Log.d("ERROR", "Failed with: ", task.getException());
                         }
                     }
                 });
 
-                Task task2 = db.collection("users").document(currentUser).collection("completed_elaborate_quests")
+                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
                         .document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -531,42 +549,40 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                             }
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTime(date);
-                            calendar.add(Calendar.HOUR, Integer.parseInt((String) user_elaborate_quests.get(id).get("cooldown")));
 
-                            if (document.exists()) {
-                                HashMap<String, Object> temp = new HashMap<>();
-                                temp.put("completed_num", (long) document.get("completed_num") + 1);
-                                temp.put("cooldown_until", calendar.getTime());
-                                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
-                                        .document(id).update(temp);
-                            } else {
-                                HashMap<String, Object> temp = new HashMap<>();
-                                temp.put("completed_num", 1);
-                                temp.put("cooldown_until", calendar.getTime());
-                                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
-                                        .document(id).set(temp);
-                            }
+                            db.collection("elaborate_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()) {
+                                        if(task.getResult().exists()) {
+                                            HashMap data = (HashMap) task.getResult().getData();
+                                            calendar.add(Calendar.HOUR, Integer.parseInt((String) data.get("cooldown")));
+
+                                            if (document.exists()) {
+                                                HashMap<String, Object> temp = new HashMap<>();
+                                                temp.put("completed_num", (long) document.get("completed_num") + 1);
+                                                temp.put("cooldown_until", calendar.getTime());
+                                                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
+                                                        .document(id).update(temp);
+                                            } else {
+                                                HashMap<String, Object> temp = new HashMap<>();
+                                                temp.put("completed_num", 1);
+                                                temp.put("cooldown_until", calendar.getTime());
+                                                db.collection("users").document(currentUser).collection("completed_elaborate_quests")
+                                                        .document(id).set(temp);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
                         } else {
                             Log.d("ERROR", "Failed with: ", task.getException());
                         }
                     }
                 });
-
-                Tasks.whenAllComplete(task1, task2).addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
-                    @Override
-                    public void onComplete(@NonNull Task<List<Task<?>>> task) {
-                        user_elaborate_quests.remove(id);
-                    }
-                });
-            } else {
-                user_elaborate_quests.remove(id);
             }
 
-            for(Object id_quest : ((HashMap) user_elaborate_quests.get(id).get("quests")).keySet()) {
-                Marker temp_marker = hashMapMarker.get(id_quest);
-                temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
-                hashMapMarker.put((String) id_quest, temp_marker);
-            }
+            user_elaborate_quests.remove(id);
 
             db.collection("users").document(currentUser).collection("user_elaborate_quests")
                     .document(id).delete();
@@ -599,8 +615,18 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     }
 
     private void updateLocQuestPopularity(String id) {
-        db.collection("loc_quests").document(id)
-                .update("popularity", String.valueOf(Integer.parseInt((String) user_loc_quests.get(id).get("popularity")) + 1));
+        db.collection("loc_quests").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    if(task.getResult().exists()) {
+                        HashMap data = (HashMap) task.getResult().getData();
+                        db.collection("loc_quests").document(id)
+                                .update("popularity", String.valueOf(Integer.parseInt((String) data.get("popularity")) + 1));
+                    }
+                }
+            }
+        });
     }
 
     @Override

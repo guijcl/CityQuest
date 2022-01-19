@@ -666,27 +666,30 @@ public class QuestsFragment extends Fragment {
                     if(task.isSuccessful()) {
                         if(task.getResult().isEmpty()) {
                             ElaborateQuest n_eq = null;
-                            int experience = 0;
+                            double experience = 0;
                             Date creation_date = Calendar.getInstance().getTime();
                             if(check2.get(0) && check2.get(1)) {
                                 experience += 50 * quests.size();
-                                experience += Integer.parseInt(meters.getText().toString()) * 0.1;
+                                experience += Integer.parseInt(meters.getText().toString()) * 0.05;
+                                experience *= 1.2;
                                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
                                         meters.getText().toString(), time.getText().toString(), "0",
                                         String.valueOf(experience), cooldown.getText().toString(), creation_date);
                             } else if(check2.get(0)) {
                                 experience += 50 * quests.size();
+                                experience *= 1.2;
                                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(), quests,
                                         time.getText().toString(), "0", String.valueOf(experience),
                                         cooldown.getText().toString(), creation_date);
                             } else if(check2.get(1)) {
-                                experience += Long.parseLong(meters.getText().toString()) * 0.1;
+                                experience += Long.parseLong(meters.getText().toString()) * 0.05;
+                                experience *= 1.2;
                                 n_eq = new ElaborateQuest(name.getText().toString(), desc.getText().toString(),
                                         meters.getText().toString(), time.getText().toString(), "0",
                                         String.valueOf(experience), cooldown.getText().toString(), creation_date);
                             }
 
-                            int finalExperience = experience;
+                            double finalExperience = experience;
                             db.collection("elaborate_quests")
                                     .add(n_eq)
                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

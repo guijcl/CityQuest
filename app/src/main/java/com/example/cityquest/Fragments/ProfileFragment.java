@@ -99,8 +99,8 @@ public class ProfileFragment extends Fragment {
         username.setText(Paper.book().read(Prevalent.UserUsernameKey));
         email.setText(Paper.book().read(Prevalent.UserEmailKey));
         decodeImage(profilePicture, Paper.book().read(Prevalent.ProfileImageKey));
-        followers.setText(Paper.book().read(Prevalent.followers));
-        following.setText(Paper.book().read(Prevalent.following));
+        //followers.setText(Paper.book().read(Prevalent.followers));
+        //following.setText(Paper.book().read(Prevalent.following));
 
         db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override

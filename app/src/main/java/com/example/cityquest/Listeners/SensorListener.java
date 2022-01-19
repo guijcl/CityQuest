@@ -44,7 +44,7 @@ public class SensorListener implements SensorEventListener {
 
         allowed = true;
 
-        timer = new CountDownTimer(2000, 1000)  {
+        timer = new CountDownTimer(3000, 1000)  {
             @Override
             public void onTick(long l) {}
 
@@ -66,8 +66,8 @@ public class SensorListener implements SensorEventListener {
             float delta = mAccCurrent - mAccLast;
             mAcc = mAcc * 0.9f + delta;
             if (mAcc > 40 && allowed) {
-                map.checkLocation();
                 allowed = false;
+                map.checkLocation();
                 timer.start();
             }
 
