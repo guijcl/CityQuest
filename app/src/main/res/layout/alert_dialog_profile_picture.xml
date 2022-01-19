@@ -5,7 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/alert_dialog_profilepic_shape"
+    android:background="@drawable/pop_ups_back"
     android:padding="40dp">
 
         <TextView
@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select my profile picture from..."
-            android:textColor="@color/textColor"
+            android:textColor="@color/white"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +48,7 @@
             android:layout_marginTop="8dp"
             android:text="Camera"
             android:textStyle="bold"
-            android:textColor="@color/textColor"
+            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="@+id/ADDPCamera"
             app:layout_constraintStart_toStartOf="@+id/ADDPCamera"
             app:layout_constraintTop_toBottomOf="@+id/ADDPCamera" />
@@ -60,7 +60,7 @@
             android:layout_marginTop="8dp"
             android:text="Gallery"
             android:textStyle="bold"
-            android:textColor="@color/textColor"
+            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="@+id/ADDPGallery"
             app:layout_constraintStart_toStartOf="@+id/ADDPGallery"
             app:layout_constraintTop_toBottomOf="@+id/ADDPGallery" />

@@ -114,6 +114,7 @@
                     android:layout_marginRight="15dp"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
+                    android:textColor="@color/white"
                     android:id="@+id/loc_quest_details"/>
                 <Button
                     android:layout_width="wrap_content"
@@ -121,6 +122,7 @@
                     android:layout_marginRight="5dp"
                     android:layout_weight="1"
                     android:text="Start Quest"
+                    android:textColor="@color/white"
                     android:id="@+id/start_local_quest"/>
             </LinearLayout>
 
@@ -154,6 +156,7 @@
                         android:layout_marginRight="5dp"
                         android:layout_weight="1"
                         android:text="More Details"
+                        android:textColor="@color/white"
                         android:id="@+id/elaborate_quest_details"/>
 
                     <Button
@@ -163,6 +166,7 @@
                         android:layout_marginRight="5dp"
                         android:layout_weight="1"
                         android:text="Start Quest"
+                        android:textColor="@color/white"
                         android:id="@+id/start_elaborate_quest"/>
                 </LinearLayout>
             </LinearLayout>
