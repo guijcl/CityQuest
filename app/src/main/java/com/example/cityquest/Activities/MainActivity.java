@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 if (hashMapMarker != null) {
                     Marker temp_marker = hashMapMarker.get(id);
                     temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
-                    hashMapMarker.put((String) id, temp_marker);
+                    hashMapMarker.put(id, temp_marker);
 
                     cancel_quest.setVisibility(View.GONE);
                     start_quest.setVisibility(View.VISIBLE);
