@@ -309,9 +309,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, competitive, "competitive")
                         .addToBackStack(null)
-                        .commit();
-                break;*/
+                        .commit();*/
                 Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();
+                break;
             case POS_SOCIAL:
                 SocialFragment social = new SocialFragment();
                 fragmentManager.beginTransaction()
@@ -324,9 +324,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 fragmentManager.beginTransaction()
                         .replace(R.id.frame_layout, settings, "settings")
                         .addToBackStack(null)
-                        .commit();
-                break;*/
+                        .commit();*/
+
                 Toast.makeText(this, "COMING SOON", Toast.LENGTH_SHORT).show();
+                break;
             case POS_ABOUT:
                 AboutFragment about = new AboutFragment();
                 fragmentManager.beginTransaction()
