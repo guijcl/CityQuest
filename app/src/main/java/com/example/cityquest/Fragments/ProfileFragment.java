@@ -102,12 +102,12 @@ public class ProfileFragment extends Fragment {
         //followers.setText(Paper.book().read(Prevalent.followers));
         //following.setText(Paper.book().read(Prevalent.following));
 
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        HashMap data = (HashMap) document.getData();
+                    if(task.getResult().exists()) {
+                        HashMap data = (HashMap) task.getResult().getData();
                         ranking.setText((String) data.get("ranking"));
                     }
                 }

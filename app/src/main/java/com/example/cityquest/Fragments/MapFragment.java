@@ -374,7 +374,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
         List<Address> addressList = null;
         try {
-            addressList = geocoder.getFromLocation(last_loc.getLatitude(), last_loc.getLongitude(), 4);
+            addressList = geocoder.getFromLocation(last_loc.getLatitude(), last_loc.getLongitude(), 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
