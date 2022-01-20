@@ -307,14 +307,14 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                                 DocumentSnapshot document = task.getResult();
                                                 if (document.getData().containsKey("ranking") && document.getData().containsKey("experience")) {
                                                     db.collection("users").document(currentUser)
-                                                            .update("experience", String.valueOf( Integer.parseInt((String) document.get("experience"))
-                                                                    + Integer.parseInt(((String) user_loc_quests.get(key).get("experience"))) )).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            .update("experience", String.valueOf( Double.parseDouble((String) document.get("experience"))
+                                                                    + Double.parseDouble(((String) user_loc_quests.get(key).get("experience"))) )).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             user_loc_quests.remove(key);
                                                         }
                                                     });
-                                                    if(Integer.parseInt((String) document.get("experience")) >= nextLevel(Integer.parseInt((String) document.get("ranking"))))
+                                                    if(Double.parseDouble((String) document.get("experience")) >= nextLevel(Integer.parseInt((String) document.get("ranking"))))
                                                         db.collection("users").document(currentUser).update("ranking", String.valueOf(Integer.parseInt((String) document.get("ranking")) + 1));
                                                 }
                                             } else {
@@ -396,9 +396,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     if(check) {
                         in_loc_quests = true;
 
-                        Marker temp_marker = hashMapMarker.get(key);
-                        temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
-                        hashMapMarker.put(key, temp_marker);
+                        if(hashMapMarker.containsKey(key)) {
+                            Marker temp_marker = hashMapMarker.get(key);
+                            temp_marker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                            hashMapMarker.put(key, temp_marker);
+                        }
 
                         db.collection("users").document(currentUser)
                                 .collection("user_loc_quests").document(key).delete();
@@ -431,14 +433,14 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                     DocumentSnapshot document = task.getResult();
                                     if (document.getData().containsKey("ranking") && document.getData().containsKey("experience")) {
                                         db.collection("users").document(currentUser)
-                                                .update("experience", String.valueOf( Integer.parseInt((String) document.get("experience"))
-                                                        + Integer.parseInt(((String) user_loc_quests.get(key).get("experience"))) )).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                .update("experience", String.valueOf( Double.parseDouble((String) document.get("experience"))
+                                                        + Double.parseDouble(((String) user_loc_quests.get(key).get("experience"))) )).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 user_loc_quests.remove(key);
                                             }
                                         });
-                                        if(Integer.parseInt((String) document.get("experience")) >= nextLevel(Integer.parseInt((String) document.get("ranking"))))
+                                        if(Double.parseDouble((String) document.get("experience")) >= nextLevel(Integer.parseInt((String) document.get("ranking"))))
                                             db.collection("users").document(currentUser).update("ranking", String.valueOf(Integer.parseInt((String) document.get("ranking")) + 1));
                                     }
                                 } else {
