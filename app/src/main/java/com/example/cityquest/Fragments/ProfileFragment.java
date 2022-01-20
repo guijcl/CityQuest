@@ -99,8 +99,8 @@ public class ProfileFragment extends Fragment {
         username.setText(Paper.book().read(Prevalent.UserUsernameKey));
         email.setText(Paper.book().read(Prevalent.UserEmailKey));
         decodeImage(profilePicture, Paper.book().read(Prevalent.ProfileImageKey));
-        //followers.setText(Paper.book().read(Prevalent.followers));
-        //following.setText(Paper.book().read(Prevalent.following));
+        followers.setText(Paper.book().read(Prevalent.followers));
+        following.setText(Paper.book().read(Prevalent.following));
 
         db.collection("users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -372,11 +372,9 @@ public class ProfileFragment extends Fragment {
                             Paper.book().write(Prevalent.ProfileImageKey, encodeImage(bitmapRounded));
 
                             //Atualizar a DB
-                            Map<String, Object> user = new HashMap<>();
-                            user.put("username", Paper.book().read(Prevalent.UserUsernameKey));
-                            user.put("email", Paper.book().read(Prevalent.UserEmailKey));
-                            user.put("profileImage", Paper.book().read(Prevalent.ProfileImageKey));
-                            documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            Map<String, Object> userProfilePhoto = new HashMap<>();
+                            userProfilePhoto.put("profileImage", Paper.book().read(Prevalent.ProfileImageKey));
+                            documentReference.update(userProfilePhoto).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
                                     Log.d("SUCCESS", "Profile Picture was updated successfully!");
