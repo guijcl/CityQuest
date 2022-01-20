@@ -74,8 +74,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int POS_QUESTS = 3;
     private static final int POS_COMPETITIVE = 4;
     private static final int POS_SOCIAL = 5;
-    private static final int POS_ABOUT = 6;
-    private static final int POS_LOG_OUT = 7;
+    private static final int POS_SETTINGS = 6;
+    private static final int POS_ABOUT = 7;
+    private static final int POS_LOG_OUT = 8;
 
     private String[] screenTitles;
     private Drawable[] screenIcons;
@@ -204,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             }
         });
 
-
         //----------------------------------------SIDE MENU-----------------------------------------
 
         slidingRootNav = new SlidingRootNavBuilder(this)
@@ -236,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 createItemFor(POS_QUESTS),
                 createItemFor(POS_COMPETITIVE),
                 createItemFor(POS_SOCIAL),
+                createItemFor(POS_SETTINGS),
                 createItemFor(POS_ABOUT),
                 new SpaceItem(40),
                 createItemFor(POS_LOG_OUT)
